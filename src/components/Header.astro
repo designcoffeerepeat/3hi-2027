@@ -161,19 +161,19 @@ const h = site.header;
   }
 
   /* Three square ended bars: white, yellow, white. When the menu opens
-     they turn into the 'xt - 1' close mark, which sits in exactly the same
-     spot: top bar to the white x arm, bottom bar to the cyan y arm and the
-     yellow middle bar to the second hand. */
+     they turn into the 'xt - 1' close mark, centred on the same spot as the
+     menu's own: top bar to the white x arm, bottom bar to the cyan y arm and
+     the yellow middle bar to the second hand. */
   .header__burger {
-    --bar-w: calc(var(--pill-h) * 0.7 - 30px);
-    /* The menu close mark: pill sized button, padded, 661 of 711 units */
-    --mark: calc(var(--pill-h) - 2 * clamp(8px, 0.8vw, 14px));
-    --arm: calc(var(--mark) * 661 / 711);
-    --stroke: calc(var(--mark) * 50 / 711);
+    --size: calc(var(--pill-h) * 0.7);
+    --bar-w: calc(var(--size) - 30px);
+    /* The 'x' stays inside the circle with room around it */
+    --arm: calc(var(--size) * 0.6);
+    --stroke: calc(var(--arm) * 50 / 661);
     position: relative;
     display: block;
-    width: calc(var(--pill-h) * 0.7);
-    height: calc(var(--pill-h) * 0.7);
+    width: var(--size);
+    height: var(--size);
     padding: 0;
     border: 0;
     border-radius: 50%;
@@ -271,9 +271,8 @@ const h = site.header;
     }
 
     .header__burger {
-      --bar-w: calc(var(--pill-h) - 36px);
-      width: var(--pill-h);
-      height: var(--pill-h);
+      --size: var(--pill-h);
+      --bar-w: calc(var(--size) - 36px);
     }
 
     /* Keep a comfortable tap target on phones */
