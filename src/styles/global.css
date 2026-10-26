@@ -15,9 +15,12 @@
   --font-mono: 'Cascadia Mono', ui-monospace, monospace;
   --font-wide: 'Special Gothic Expanded One', 'Poppins', sans-serif;
 
-  /* Gutters: 60px and 200px at 1920 */
-  --gutter: clamp(20px, 3.125vw, 60px);
-  --gutter-wide: clamp(20px, 10.42vw, 200px);
+  /* Gutters: 60px and 200px at 1920. On ultrawide screens content stays
+     inside a centred frame instead of stretching edge to edge. */
+  --frame: 2440px;
+  --gutter: max(clamp(20px, 3.125vw, 60px), calc((100vw - var(--frame)) / 2));
+  --gutter-wide: max(clamp(20px, 10.42vw, 200px), calc((100vw - 2000px) / 2));
+  --edge: max(clamp(16px, 2.6vw, 50px), calc((100vw - var(--frame)) / 2 - 10px));
 
   /* Type scale */
   --fs-display-xxl: clamp(64px, 15.6vw, 300px);
@@ -145,8 +148,10 @@ input {
   color: transparent;
 }
 
+/* Every section fills at least one browser height. */
 .section {
   position: relative;
+  min-height: 100svh;
 }
 
 /* Reveal on enter. JS adds .is-in; without JS everything shows. */

@@ -165,15 +165,33 @@ function updateStory(p: number, ms: number) {
   if (storyGL) {
     const r = story.getBoundingClientRect();
     const onScreen = r.bottom > 0 && r.top < vh;
-    if (onScreen && show < 1) storyGL.render(p, ms);
+    if (onScreen && show < 1) storyGL.render(p, ms, safeZone);
   }
+}
+
+// Horizontal band the hero clock may use without touching the hero copy:
+// from the end of the longest title line to the start of the copy column.
+let safeZone = { left: 0, right: 0 };
+function measureHero() {
+  if (!heroTitle || !heroCopy || window.innerWidth < 900) {
+    safeZone = { left: 0, right: window.innerWidth };
+    return;
+  }
+  const lines = [...heroTitle.querySelectorAll<HTMLElement>('.hero__line > span')];
+  const titleRight = Math.max(...lines.map((l) => l.offsetLeft + l.offsetWidth)) + heroTitle.offsetLeft;
+  safeZone = { left: titleRight, right: heroCopy.offsetLeft };
 }
 
 function sizeStage() {
   if (!stage) return;
   const w = window.innerWidth;
   const h = window.innerHeight;
-  stage.style.setProperty('--stage-scale', String(Math.max(w / 1920, h / 1080)));
+  // Fit the 1080 tall artboard to the screen height, but never let a narrow
+  // window squeeze it below 1400 artboard pixels wide.
+  const s = Math.min(h / 1080, w / 1400);
+  stage.style.setProperty('--stage-scale', String(s));
+  stage.style.setProperty('--stage-w', `${w / s}px`);
+  stage.style.setProperty('--stage-h', `${h / s}px`);
 }
 
 /* Interactive axis in the AI scan section */
@@ -254,7 +272,9 @@ function resize() {
   storyGL?.resize();
   axisGL?.resize();
   sizeStage();
+  measureHero();
 }
+document.fonts?.ready.then(measureHero);
 window.addEventListener('resize', resize);
 resize();
 

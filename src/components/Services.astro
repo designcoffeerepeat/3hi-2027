@@ -31,6 +31,9 @@ const { services } = Astro.props;
 
 <style>
   .services {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
     padding: clamp(80px, 7.3vw, 140px) var(--gutter-wide) clamp(96px, 8.3vw, 160px);
     background: var(--mist);
   }

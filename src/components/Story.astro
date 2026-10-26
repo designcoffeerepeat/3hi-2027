@@ -124,7 +124,7 @@ const heroWords = hero.title.split(' ');
 
   .hero__title {
     position: absolute;
-    left: calc(66 * var(--u));
+    left: max(calc(66 * var(--u)), var(--gutter));
     top: calc(50svh - 540 * var(--u) + 302 * var(--u));
     width: calc(862 * var(--u));
     font-weight: 600;
@@ -141,7 +141,7 @@ const heroWords = hero.title.split(' ');
   }
 
   .hero__line > span {
-    display: block;
+    display: inline-block;
     transform: translate3d(0, 105%, 0);
     animation: line-up 1.2s var(--ease-out) forwards;
     animation-delay: calc(0.15s + var(--i) * 0.09s);
@@ -155,7 +155,7 @@ const heroWords = hero.title.split(' ');
 
   .hero__copy {
     position: absolute;
-    left: calc(1417 * var(--u));
+    right: max(calc(84 * var(--u)), var(--gutter));
     top: calc(50svh - 540 * var(--u) + 613 * var(--u));
     width: max(calc(419 * var(--u)), 300px);
     display: flex;
@@ -199,18 +199,24 @@ const heroWords = hero.title.split(' ');
     opacity: 0;
   }
 
+  /* Laid out on the 1080 tall artboard. JS sets its width to fill the
+     screen at the current scale, so ultrawide and 4:3 screens keep every
+     element in view: centre pieces stay centred, the rest hug an edge. */
   .spot__stage {
+    /* On stages narrower than the 1920 artboard the sun and model slide
+       left a little so the paragraph on the right stays on black. */
+    --shift: max(0px, (1920px - var(--stage-w, 1920px)) * 0.35);
     position: absolute;
     left: 50%;
     top: 50%;
-    width: 1920px;
-    height: 1080px;
+    width: var(--stage-w, 1920px);
+    height: var(--stage-h, 1080px);
     transform: translate(-50%, -50%) scale(var(--stage-scale, 1));
   }
 
   .spot__sun {
     position: absolute;
-    left: 560px;
+    left: calc(50% - 400px - var(--shift));
     top: -400px;
     width: 800px;
     height: 800px;
@@ -237,37 +243,37 @@ const heroWords = hero.title.split(' ');
   }
 
   .spot__cloud--2 {
-    left: -407px;
-    top: 470px;
+    left: calc(50% - 1367px);
+    bottom: -574px;
     width: 2111px;
     opacity: 0.5;
     transform: scaleX(-1);
   }
 
   .spot__cloud--1 {
-    left: -28px;
-    top: 251px;
+    left: calc(50% - 988px);
+    bottom: -542px;
     width: 2443px;
   }
 
   .spot__cloud--3 {
-    left: -50px;
-    top: 826px;
+    left: calc(50% - 1010px);
+    bottom: -656px;
     width: 1623px;
   }
 
   .spot__overline {
     position: absolute;
-    left: 65px;
-    top: 479px;
+    left: max(65px, calc(50% - 1180px));
+    bottom: 586px;
     z-index: 2;
     color: var(--sun);
   }
 
   .spot__model {
     position: absolute;
-    left: 490px;
-    top: 60px;
+    left: calc(50% - 470px - var(--shift));
+    bottom: -17px;
     width: 981px;
     height: 1037px;
     z-index: 2;
@@ -282,8 +288,8 @@ const heroWords = hero.title.split(' ');
 
   .spot__title {
     position: absolute;
-    left: 42px;
-    top: 552px;
+    left: max(42px, calc(50% - 1200px));
+    bottom: 303px;
     z-index: 4;
     font-weight: 400;
     font-size: 300px;
@@ -301,9 +307,9 @@ const heroWords = hero.title.split(' ');
 
   .spot__text {
     position: absolute;
-    left: 1426px;
+    right: max(45px, calc(50% - 1200px));
     top: 140px;
-    width: 449px;
+    width: clamp(360px, calc(449px - var(--shift) / 2), 449px);
     z-index: 4;
     font-size: 20px;
     line-height: 2;
@@ -342,6 +348,12 @@ const heroWords = hero.title.split(' ');
       width: 100vw;
       height: 100svh;
       transform: translate(-50%, -50%);
+    }
+
+    .spot__cloud,
+    .spot__overline,
+    .spot__title {
+      bottom: auto;
     }
 
     .spot__sun {

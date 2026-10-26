@@ -129,10 +129,25 @@ export function createStory(canvas: HTMLCanvasElement) {
   }
 
   // progress: 0 at the top of the pinned story, 1 when it releases.
-  function render(progress: number, ms: number) {
+  function render(progress: number, ms: number, safe = { left: 0, right: w }) {
     const mobile = w < 900;
     const u = Math.min(w / 1920, h / 1080);
-    const S = mobile ? Math.min(w * 0.62, h * 0.32) : 661 * u;
+    let S = mobile ? Math.min(w * 0.62, h * 0.32) : 661 * u;
+    let cx0 = 0;
+    if (!mobile && safe.right > safe.left) {
+      // The second hand sweeps a full circle, so keep that circle (plus a
+      // margin) clear of the title and the copy column.
+      const margin = Math.max(24, 40 * u);
+      const span = safe.right - safe.left - margin * 2;
+      const fit = span / (1 + 50 / 661);
+      if (fit < S) S = Math.max(fit, 120);
+      const mid = (safe.left + safe.right) / 2 - w / 2;
+      const half = (S * (1 + 50 / 661)) / 2;
+      // Stay on the design's centre line when it is clear, else move into the gap.
+      const lo = safe.left - w / 2 + margin + half;
+      const hi = safe.right - w / 2 - margin - half;
+      cx0 = lo <= 0 && hi >= 0 ? 0 : lo <= hi ? Math.min(Math.max(0, lo), hi) : mid;
+    }
     const T = (S * 50) / 661;
     const cy0 = mobile ? h * 0.03 : -92 * u;
 
@@ -141,7 +156,7 @@ export function createStory(canvas: HTMLCanvasElement) {
     const c = easeInOut(smooth(0.47, 0.6, progress)); // arms leave
 
     const L = S * lerp(1, mobile ? 4.6 : 3.48, a);
-    clock.position.set(0, lerp(cy0, 0, a), 0);
+    clock.position.set(lerp(cx0, 0, a), lerp(cy0, 0, a), 0);
 
     const flood = Math.max(w, h) * 1.6;
     horiz.scale.set(Math.max(L + T, w * 1.2 * b + (L + T) * (1 - b)), lerp(T, flood, b), 1);
