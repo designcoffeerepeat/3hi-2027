@@ -40,6 +40,9 @@ const m = site.menu;
     z-index: 100;
     display: flex;
     flex-direction: column;
+    /* Exactly one browser window tall, so the email and studios stay in view */
+    height: 100vh;
+    height: 100dvh;
     padding: clamp(16px, 2.6vw, 50px) var(--edge);
     background: var(--ink);
     color: var(--paper);
@@ -92,9 +95,10 @@ const m = site.menu;
 
   .menu__nav {
     flex: 1;
+    min-height: 0;
     display: flex;
     align-items: center;
-    padding: clamp(24px, 4vw, 64px) 0;
+    padding: clamp(16px, 3svh, 48px) 0;
   }
 
   .menu__nav ul {
@@ -114,9 +118,9 @@ const m = site.menu;
     display: flex;
     align-items: baseline;
     gap: clamp(16px, 3vw, 60px);
-    padding: 0.08em 0;
+    padding: 0.2em 0;
     font-weight: 600;
-    font-size: clamp(40px, min(7.3vw, 8.4svh), 140px);
+    font-size: clamp(28px, min(5.2vw, 5.4svh), 100px);
     line-height: 1.05;
     text-transform: uppercase;
     transform: translate3d(0, 110%, 0);
