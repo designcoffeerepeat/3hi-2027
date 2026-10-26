@@ -34,10 +34,12 @@ const items = testimonials.items;
 
 <style>
   .quotes {
+    /* A short band, not a full screen; grows if the content needs it */
+    min-height: clamp(320px, 26vw, 500px);
     display: flex;
     align-items: center;
     gap: 120px;
-    padding: clamp(96px, 8.3vw, 160px) var(--gutter);
+    padding: clamp(48px, 3.75vw, 72px) var(--gutter);
     background: var(--mist);
   }
 
@@ -73,7 +75,7 @@ const items = testimonials.items;
     grid-area: 1 / 1;
     display: flex;
     flex-direction: column;
-    gap: 40px;
+    gap: clamp(20px, 1.6vw, 30px);
     opacity: 0;
     visibility: hidden;
     transition:
@@ -116,7 +118,26 @@ const items = testimonials.items;
   @media (max-width: 899px) {
     .quotes {
       flex-direction: column;
-      gap: 48px;
+      align-items: stretch;
+      justify-content: center;
+      gap: 32px;
+    }
+
+    .quotes__side {
+      flex: none;
+      flex-direction: row;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px 24px;
+    }
+
+    .quote__mark {
+      font-size: 88px;
+    }
+
+    /* The desktop 1100px flex basis would become a height in a column */
+    .quotes__track {
+      flex: none;
     }
   }
 </style>

@@ -21,6 +21,8 @@ const { clients } = Astro.props;
 
 <style>
   .clients {
+    /* A short band, not a full screen; grows if the content needs it */
+    min-height: clamp(320px, 26vw, 500px);
     display: flex;
     flex-direction: column;
     justify-content: center;
