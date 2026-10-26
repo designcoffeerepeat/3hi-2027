@@ -114,9 +114,11 @@ const heroWords = hero.title.split(' ');
   /* Artboard: x 845 to 1876, y -4 to 1261, 25% opacity, behind the sun */
   .story__three {
     position: absolute;
-    left: calc(50% - 115 * var(--u));
+    /* Grows a little with the hero text on screens wider than 16:9 */
+    --s: calc(1 + (var(--wide) - 1) * 0.6);
+    left: calc(50% - 115 * var(--u) * var(--s));
     top: calc(50svh - 544 * var(--u));
-    width: calc(1031 * var(--u));
+    width: calc(1031 * var(--u) * var(--s));
     opacity: 0.25;
     pointer-events: none;
   }
