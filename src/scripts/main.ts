@@ -28,8 +28,9 @@ function updateHeader(y: number) {
   toTop?.classList.toggle('is-on', y > window.innerHeight);
 }
 
-/* Header scan bar steps aside while the AI scan section is on screen */
-const scanSection = document.querySelector<HTMLElement>('#ai-scan');
+/* Header scan bar steps aside while the AI scan section or the footer
+   (which has its own scan bar) is on screen */
+const scanSections = [...document.querySelectorAll<HTMLElement>('#ai-scan, footer')];
 const headerNav = header?.querySelector<HTMLElement>('.header__nav');
 const headerRight = header?.querySelector<HTMLElement>('.header__right');
 function measureNav() {
@@ -38,10 +39,16 @@ function measureNav() {
   const w = headerRight.offsetWidth + parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight);
   headerNav.style.setProperty('--nav-short', `${Math.ceil(w)}px`);
 }
-if (scanSection && header) {
-  new IntersectionObserver(([e]) => header.classList.toggle('is-scan-away', e.isIntersecting), {
-    rootMargin: '-35% 0px -35% 0px',
-  }).observe(scanSection);
+if (header && scanSections.length) {
+  const inView = new Set<Element>();
+  const io = new IntersectionObserver(
+    (entries) => {
+      for (const e of entries) e.isIntersecting ? inView.add(e.target) : inView.delete(e.target);
+      header.classList.toggle('is-scan-away', inView.size > 0);
+    },
+    { rootMargin: '-35% 0px -35% 0px' },
+  );
+  scanSections.forEach((el) => io.observe(el));
 }
 
 /* Floating back to top button */
