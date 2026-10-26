@@ -81,6 +81,17 @@ const storyCanvas = document.querySelector<HTMLCanvasElement>('[data-story-gl]')
 const hero = story?.querySelector<HTMLElement>('[data-hero]');
 const heroTitle = hero?.querySelector<HTMLElement>('.hero__title');
 const heroCopy = hero?.querySelector<HTMLElement>('[data-hero-copy]');
+const heroThree = story?.querySelector<HTMLElement>('[data-hero-three]');
+const heroDown = hero?.querySelector<HTMLAnchorElement>('[data-hero-down]');
+if (reduced) heroThree?.querySelector('svg')?.pauseAnimations();
+// The down arrow plays the clock transition and lands on the Shopify spotlight
+heroDown?.addEventListener('click', (e) => {
+  if (!story) return;
+  e.preventDefault();
+  const y = story.offsetTop + (story.offsetHeight - window.innerHeight) * 0.96;
+  if (lenis) lenis.scrollTo(y, { duration: 3.2 });
+  else window.scrollTo({ top: y, behavior: reduced ? 'auto' : 'smooth' });
+});
 const spot = story?.querySelector<HTMLElement>('[data-spot]');
 const stage = story?.querySelector<HTMLElement>('[data-spot-stage]');
 const spotSun = story?.querySelector<HTMLElement>('[data-spot-sun]');
@@ -111,6 +122,12 @@ function updateStory(p: number, ms: number) {
   if (heroCopy) {
     heroCopy.style.translate = `0 ${-a * vh * 0.25}px`;
     heroCopy.style.opacity = String(1 - smooth(0.08, 0.26, p));
+  }
+  if (heroDown) heroDown.style.translate = `0 ${-a * vh * 0.3}px`;
+  if (heroDown) heroDown.style.opacity = p > 0 ? String(1 - smooth(0, 0.08, p)) : '';
+  if (heroThree) {
+    heroThree.style.translate = `0 ${-a * vh * 0.15}px`;
+    heroThree.style.opacity = String(0.25 * (1 - smooth(0.04, 0.22, p)));
   }
   if (hero) hero.style.visibility = p > 0.32 ? 'hidden' : '';
 

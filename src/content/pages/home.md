@@ -13,6 +13,7 @@ hero:
   button:
     label: "Talk to us"
     href: "/contact"
+  scrollLabel: "Scroll to the next section"
 
 spotlight:
   overline: "Shopify development · AI visibility · Store care"
