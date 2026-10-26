@@ -77,23 +77,41 @@ toTop?.addEventListener('click', (e) => {
 const menu = document.querySelector<HTMLElement>('[data-menu]');
 const openBtn = document.querySelector<HTMLButtonElement>('[data-menu-open]');
 const closeBtn = document.querySelector<HTMLButtonElement>('[data-menu-close]');
+// The burger bars first turn into the close mark, then the menu opens out
+// from that spot. Closing runs the same steps backwards.
+const MORPH = reduced ? 0 : 380;
+let menuTimer = 0;
 function openMenu() {
   if (!menu) return;
-  menu.hidden = false;
-  requestAnimationFrame(() => requestAnimationFrame(() => menu.classList.add('is-open')));
+  window.clearTimeout(menuTimer);
   openBtn?.setAttribute('aria-expanded', 'true');
+  if (openBtn) {
+    const r = openBtn.getBoundingClientRect();
+    menu.style.setProperty('--ox', `${r.left + r.width / 2}px`);
+    menu.style.setProperty('--oy', `${r.top + r.height / 2}px`);
+  }
   lenis?.stop();
   document.body.style.overflow = 'hidden';
-  closeBtn?.focus({ focusVisible: false } as FocusOptions);
+  menuTimer = window.setTimeout(() => {
+    menu.hidden = false;
+    requestAnimationFrame(() => requestAnimationFrame(() => menu.classList.add('is-open')));
+    closeBtn?.focus({ focusVisible: false } as FocusOptions);
+  }, MORPH);
 }
 function closeMenu() {
   if (!menu || menu.hidden) return;
+  window.clearTimeout(menuTimer);
   menu.classList.remove('is-open');
-  openBtn?.setAttribute('aria-expanded', 'false');
   document.body.style.overflow = '';
   lenis?.start();
-  window.setTimeout(() => (menu.hidden = true), reduced ? 0 : 700);
-  openBtn?.focus();
+  openBtn?.focus({ preventScroll: true });
+  menuTimer = window.setTimeout(
+    () => {
+      menu.hidden = true;
+      openBtn?.setAttribute('aria-expanded', 'false');
+    },
+    reduced ? 0 : 650,
+  );
 }
 openBtn?.addEventListener('click', openMenu);
 closeBtn?.addEventListener('click', closeMenu);

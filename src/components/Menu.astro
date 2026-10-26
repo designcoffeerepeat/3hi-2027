@@ -48,7 +48,7 @@ const m = site.menu;
     color: var(--paper);
     overflow-y: auto;
     overscroll-behavior: contain;
-    clip-path: circle(0% at calc(100% - 80px) 80px);
+    clip-path: circle(0% at var(--ox, calc(100% - 80px)) var(--oy, 80px));
     transition: clip-path 0.9s var(--ease-out);
   }
 
@@ -57,7 +57,7 @@ const m = site.menu;
   }
 
   .menu.is-open {
-    clip-path: circle(150% at calc(100% - 80px) 80px);
+    clip-path: circle(150% at var(--ox, calc(100% - 80px)) var(--oy, 80px));
   }
 
   .menu__top {

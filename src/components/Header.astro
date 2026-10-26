@@ -160,14 +160,21 @@ const h = site.header;
     transform-origin: left;
   }
 
+  /* Three square ended bars: white, yellow, white. When the menu opens
+     they turn into the 'xt - 1' close mark, which sits in exactly the same
+     spot: top bar to the white x arm, bottom bar to the cyan y arm and the
+     yellow middle bar to the second hand. */
   .header__burger {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 7px;
+    --bar-w: calc(var(--pill-h) * 0.7 - 30px);
+    /* The menu close mark: pill sized button, padded, 661 of 711 units */
+    --mark: calc(var(--pill-h) - 2 * clamp(8px, 0.8vw, 14px));
+    --arm: calc(var(--mark) * 661 / 711);
+    --stroke: calc(var(--mark) * 50 / 711);
+    position: relative;
+    display: block;
     width: calc(var(--pill-h) * 0.7);
     height: calc(var(--pill-h) * 0.7);
-    padding: 0 15px;
+    padding: 0;
     border: 0;
     border-radius: 50%;
     background: var(--ink);
@@ -175,19 +182,71 @@ const h = site.header;
   }
 
   .header__burger span {
-    display: block;
-    height: 2.8px;
-    border-radius: 100px;
+    --y: 0px;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: var(--bar-w);
+    height: 3px;
     background: var(--paper);
-    transition: transform 0.4s var(--ease-out);
+    translate: -50% calc(-50% + var(--y));
+    transition:
+      width 0.45s var(--ease-out),
+      height 0.45s var(--ease-out),
+      translate 0.45s var(--ease-out),
+      rotate 0.45s var(--ease-out),
+      background-color 0.3s;
   }
 
-  .header__burger:hover span:nth-child(1) {
-    transform: translateX(-4px);
+  .header__burger span:nth-child(1) {
+    --y: -10px;
+    z-index: 1;
   }
 
-  .header__burger:hover span:nth-child(3) {
-    transform: translateX(4px);
+  .header__burger span:nth-child(2) {
+    z-index: 3;
+    background: var(--sun);
+  }
+
+  .header__burger span:nth-child(3) {
+    --y: 10px;
+    z-index: 2;
+  }
+
+  /* y arm gradient, faded in as the bottom bar turns upright */
+  .header__burger span:nth-child(3)::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, #8066c7, #1c66b1 50%, #00cde4);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .header__burger:not([aria-expanded='true']):hover span:nth-child(1) {
+    translate: calc(-50% - 4px) calc(-50% + var(--y));
+  }
+
+  .header__burger:not([aria-expanded='true']):hover span:nth-child(3) {
+    translate: calc(-50% + 4px) calc(-50% + var(--y));
+  }
+
+  .header__burger[aria-expanded='true'] span {
+    --y: 0px;
+    width: var(--arm);
+    height: var(--stroke);
+  }
+
+  .header__burger[aria-expanded='true'] span:nth-child(2) {
+    rotate: -45deg;
+  }
+
+  .header__burger[aria-expanded='true'] span:nth-child(3) {
+    rotate: 90deg;
+  }
+
+  .header__burger[aria-expanded='true'] span:nth-child(3)::after {
+    opacity: 1;
   }
 
   @media (max-width: 1279px) {
@@ -212,9 +271,9 @@ const h = site.header;
     }
 
     .header__burger {
+      --bar-w: calc(var(--pill-h) - 36px);
       width: var(--pill-h);
       height: var(--pill-h);
-      padding: 0 18px;
     }
 
     /* Keep a comfortable tap target on phones */
