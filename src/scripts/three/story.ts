@@ -61,14 +61,15 @@ export const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
 const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 
-// Second hand: snaps 6 degrees each second with a small overshoot, like a quartz watch.
+// Second hand: snaps forward every half second with a small overshoot,
+// like a quartz watch, and still goes round once a minute.
 function tickAngle(ms: number) {
-  const s = ms / 1000;
+  const s = ms / 500;
   const whole = Math.floor(s);
-  const f = Math.min(1, (s - whole) / 0.18);
+  const f = Math.min(1, (s - whole) / 0.36);
   const c1 = 2.2;
   const back = 1 + (c1 + 1) * Math.pow(f - 1, 3) + c1 * Math.pow(f - 1, 2);
-  const step = (Math.PI * 2) / 60;
+  const step = (Math.PI * 2) / 120;
   return Math.PI / 4 - (whole + back) * step;
 }
 

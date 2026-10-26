@@ -55,11 +55,12 @@ const h = site.header;
 
   /* Scrolled: everything shrinks to half size */
   .header.is-compact {
-    padding-top: clamp(10px, 1.3vw, 25px);
+    padding-top: clamp(8px, 0.8vw, 16px);
+    padding-inline: max(clamp(8px, 0.8vw, 16px), calc((100vw - var(--frame)) / 2));
   }
 
   .header.is-compact > * {
-    scale: 0.5;
+    scale: 0.65;
   }
 
   .header__logo {
@@ -187,7 +188,7 @@ const h = site.header;
 
     /* Keep a comfortable tap target on phones */
     .header.is-compact > * {
-      scale: 0.72;
+      scale: 0.8;
     }
   }
 </style>
