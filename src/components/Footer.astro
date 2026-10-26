@@ -40,7 +40,20 @@ const f = site.footer;
     <a class="footer__logo" href="/" aria-label={`${site.brand} home`}><Logo /></a>
     <ul>
       <li>{f.legal.copyright}</li>
-      {f.legal.links.map((l: any) => <li><a href={l.href}>{l.label}</a></li>)}
+      {f.legal.links.map((l: any) =>
+        l.href === '#top' ? (
+          <li>
+            <a class="footer__top" href={l.href} data-footer-top>
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 20V4.5M5.5 11L12 4.5L18.5 11" stroke="currentColor" stroke-width="2.2" stroke-linecap="square" />
+              </svg>
+              {l.label}
+            </a>
+          </li>
+        ) : (
+          <li><a href={l.href}>{l.label}</a></li>
+        ),
+      )}
     </ul>
   </div>
 </footer>
@@ -150,11 +163,32 @@ const f = site.footer;
   .footer__legal ul {
     display: flex;
     flex-wrap: wrap;
-    gap: 16px 48px;
+    /* Row gap leaves room for the arrow above Back to top when it wraps */
+    gap: 30px 48px;
     font-size: 12px;
     line-height: 1.6;
     letter-spacing: 0.02em;
     text-transform: uppercase;
+  }
+
+  /* Back to top with a small yellow arrow sitting above the words */
+  .footer__top {
+    position: relative;
+    display: inline-block;
+  }
+
+  .footer__top svg {
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + 6px);
+    width: 14px;
+    translate: -50% 0;
+    color: var(--sun);
+    transition: translate 0.4s var(--ease-out);
+  }
+
+  .footer__top:hover svg {
+    translate: -50% -4px;
   }
 
   .footer__legal a:hover {

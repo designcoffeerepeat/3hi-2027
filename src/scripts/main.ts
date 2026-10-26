@@ -25,7 +25,8 @@ const scrollY = () => window.scrollY;
 const header = document.querySelector<HTMLElement>('[data-header]');
 function updateHeader(y: number) {
   header?.classList.toggle('is-compact', y > 120);
-  toTop?.classList.toggle('is-on', y > window.innerHeight);
+  // Hidden again at the very bottom, where the footer has its own link
+  toTop?.classList.toggle('is-on', y > window.innerHeight && !footerTopInView);
 }
 
 /* Header scan bar steps aside while the AI scan section or the footer
@@ -74,11 +75,18 @@ function updateToTopTone(ms: number) {
   }
   toTop.classList.toggle('is-on-dark', dark);
 }
-toTop?.addEventListener('click', (e) => {
-  e.preventDefault();
-  if (lenis) lenis.scrollTo(0, { duration: 2 });
-  else window.scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' });
-});
+const footerTop = document.querySelector<HTMLElement>('[data-footer-top]');
+let footerTopInView = false;
+if (footerTop) {
+  new IntersectionObserver(([e]) => (footerTopInView = e.isIntersecting)).observe(footerTop);
+}
+document.querySelectorAll<HTMLAnchorElement>('a[href="#top"]').forEach((a) =>
+  a.addEventListener('click', (e) => {
+    e.preventDefault();
+    if (lenis) lenis.scrollTo(0, { duration: 2 });
+    else window.scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' });
+  }),
+);
 
 /* Full screen menu */
 const menu = document.querySelector<HTMLElement>('[data-menu]');
