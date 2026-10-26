@@ -1,0 +1,90 @@
+---
+import Overline from './Overline.astro';
+
+interface Props {
+  intro: any;
+}
+const { intro } = Astro.props;
+const words = intro.text.split(' ');
+---
+<section class="section intro" aria-label={intro.overline}>
+  <div class="intro__top">
+    <Overline text={intro.overline} />
+    <p class="intro__text" data-scrub-words>
+      {words.map((w: string) => <span>{w} </span>)}
+    </p>
+  </div>
+  <div class="intro__stats">
+    {intro.stats.map((s: any, i: number) => (
+      <div class="stat" data-reveal style={`--reveal-delay:${i * 100}ms`}>
+        <p class="stat__value display-l" data-count={s.value}>{s.value}</p>
+        <p class="stat__label mono">{s.label}</p>
+      </div>
+    ))}
+  </div>
+</section>
+
+<style>
+  .intro {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(64px, 6.25vw, 120px);
+    padding: clamp(96px, 9.4vw, 180px) var(--gutter-wide) clamp(96px, 8.3vw, 160px);
+  }
+
+  .intro__top {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: clamp(32px, 6.25vw, 120px);
+    align-items: start;
+  }
+
+  .intro__text {
+    font-size: var(--fs-heading-xl);
+    line-height: 1.2;
+  }
+
+  .js .intro__text span {
+    opacity: 0.15;
+    transition: opacity 0.4s;
+  }
+
+  .js .intro__text span.is-on {
+    opacity: 1;
+  }
+
+  .intro__stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 40px;
+  }
+
+  .stat {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding-top: 28px;
+    border-top: 1px solid var(--ink);
+  }
+
+  .stat__label {
+    line-height: 1.2;
+  }
+
+  @media (max-width: 899px) {
+    .intro__top {
+      grid-template-columns: 1fr;
+    }
+
+    .intro__stats {
+      grid-template-columns: 1fr 1fr;
+      row-gap: 48px;
+    }
+  }
+
+  @media (max-width: 479px) {
+    .stat__label {
+      font-size: 11px;
+    }
+  }
+</style>

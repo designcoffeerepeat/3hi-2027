@@ -1,0 +1,121 @@
+---
+import Overline from './Overline.astro';
+
+interface Props {
+  testimonials: any;
+}
+const { testimonials } = Astro.props;
+const items = testimonials.items;
+---
+<section class="section quotes" aria-label={testimonials.overline} data-quotes>
+  <div class="quotes__side">
+    <Overline text={testimonials.overline} />
+    <p class="quotes__count mono" aria-hidden="true"><span data-quotes-current>01</span> / {String(items.length).padStart(2, '0')}</p>
+    {items.length > 1 && (
+      <div class="quotes__nav">
+        <button type="button" class="label" data-quotes-prev>Prev</button>
+        <button type="button" class="label" data-quotes-next>Next</button>
+      </div>
+    )}
+  </div>
+  <div class="quotes__track">
+    {items.map((q: any, i: number) => (
+      <figure class:list={['quote', { 'is-active': i === 0 }]} data-quote>
+        <span class="quote__mark" aria-hidden="true" data-speed="0.12">“</span>
+        <blockquote class="quote__text" data-reveal>{q.quote}</blockquote>
+        <figcaption class="quote__cite">
+          <span class="label">{q.name}</span>
+          <span class="quote__role">{q.role}</span>
+        </figcaption>
+      </figure>
+    ))}
+  </div>
+</section>
+
+<style>
+  .quotes {
+    display: flex;
+    gap: 120px;
+    padding: clamp(96px, 8.3vw, 160px) var(--gutter);
+    background: var(--mist);
+  }
+
+  .quotes__side {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+  }
+
+  .quotes__count {
+    color: var(--ink-60);
+  }
+
+  .quotes__nav {
+    display: flex;
+    gap: 20px;
+  }
+
+  .quotes__nav button {
+    border: 0;
+    background: none;
+    padding: 0;
+    cursor: pointer;
+  }
+
+  .quotes__track {
+    display: grid;
+    flex: 0 1 1100px;
+  }
+
+  .quote {
+    grid-area: 1 / 1;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity 0.6s,
+      visibility 0.6s;
+  }
+
+  .quote.is-active {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .quote__mark {
+    font-weight: 600;
+    font-size: clamp(120px, 10.4vw, 200px);
+    line-height: 0.6;
+    height: 0.45em;
+    color: var(--sun);
+  }
+
+  .quote__text {
+    font-size: var(--fs-quote);
+    line-height: 1.45;
+    letter-spacing: -0.01em;
+  }
+
+  .quote__cite {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .quote__role {
+    font-size: var(--fs-body-m);
+    line-height: 1.8;
+    color: var(--ink-60);
+  }
+
+  @media (max-width: 899px) {
+    .quotes {
+      flex-direction: column;
+      gap: 48px;
+    }
+  }
+</style>

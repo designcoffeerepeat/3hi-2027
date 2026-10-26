@@ -1,0 +1,427 @@
+---
+import Button from './Button.astro';
+
+// Hero and the Shopify spotlight share one pinned stage. On scroll the
+// 'xt - 1' clock grows, its black arm floods the screen and the spotlight
+// builds up on top (see "Hero to Section-Shopify" storyboard on the Mood page).
+interface Props {
+  hero: any;
+  spotlight: any;
+}
+const { hero, spotlight } = Astro.props;
+const heroWords = hero.title.split(' ');
+---
+<section class="story" id="top" data-story aria-label="Introduction">
+  <div class="story__sticky">
+    <canvas class="story__gl" data-story-gl aria-hidden="true"></canvas>
+    <!-- Fallback art for no WebGL or reduced motion -->
+    <div class="story__fallback" aria-hidden="true">
+      <span class="story__fallback-sun"></span>
+    </div>
+
+    <div class="hero" data-hero>
+      <h1 class="hero__title">
+        {heroWords.map((w: string, i: number) => (
+          <span class="hero__line" style={`--i:${i}`}><span>{w}</span></span>
+        ))}
+      </h1>
+      <div class="hero__copy" data-hero-copy>
+        <p class="hero__kicker">{hero.kicker}</p>
+        <p class="hero__text">{hero.text}</p>
+        <Button href={hero.button.href} label={hero.button.label} />
+      </div>
+    </div>
+
+    <div class="spot" data-spot>
+      <div class="spot__stage" data-spot-stage>
+        <div class="spot__clouds spot__clouds--back" data-spot-clouds="0.8">
+          <img class="spot__cloud spot__cloud--2" src={spotlight.clouds} alt="" width="2000" height="1122" loading="eager" decoding="async" />
+        </div>
+        <div class="spot__clouds" data-spot-clouds="1">
+          <img class="spot__cloud spot__cloud--1" src={spotlight.clouds} alt="" width="2000" height="1122" loading="eager" decoding="async" />
+        </div>
+        <span class="spot__sun" data-spot-sun aria-hidden="true"></span>
+        <p class="spot__overline mono" data-spot-overline>{spotlight.overline}</p>
+        <div class="spot__model" data-spot-model>
+          <img src={spotlight.image} alt={spotlight.imageAlt} width="1382" height="1437" loading="eager" decoding="async" />
+        </div>
+        <div class="spot__clouds spot__clouds--front" data-spot-clouds="1.25">
+          <img class="spot__cloud spot__cloud--3" src={spotlight.clouds} alt="" width="2000" height="1122" loading="eager" decoding="async" />
+        </div>
+        <h2 class="spot__title" data-spot-title>
+          {spotlight.title.split('').map((c: string, i: number) => <span style={`--i:${i}`}>{c}</span>)}
+        </h2>
+        <p class="spot__text" data-spot-text>{spotlight.text}</p>
+      </div>
+    </div>
+  </div>
+</section>
+<div class="spot-after" aria-hidden="true">
+  <p>{spotlight.text}</p>
+</div>
+
+<style>
+  .story {
+    /* 1 design pixel on the 1920 x 1080 artboard */
+    --u: min(calc(100vw / 1920), calc(100svh / 1080));
+    position: relative;
+    height: 520svh;
+    background: var(--paper);
+  }
+
+  .story__sticky {
+    position: sticky;
+    top: 0;
+    height: 100svh;
+    overflow: hidden;
+  }
+
+  .story__gl,
+  .story__fallback {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .story__fallback {
+    display: none;
+  }
+
+  .no-webgl .story__gl {
+    display: none;
+  }
+
+  .no-webgl .story__fallback {
+    display: block;
+    background:
+      url('/images/xt.svg') center 58% / min(34vw, 61svh) no-repeat;
+  }
+
+  .story__fallback-sun {
+    position: absolute;
+    left: -10vw;
+    bottom: -40vw;
+    width: 60vw;
+    height: 60vw;
+    border-radius: 50%;
+    background: radial-gradient(circle at 25% 75%, #ff975e, #ffd600 48%, #ffc5fe);
+    filter: blur(80px);
+    opacity: 0.5;
+  }
+
+  /* Hero */
+  .hero {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  .hero a {
+    pointer-events: auto;
+  }
+
+  .hero__title {
+    position: absolute;
+    left: calc(66 * var(--u));
+    top: calc(50svh - 540 * var(--u) + 302 * var(--u));
+    width: calc(862 * var(--u));
+    font-weight: 600;
+    font-size: calc(155 * var(--u));
+    line-height: 0.75;
+    text-transform: uppercase;
+  }
+
+  .hero__line {
+    display: block;
+    overflow: hidden;
+    padding-top: 0.12em;
+    margin-top: -0.12em;
+  }
+
+  .hero__line > span {
+    display: block;
+    transform: translate3d(0, 105%, 0);
+    animation: line-up 1.2s var(--ease-out) forwards;
+    animation-delay: calc(0.15s + var(--i) * 0.09s);
+  }
+
+  @keyframes line-up {
+    to {
+      transform: none;
+    }
+  }
+
+  .hero__copy {
+    position: absolute;
+    left: calc(1417 * var(--u));
+    top: calc(50svh - 540 * var(--u) + 613 * var(--u));
+    width: max(calc(419 * var(--u)), 300px);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: calc(50 * var(--u));
+    font-size: max(calc(20 * var(--u)), 15px);
+    line-height: 2;
+  }
+
+  .hero__copy > :global(*) {
+    opacity: 0;
+    animation: fade-in 1.2s var(--ease-out) 0.6s forwards;
+  }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+      transform: translate3d(0, 24px, 0);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .hero__kicker {
+    font-weight: 600;
+    text-transform: uppercase;
+    line-height: 1.2;
+  }
+
+  /* Spotlight / Shopify */
+  .spot {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    background: var(--ink);
+    color: var(--paper);
+    visibility: hidden;
+    opacity: 0;
+  }
+
+  .spot__stage {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 1920px;
+    height: 1080px;
+    transform: translate(-50%, -50%) scale(var(--stage-scale, 1));
+  }
+
+  .spot__sun {
+    position: absolute;
+    left: 560px;
+    top: -400px;
+    width: 800px;
+    height: 800px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 23.9% 88.2%, #ff975e 0%, #ffd600 40.4%, #ffc5fe 84.1%);
+    z-index: 1;
+  }
+
+  .spot__clouds {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+
+  .spot__clouds--front {
+    z-index: 3;
+  }
+
+  .spot__cloud {
+    position: absolute;
+    max-width: none;
+    height: auto;
+    pointer-events: none;
+  }
+
+  .spot__cloud--2 {
+    left: -407px;
+    top: 470px;
+    width: 2111px;
+    opacity: 0.5;
+    transform: scaleX(-1);
+  }
+
+  .spot__cloud--1 {
+    left: -28px;
+    top: 251px;
+    width: 2443px;
+  }
+
+  .spot__cloud--3 {
+    left: -50px;
+    top: 826px;
+    width: 1623px;
+  }
+
+  .spot__overline {
+    position: absolute;
+    left: 65px;
+    top: 479px;
+    z-index: 2;
+    color: var(--sun);
+  }
+
+  .spot__model {
+    position: absolute;
+    left: 490px;
+    top: 60px;
+    width: 981px;
+    height: 1037px;
+    z-index: 2;
+  }
+
+  .spot__model img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+  }
+
+  .spot__title {
+    position: absolute;
+    left: 42px;
+    top: 552px;
+    z-index: 4;
+    font-weight: 400;
+    font-size: 300px;
+    line-height: 0.75;
+    letter-spacing: 0;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--paper);
+    mix-blend-mode: exclusion;
+  }
+
+  .spot__title span {
+    display: inline-block;
+  }
+
+  .spot__text {
+    position: absolute;
+    left: 1426px;
+    top: 140px;
+    width: 449px;
+    z-index: 4;
+    font-size: 20px;
+    line-height: 2;
+  }
+
+  .spot-after {
+    display: none;
+  }
+
+  /* Tablet and phone */
+  @media (max-width: 899px) {
+    .story {
+      height: 480svh;
+    }
+
+    .hero__title {
+      left: var(--gutter);
+      right: var(--gutter);
+      top: calc(var(--header-h) + 3svh);
+      width: auto;
+      font-size: clamp(56px, 17vw, 120px);
+    }
+
+    .hero__copy {
+      left: var(--gutter);
+      right: var(--gutter);
+      top: auto;
+      bottom: max(5svh, 24px);
+      width: auto;
+      gap: 18px;
+      font-size: 15px;
+      line-height: 1.8;
+    }
+
+    .spot__stage {
+      width: 100vw;
+      height: 100svh;
+      transform: translate(-50%, -50%);
+    }
+
+    .spot__sun {
+      left: 50%;
+      top: calc(-45vw + 6svh);
+      width: 90vw;
+      height: 90vw;
+      margin-left: -45vw;
+    }
+
+    .spot__cloud--2 {
+      left: -60vw;
+      top: 52svh;
+      width: 180vw;
+    }
+
+    .spot__cloud--1 {
+      left: -30vw;
+      top: 58svh;
+      width: 190vw;
+    }
+
+    .spot__cloud--3 {
+      left: -40vw;
+      top: 78svh;
+      width: 150vw;
+    }
+
+    .spot__overline {
+      left: var(--gutter);
+      right: var(--gutter);
+      top: calc(44svh - 34px);
+      font-size: 11px;
+      text-align: center;
+      white-space: normal;
+      z-index: 5;
+    }
+
+    .spot__model {
+      left: 50%;
+      top: auto;
+      bottom: 0;
+      width: min(100vw, 72svh);
+      height: auto;
+      aspect-ratio: 981 / 1037;
+      transform: translateX(-50%);
+    }
+
+    .spot__model img {
+      object-position: top center;
+    }
+
+    .spot__title {
+      left: 0;
+      right: 0;
+      top: 44svh;
+      font-size: 21vw;
+      text-align: center;
+    }
+
+    .spot__text {
+      display: none;
+    }
+
+    .spot-after {
+      display: block;
+      background: var(--ink);
+      color: var(--paper);
+      padding: 48px var(--gutter) 24px;
+      font-size: 16px;
+      line-height: 1.9;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero__line > span,
+    .hero__copy > :global(*) {
+      animation: none;
+      transform: none;
+      opacity: 1;
+    }
+  }
+</style>

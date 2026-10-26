@@ -1,0 +1,46 @@
+---
+// The 'xt - 1' mark as a lightweight SVG with a ticking yellow second hand.
+// Used for the menu close button. The hero version is drawn in Three.js.
+interface Props {
+  class?: string;
+  ticking?: boolean;
+}
+const { class: className, ticking = true } = Astro.props;
+const gid = `xt-grad-${Math.random().toString(36).slice(2, 8)}`;
+---
+<svg class:list={['xt', { 'xt--ticking': ticking }, className]} viewBox="0 0 711 711" fill="none" aria-hidden="true">
+  <path class="xt__x" d="M686 355.5L25 355.5" stroke="currentColor" stroke-width="50" stroke-linecap="square" />
+  <path d="M355.5 25L355.5 686" stroke="#00CDE4" stroke-width="50" stroke-linecap="square" />
+  <path d="M355.5 25L355.5 686" stroke={`url(#${gid})`} stroke-opacity="0.5" stroke-width="50" stroke-linecap="square" />
+  <g class="xt__hand">
+    <path d="M589 122L122 589" stroke="#FFD600" stroke-width="50" stroke-linecap="square" />
+  </g>
+  <defs>
+    <linearGradient id={gid} x1="355.5" y1="25" x2="355.5" y2="686" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FF00AA" />
+      <stop offset="0.5" stop-color="#39007E" />
+      <stop offset="1" stop-color="#00CDE4" />
+    </linearGradient>
+  </defs>
+</svg>
+
+<style>
+  .xt {
+    overflow: visible;
+  }
+
+  .xt__hand {
+    transform-origin: 355.5px 355.5px;
+    transform-box: view-box;
+  }
+
+  .xt--ticking .xt__hand {
+    animation: xt-tick 60s steps(60) infinite;
+  }
+
+  @keyframes xt-tick {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+</style>

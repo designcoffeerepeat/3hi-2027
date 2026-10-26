@@ -1,0 +1,40 @@
+---
+// Mono overline used above every section title.
+interface Props {
+  text: string;
+  tone?: 'ink' | 'paper';
+  class?: string;
+}
+const { text, tone = 'ink', class: className } = Astro.props;
+---
+<p class:list={['overline mono', `overline--${tone}`, className]}>
+  <span class="overline__mark" aria-hidden="true"></span>
+  <span class="overline__text">{text}</span>
+</p>
+
+<style>
+  .overline {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    white-space: pre;
+  }
+
+  .overline__mark {
+    flex: none;
+    width: 10px;
+    height: 10px;
+    background: var(--sun);
+  }
+
+  .overline--paper {
+    color: var(--paper);
+  }
+
+  @media (max-width: 767px) {
+    .overline {
+      font-size: 12px;
+      white-space: normal;
+    }
+  }
+</style>

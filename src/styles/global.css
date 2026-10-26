@@ -1,0 +1,194 @@
+/* Design tokens from the 3hi 2027 Figma file (Components & Assets page).
+   Sizes are set for a 1920px artboard and scale down with clamp(). */
+:root {
+  --ink: #000;
+  --paper: #fff;
+  --mist: #f4f2ee;
+  --sun: #ffd600;
+  --sun-nav: #fed602;
+  --ink-60: #5c5c5c;
+  --cyan: #00d0ff;
+  --pink: #f7c7ff;
+  --grad-text: linear-gradient(90deg, var(--cyan) 0%, var(--pink) 49.5%, var(--sun) 100%);
+
+  --font-sans: 'Poppins', system-ui, sans-serif;
+  --font-mono: 'Cascadia Mono', ui-monospace, monospace;
+  --font-wide: 'Special Gothic Expanded One', 'Poppins', sans-serif;
+
+  /* Gutters: 60px and 200px at 1920 */
+  --gutter: clamp(20px, 3.125vw, 60px);
+  --gutter-wide: clamp(20px, 10.42vw, 200px);
+
+  /* Type scale */
+  --fs-display-xxl: clamp(64px, 15.6vw, 300px);
+  --fs-display-xl: clamp(52px, 8.07vw, 155px);
+  --fs-display-l: clamp(40px, 5.21vw, 100px);
+  --fs-hero: clamp(64px, 8.07vw, 155px);
+  --fs-heading-xl: clamp(28px, 3.33vw, 64px);
+  --fs-h2: clamp(30px, 2.6vw, 50px);
+  --fs-quote: clamp(22px, 1.875vw, 36px);
+  --fs-h3: clamp(22px, 1.5625vw, 30px);
+  --fs-body-l: clamp(16px, 1.04vw, 20px);
+  --fs-body-m: 16px;
+  --fs-label: 15px;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --header-h: clamp(84px, 10.6vw, 203px);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: auto;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: var(--fs-body-l);
+  line-height: 2;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+}
+
+img,
+svg,
+canvas {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+p,
+h1,
+h2,
+h3,
+ul,
+ol,
+figure,
+blockquote {
+  margin: 0;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+button,
+input {
+  font: inherit;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--sun);
+  outline-offset: 3px;
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.label {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: var(--fs-label);
+  line-height: 1;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.mono {
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  line-height: 1;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.display-xl {
+  font-weight: 400;
+  font-size: var(--fs-display-xl);
+  line-height: 0.75;
+  text-transform: uppercase;
+}
+
+.display-l {
+  font-weight: 400;
+  font-size: var(--fs-display-l);
+  line-height: 0.95;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.grad-text {
+  background: var(--grad-text);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.section {
+  position: relative;
+}
+
+/* Reveal on enter. JS adds .is-in; without JS everything shows. */
+.js [data-reveal] {
+  opacity: 0;
+  transform: translate3d(0, 48px, 0);
+  transition:
+    opacity 1s var(--ease-out),
+    transform 1.2s var(--ease-out);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+.js [data-reveal].is-in {
+  opacity: 1;
+  transform: none;
+}
+
+[data-speed] {
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .js [data-reveal] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+/* Lenis smooth scroll */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}

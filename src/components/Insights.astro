@@ -1,0 +1,119 @@
+---
+import Button from './Button.astro';
+import Overline from './Overline.astro';
+
+interface Props {
+  insights: any;
+}
+const { insights } = Astro.props;
+---
+<section class="section insights" aria-labelledby="insights-title">
+  <div class="insights__head">
+    <div class="insights__intro">
+      <Overline text={insights.overline} />
+      <h2 id="insights-title" class="display-xl" data-reveal data-speed="0.05">{insights.title}</h2>
+    </div>
+    <Button href={insights.button.href} label={insights.button.label} />
+  </div>
+  <div class="insights__grid">
+    {insights.posts.map((p: any, i: number) => (
+      <a class="post" href={p.href} data-reveal style={`--reveal-delay:${i * 120}ms`}>
+        <div class="post__media">
+          <img src={p.image} alt={p.imageAlt} loading="lazy" decoding="async" data-speed="-0.06" />
+        </div>
+        <p class="post__tag mono">{p.tag}</p>
+        <h3 class="post__title">{p.title}</h3>
+      </a>
+    ))}
+  </div>
+</section>
+
+<style>
+  .insights {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(48px, 4.2vw, 80px);
+    padding: clamp(96px, 8.3vw, 160px) var(--gutter);
+  }
+
+  .insights__head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 40px;
+  }
+
+  .insights__intro {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+
+  .insights__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 40px;
+  }
+
+  .post {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .post__media {
+    position: relative;
+    aspect-ratio: 573 / 430;
+    overflow: hidden;
+    background: var(--paper);
+  }
+
+  .post__media img {
+    position: absolute;
+    inset: -6% 0;
+    width: 100%;
+    height: 112%;
+    max-width: none;
+    object-fit: cover;
+    transition: scale 1s var(--ease-out);
+  }
+
+  .post:hover .post__media img {
+    scale: 1.05;
+  }
+
+  .post__tag {
+    white-space: pre;
+    color: var(--ink-60);
+  }
+
+  .post__title {
+    font-weight: 600;
+    font-size: var(--fs-h3);
+    line-height: 1.3;
+    transition: color 0.3s;
+  }
+
+  .post:hover .post__title {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 6px;
+    text-decoration-color: var(--sun);
+  }
+
+  @media (max-width: 899px) {
+    .insights__head {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .insights__grid {
+      grid-template-columns: 1fr;
+      gap: 56px;
+    }
+
+    .post__tag {
+      white-space: pre-wrap;
+    }
+  }
+</style>

@@ -1,0 +1,158 @@
+---
+import Overline from './Overline.astro';
+import Icon from './Icon.astro';
+
+interface Props {
+  services: any;
+}
+const { services } = Astro.props;
+---
+<section class="section services" aria-labelledby="services-title">
+  <div class="services__head">
+    <div class="services__intro">
+      <Overline text={services.overline} />
+      <h2 id="services-title" class="display-xl" data-reveal data-speed="0.05">{services.title}</h2>
+    </div>
+    <p class="services__text" data-reveal style="--reveal-delay:150ms">{services.text}</p>
+  </div>
+  <ul class="services__list">
+    {services.items.map((s: any) => (
+      <li data-reveal>
+        <a class="row" href={s.href}>
+          <span class="row__num mono">{s.number}</span>
+          <span class="row__title display-l">{s.title}</span>
+          <span class="row__text">{s.text}</span>
+          <span class="row__cta" aria-hidden="true"><Icon name="arrow" size={28} /></span>
+        </a>
+      </li>
+    ))}
+  </ul>
+</section>
+
+<style>
+  .services {
+    padding: clamp(80px, 7.3vw, 140px) var(--gutter-wide) clamp(96px, 8.3vw, 160px);
+    background: var(--mist);
+  }
+
+  .services__head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 40px;
+    padding-bottom: clamp(48px, 4.2vw, 80px);
+  }
+
+  .services__intro {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+
+  .services__text {
+    flex: 0 1 560px;
+  }
+
+  .row {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    padding: 48px 0;
+    border-top: 1px solid var(--ink);
+    isolation: isolate;
+  }
+
+  .row::before {
+    content: '';
+    position: absolute;
+    inset: 0 calc(-1 * var(--gutter-wide) / 3);
+    z-index: -1;
+    background: var(--sun);
+    transform: scaleY(0);
+    transform-origin: bottom;
+    transition: transform 0.5s var(--ease-out);
+  }
+
+  .row:hover::before {
+    transform: scaleY(1);
+  }
+
+  .row__num {
+    flex: 0 0 120px;
+  }
+
+  .row__title {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .row__text {
+    flex: 0 0 min(440px, 26vw);
+    font-size: var(--fs-body-m);
+    line-height: 1.8;
+    color: var(--ink-60);
+  }
+
+  .row:hover .row__text {
+    color: var(--ink);
+  }
+
+  .row__cta {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 84px;
+    height: 84px;
+    border-radius: 50%;
+    background: var(--ink);
+    color: var(--paper);
+    transition: transform 0.5s var(--ease-out);
+  }
+
+  .row:hover .row__cta {
+    transform: rotate(45deg);
+  }
+
+  @media (max-width: 1100px) {
+    .row__num {
+      flex-basis: 48px;
+    }
+  }
+
+  @media (max-width: 899px) {
+    .services__head {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      grid-template-areas:
+        'num cta'
+        'title title'
+        'text text';
+      gap: 16px;
+      padding: 32px 0;
+    }
+
+    .row__num {
+      grid-area: num;
+    }
+
+    .row__title {
+      grid-area: title;
+    }
+
+    .row__text {
+      grid-area: text;
+    }
+
+    .row__cta {
+      grid-area: cta;
+      width: 56px;
+      height: 56px;
+    }
+  }
+</style>

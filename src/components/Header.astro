@@ -1,0 +1,173 @@
+---
+import Logo from './Logo.astro';
+import ScanBar from './ScanBar.astro';
+
+interface Props {
+  site: any;
+}
+const { site } = Astro.props;
+const h = site.header;
+---
+<header class="header" data-header>
+  <a class="header__logo" href="/" aria-label={`${site.brand} home`}>
+    <Logo />
+  </a>
+  <div class="header__nav">
+    <ScanBar class="header__scan" variant="dark" id="scan-header" placeholder={h.scanPlaceholder} button={h.scanButton} />
+    <div class="header__right">
+      <nav class="header__links label" aria-label="Quick links">
+        {h.quickLinks.map((l: any) => <a href={l.href}>{l.label}</a>)}
+      </nav>
+      <button class="header__burger" type="button" aria-label={h.menuLabel} aria-expanded="false" aria-controls="site-menu" data-menu-open>
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<style>
+  .header {
+    --pill-h: clamp(64px, 5.21vw, 100px);
+    position: fixed;
+    inset: 0 0 auto 0;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding: clamp(16px, 2.6vw, 50px) clamp(16px, 2.6vw, 50px) 0;
+    pointer-events: none;
+    transition: transform 0.6s var(--ease-out);
+  }
+
+  .header.is-hidden {
+    transform: translate3d(0, -140%, 0);
+  }
+
+  .header > * {
+    pointer-events: auto;
+  }
+
+  .header__logo {
+    display: grid;
+    place-items: center;
+    flex: none;
+    height: var(--pill-h);
+    width: calc(var(--pill-h) * 2.17);
+    background: var(--ink);
+    border-radius: 300px;
+  }
+
+  .header__logo :global(.logo) {
+    width: 65.4%;
+  }
+
+  .header__nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    height: var(--pill-h);
+    width: min(1204px, 62.7vw);
+    padding: 0 calc(var(--pill-h) * 0.15) 0 20px;
+    background: var(--sun-nav);
+    border-radius: 300px;
+  }
+
+  .header__nav :global(.header__scan) {
+    flex: 0 1 671px;
+    height: calc(var(--pill-h) * 0.7);
+  }
+
+  .header__right {
+    display: flex;
+    align-items: center;
+    gap: 50px;
+    flex: none;
+  }
+
+  .header__links {
+    display: flex;
+    gap: 20px;
+  }
+
+  .header__links a {
+    position: relative;
+  }
+
+  .header__links a::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -6px;
+    height: 2px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.4s var(--ease-out);
+  }
+
+  .header__links a:hover::after {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+
+  .header__burger {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 7px;
+    width: calc(var(--pill-h) * 0.7);
+    height: calc(var(--pill-h) * 0.7);
+    padding: 0 15px;
+    border: 0;
+    border-radius: 50%;
+    background: var(--ink);
+    cursor: pointer;
+  }
+
+  .header__burger span {
+    display: block;
+    height: 2.8px;
+    border-radius: 100px;
+    background: var(--paper);
+    transition: transform 0.4s var(--ease-out);
+  }
+
+  .header__burger:hover span:nth-child(1) {
+    transform: translateX(-4px);
+  }
+
+  .header__burger:hover span:nth-child(3) {
+    transform: translateX(4px);
+  }
+
+  @media (max-width: 1279px) {
+    .header__nav :global(.header__scan) {
+      display: none;
+    }
+
+    .header__nav {
+      width: auto;
+      padding-left: 32px;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .header__nav {
+      background: none;
+      padding: 0;
+    }
+
+    .header__links {
+      display: none;
+    }
+
+    .header__burger {
+      width: var(--pill-h);
+      height: var(--pill-h);
+      padding: 0 18px;
+    }
+  }
+</style>

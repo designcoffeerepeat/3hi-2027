@@ -1,0 +1,192 @@
+---
+import Button from './Button.astro';
+import Overline from './Overline.astro';
+import Icon from './Icon.astro';
+
+interface Props {
+  work: any;
+}
+const { work } = Astro.props;
+---
+<section class="section work" aria-labelledby="work-title">
+  <div class="work__head">
+    <div class="work__intro">
+      <Overline text={work.overline} />
+      <h2 id="work-title" class="display-xl work__title" data-reveal data-speed="0.06">{work.title}</h2>
+    </div>
+    <div class="work__aside" data-reveal style="--reveal-delay:150ms">
+      <p>{work.text}</p>
+      <Button href={work.button.href} label={work.button.label} />
+    </div>
+  </div>
+  <div class="work__grid">
+    {work.cases.map((c: any, i: number) => (
+      <a class:list={['case', `case--${c.textColor ?? 'black'}`]} href={c.href} data-reveal style={`--reveal-delay:${(i % 2) * 120}ms`}>
+        <div class="case__media">
+          <img
+            class:list={['case__img', { 'case__img--contain': c.fit === 'contain' }]}
+            src={c.image}
+            alt={c.imageAlt}
+            loading="lazy"
+            decoding="async"
+            data-speed="-0.08"
+          />
+        </div>
+        <div class="case__txt">
+          <p class="case__services">{c.services}</p>
+          <h3 class="case__client">{c.client}</h3>
+        </div>
+        <p class="case__result label">
+          {c.result}
+          <Icon name="arrow" size={18} />
+        </p>
+      </a>
+    ))}
+  </div>
+</section>
+
+<style>
+  .work__head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 40px;
+    padding: clamp(80px, 7.3vw, 140px) var(--gutter) clamp(48px, 4.2vw, 80px);
+  }
+
+  .work__intro {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    min-width: 0;
+  }
+
+  .work__title {
+    font-size: clamp(48px, 6.77vw, 130px);
+    max-width: 9.6em;
+  }
+
+  .work__aside {
+    flex: 0 0 min(460px, 32vw);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 36px;
+  }
+
+  .work__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .case {
+    position: relative;
+    display: block;
+    aspect-ratio: 1;
+    overflow: hidden;
+    background: var(--mist);
+  }
+
+  .case__media {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+  }
+
+  .case__img {
+    position: absolute;
+    inset: -8% 0;
+    width: 100%;
+    height: 116%;
+    max-width: none;
+    object-fit: cover;
+    transition: scale 1.2s var(--ease-out);
+  }
+
+  .case__img--contain {
+    object-fit: contain;
+    object-position: center bottom;
+  }
+
+  .case:hover .case__img {
+    scale: 1.04;
+  }
+
+  .case__txt {
+    position: absolute;
+    top: clamp(20px, 2.9vw, 56px);
+    right: clamp(20px, 2.9vw, 56px);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: min(264px, 45%);
+  }
+
+  .case--white .case__txt {
+    color: var(--paper);
+  }
+
+  .case__services {
+    font-size: clamp(13px, 0.83vw, 16px);
+    line-height: 1.8;
+  }
+
+  .case__client {
+    font-weight: 600;
+    font-size: var(--fs-h2);
+    line-height: 1.1;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .case__result {
+    position: absolute;
+    left: clamp(20px, 2.9vw, 56px);
+    bottom: clamp(20px, 2.9vw, 56px);
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 22px;
+    border-radius: 300px;
+    background: var(--sun);
+    color: var(--ink);
+    transition:
+      background-color 0.3s,
+      color 0.3s;
+  }
+
+  .case__result :global(svg) {
+    transition: transform 0.4s var(--ease-out);
+  }
+
+  .case:hover .case__result {
+    background: var(--ink);
+    color: var(--sun);
+  }
+
+  .case:hover .case__result :global(svg) {
+    transform: rotate(45deg);
+  }
+
+  @media (max-width: 899px) {
+    .work__head {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .work__aside {
+      flex: none;
+      width: 100%;
+      max-width: 520px;
+    }
+
+    .work__grid {
+      grid-template-columns: 1fr;
+    }
+
+    .case__result {
+      font-size: 12px;
+      padding: 12px 18px;
+    }
+  }
+</style>

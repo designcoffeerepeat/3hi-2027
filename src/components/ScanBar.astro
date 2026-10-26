@@ -1,0 +1,134 @@
+---
+import Icon from './Icon.astro';
+
+// Free AI visibility scan input. Lead magnet used in the header, home and footer.
+// "dark" is the header version, "light" has the thick yellow ring.
+interface Props {
+  placeholder: string;
+  button: string;
+  variant?: 'dark' | 'light';
+  id: string;
+  class?: string;
+}
+const { placeholder, button, variant = 'light', id, class: className } = Astro.props;
+---
+<form class:list={['scan', `scan--${variant}`, className]} action="/ai-scan" method="get" data-scan>
+  <span class="scan__globe"><Icon name="globe" /></span>
+  <label class="visually-hidden" for={id}>Your website address</label>
+  <input
+    id={id}
+    class="scan__input label"
+    type="text"
+    name="url"
+    inputmode="url"
+    autocomplete="url"
+    placeholder={placeholder}
+  />
+  <button class="scan__btn" type="submit">
+    <span class="label">{button}</span>
+    <Icon name="scan" />
+  </button>
+</form>
+
+<style>
+  .scan {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    height: 70px;
+    width: min(671px, 100%);
+    padding: 11px 10px;
+    border-radius: 300px;
+  }
+
+  .scan--dark {
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  .scan--light {
+    background: var(--paper);
+    color: var(--ink);
+    box-shadow: 0 0 0 20px var(--sun);
+    margin: 20px;
+    width: min(671px, calc(100% - 40px));
+  }
+
+  .scan__globe {
+    flex: none;
+    padding: 0 10px;
+  }
+
+  .scan__input {
+    flex: 1;
+    min-width: 0;
+    align-self: center;
+    background: none;
+    border: 0;
+    border-bottom: 2px solid color-mix(in srgb, currentColor 25%, transparent);
+    padding: 8px 4px 10px;
+    text-align: center;
+    color: inherit;
+    outline: none;
+  }
+
+  .scan__input::placeholder {
+    color: inherit;
+    opacity: 1;
+  }
+
+  .scan__input:focus {
+    border-bottom-color: var(--sun);
+  }
+
+  .scan__input:focus::placeholder {
+    opacity: 0.35;
+  }
+
+  .scan__btn {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    height: 49px;
+    padding: 0 20px;
+    border: 0;
+    border-radius: 300px;
+    cursor: pointer;
+    transition:
+      background-color 0.3s,
+      color 0.3s;
+  }
+
+  .scan--dark .scan__btn {
+    background: var(--paper);
+    color: var(--ink);
+  }
+
+  .scan--light .scan__btn {
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  .scan__btn:hover {
+    background: var(--sun) !important;
+    color: var(--ink) !important;
+  }
+
+  @media (max-width: 520px) {
+    .scan__globe {
+      display: none;
+    }
+
+    .scan__btn {
+      padding: 0 14px;
+    }
+
+    .scan--light {
+      box-shadow: 0 0 0 12px var(--sun);
+      margin: 12px;
+      width: calc(100% - 24px);
+    }
+  }
+</style>

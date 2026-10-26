@@ -1,0 +1,170 @@
+---
+import Logo from './Logo.astro';
+import XtMark from './XtMark.astro';
+
+interface Props {
+  site: any;
+}
+const { site } = Astro.props;
+const m = site.menu;
+---
+<div class="menu" id="site-menu" role="dialog" aria-modal="true" aria-label="Site menu" hidden data-menu>
+  <div class="menu__top">
+    <a class="menu__logo" href="/" aria-label={`${site.brand} home`}><Logo /></a>
+    <button class="menu__close" type="button" aria-label={site.header.closeLabel} data-menu-close>
+      <XtMark />
+    </button>
+  </div>
+  <nav class="menu__nav" aria-label="Main">
+    <ul>
+      {m.links.map((l: any, i: number) => (
+        <li style={`--i:${i}`}>
+          <a href={l.href}>
+            <span class="menu__num mono">{String(i + 1).padStart(2, '0')}</span>
+            <span class="menu__label">{l.label}</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </nav>
+  <div class="menu__foot mono">
+    <a href={`mailto:${m.email}`}>{m.email}</a>
+    <span>{m.studios}</span>
+  </div>
+</div>
+
+<style>
+  .menu {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    padding: clamp(16px, 2.6vw, 50px);
+    background: var(--ink);
+    color: var(--paper);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    clip-path: circle(0% at calc(100% - 80px) 80px);
+    transition: clip-path 0.9s var(--ease-out);
+  }
+
+  .menu[hidden] {
+    display: none;
+  }
+
+  .menu.is-open {
+    clip-path: circle(150% at calc(100% - 80px) 80px);
+  }
+
+  .menu__top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-height: clamp(64px, 5.21vw, 100px);
+  }
+
+  .menu__logo {
+    display: block;
+    width: clamp(120px, 9.2vw, 177px);
+    padding-left: clamp(0px, 1.7vw, 33px);
+  }
+
+  .menu__close {
+    width: clamp(64px, 5.21vw, 100px);
+    height: clamp(64px, 5.21vw, 100px);
+    padding: clamp(8px, 0.8vw, 14px);
+    border: 0;
+    background: none;
+    color: var(--paper);
+    cursor: pointer;
+    transition: transform 0.6s var(--ease-out);
+  }
+
+  .menu__close :global(svg) {
+    width: 100%;
+    height: 100%;
+  }
+
+  .menu__close:hover {
+    transform: rotate(90deg);
+  }
+
+  .menu__nav {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    padding: clamp(24px, 4vw, 64px) 0;
+  }
+
+  .menu__nav ul {
+    width: 100%;
+  }
+
+  .menu__nav li {
+    overflow: hidden;
+    border-top: 1px solid rgb(255 255 255 / 0.15);
+  }
+
+  .menu__nav li:last-child {
+    border-bottom: 1px solid rgb(255 255 255 / 0.15);
+  }
+
+  .menu__nav a {
+    display: flex;
+    align-items: baseline;
+    gap: clamp(16px, 3vw, 60px);
+    padding: 0.08em 0;
+    font-weight: 600;
+    font-size: clamp(40px, min(7.3vw, 8.4svh), 140px);
+    line-height: 1.05;
+    text-transform: uppercase;
+    transform: translate3d(0, 110%, 0);
+    transition:
+      transform 0.9s var(--ease-out),
+      color 0.3s;
+    transition-delay: calc(0.15s + var(--i) * 0.05s), 0s;
+  }
+
+  .menu.is-open .menu__nav a {
+    transform: none;
+  }
+
+  .menu__num {
+    flex: none;
+    width: 3ch;
+    font-weight: 400;
+    color: var(--sun);
+  }
+
+  .menu__label {
+    transition: transform 0.5s var(--ease-out);
+  }
+
+  .menu__nav a:hover .menu__label {
+    background: var(--grad-text);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    transform: translateX(0.15em);
+  }
+
+  .menu__foot {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 16px;
+    font-size: 13px;
+  }
+
+  .menu__foot a:hover {
+    color: var(--sun);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .menu,
+    .menu__nav a {
+      transition: none;
+    }
+  }
+</style>

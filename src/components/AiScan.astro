@@ -1,0 +1,174 @@
+---
+import Icon from './Icon.astro';
+import ScanBar from './ScanBar.astro';
+
+interface Props {
+  scan: any;
+}
+const { scan } = Astro.props;
+---
+<section class="section ai" id="ai-scan" aria-labelledby="ai-title">
+  <div class="ai__visual" data-speed="0.04">
+    <canvas class="ai__gl" data-axis-gl aria-label="Interactive 3D axis. Drag to spin it." role="img"></canvas>
+    <img class="ai__fallback" src="/images/xt.svg" alt="" width="711" height="711" />
+    <p class="ai__hint mono" aria-hidden="true">{scan.hint}</p>
+  </div>
+  <div class="ai__copy">
+    <p class="ai__overline mono"><Icon name="scan" />{scan.overline}</p>
+    <h2 id="ai-title" class="ai__title" data-reveal>{scan.title}</h2>
+    <p class="ai__text" data-reveal style="--reveal-delay:120ms">{scan.text}</p>
+    <div class="ai__form" data-reveal style="--reveal-delay:220ms">
+      <ScanBar id="scan-home" placeholder={scan.placeholder} button={scan.button} />
+      <p class="ai__note">{scan.note}</p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .ai {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    min-height: clamp(720px, 72.9vw, 1400px);
+    padding: clamp(80px, 6vw, 120px) var(--gutter);
+    overflow: hidden;
+  }
+
+  /* Dot grid from the 'gridDotexp' component, left half only */
+  .ai::before {
+    content: '';
+    position: absolute;
+    inset: 0 50% 0 0;
+    background-image: radial-gradient(circle, rgb(0 0 0 / 0.25) 1.45px, transparent 1.6px);
+    background-size: 28.83px 28.83px;
+    background-position: 14px 14px;
+    pointer-events: none;
+  }
+
+  .ai__visual {
+    position: relative;
+    justify-self: center;
+    width: min(42vw, 820px);
+    aspect-ratio: 1;
+    cursor: grab;
+    touch-action: pan-y;
+  }
+
+  .ai__visual:active {
+    cursor: grabbing;
+  }
+
+  .ai__gl,
+  .ai__fallback {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .ai__fallback {
+    display: none;
+    padding: 10%;
+  }
+
+  :global(.no-webgl) .ai__gl {
+    display: none;
+  }
+
+  :global(.no-webgl) .ai__fallback {
+    display: block;
+  }
+
+  .ai__hint {
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    transform: translateX(-50%);
+    font-size: 12px;
+    color: var(--ink-60);
+    white-space: nowrap;
+    transition: opacity 0.6s;
+  }
+
+  .ai__visual.is-touched .ai__hint {
+    opacity: 0;
+  }
+
+  .ai__copy {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: clamp(28px, 2.6vw, 50px);
+    max-width: 767px;
+    min-width: 0;
+    justify-self: end;
+  }
+
+  .ai__overline {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    letter-spacing: 0;
+  }
+
+  .ai__title {
+    font-weight: 600;
+    font-size: var(--fs-display-l);
+    line-height: 1;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .ai__text {
+    max-width: 695px;
+  }
+
+  .ai__form {
+    width: 100%;
+    margin-top: clamp(0px, 2.6vw, 50px);
+  }
+
+  .ai__form :global(.scan) {
+    margin-left: 20px;
+  }
+
+  .ai__note {
+    margin: 22px 0 0 40px;
+    font-size: 10px;
+    line-height: 2;
+    text-transform: uppercase;
+  }
+
+  @media (max-width: 899px) {
+    .ai {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 32px;
+    }
+
+    .ai::before {
+      inset: 0 0 50% 0;
+    }
+
+    .ai__visual {
+      width: min(86vw, 520px);
+    }
+
+    .ai__copy {
+      justify-self: stretch;
+    }
+
+    .ai__title {
+      font-size: clamp(34px, 10vw, 64px);
+      letter-spacing: 0.04em;
+    }
+
+    .ai__form :global(.scan) {
+      margin-left: 12px;
+    }
+
+    .ai__note {
+      margin-left: 24px;
+    }
+  }
+</style>

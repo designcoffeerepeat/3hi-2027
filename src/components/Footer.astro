@@ -1,0 +1,172 @@
+---
+import Button from './Button.astro';
+import Logo from './Logo.astro';
+import Overline from './Overline.astro';
+import ScanBar from './ScanBar.astro';
+
+interface Props {
+  site: any;
+}
+const { site } = Astro.props;
+const f = site.footer;
+---
+<footer class="footer">
+  <div class="footer__cta">
+    <Overline text={f.overline} tone="paper" />
+    <p class="footer__title grad-text" data-speed-x="0.25">{f.title}</p>
+    <div class="footer__row">
+      <p class="footer__text">{f.text}</p>
+      <Button href={f.button.href} label={f.button.label} variant="yellow" />
+    </div>
+  </div>
+  <div class="footer__contact">
+    <a class="footer__email" href={`mailto:${f.email}`}>{f.email}</a>
+    <ScanBar id="scan-footer" placeholder={site.header.scanPlaceholder} button={site.header.scanButton} />
+  </div>
+  <hr class="footer__divider" />
+  <div class="footer__cols">
+    {f.columns.map((col: any) => (
+      <div class="footer__col">
+        <p class="mono">{col.title}</p>
+        <ul>
+          {col.links.map((l: any) => (
+            <li>{l.href ? <a href={l.href}>{l.label}</a> : <span>{l.label}</span>}</li>
+          ))}
+        </ul>
+      </div>
+    ))}
+  </div>
+  <div class="footer__legal">
+    <a class="footer__logo" href="/" aria-label={`${site.brand} home`}><Logo /></a>
+    <ul>
+      <li>{f.legal.copyright}</li>
+      {f.legal.links.map((l: any) => <li><a href={l.href}>{l.label}</a></li>)}
+    </ul>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(56px, 5.2vw, 100px);
+    padding: clamp(96px, 7.3vw, 140px) var(--gutter) 50px;
+    background: var(--ink);
+    color: var(--paper);
+    overflow: hidden;
+  }
+
+  .footer__cta {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+  }
+
+  .footer__title {
+    width: max-content;
+    font-weight: 600;
+    font-size: var(--fs-display-xxl);
+    line-height: 0.95;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .footer__row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 32px 60px;
+  }
+
+  .footer__text {
+    max-width: 520px;
+  }
+
+  .footer__contact {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 40px;
+  }
+
+  .footer__email {
+    font-weight: 600;
+    font-size: clamp(32px, 3.75vw, 72px);
+    line-height: 1.1;
+    text-decoration: underline;
+    text-decoration-thickness: 0.06em;
+    text-underline-offset: 0.12em;
+    transition: color 0.3s;
+  }
+
+  .footer__email:hover {
+    color: var(--sun);
+  }
+
+  .footer__divider {
+    width: 100%;
+    margin: 0;
+    border: 0;
+    border-top: 1px solid var(--paper);
+  }
+
+  .footer__cols {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 40px;
+  }
+
+  .footer__col {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .footer__col ul {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .footer__col a:hover {
+    color: var(--sun);
+  }
+
+  .footer__legal {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+  }
+
+  .footer__logo {
+    width: 216px;
+  }
+
+  .footer__legal ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px 48px;
+    font-size: 12px;
+    line-height: 1.6;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+
+  .footer__legal a:hover {
+    color: var(--sun);
+  }
+
+  @media (max-width: 899px) {
+    .footer__cols {
+      grid-template-columns: 1fr 1fr;
+      row-gap: 48px;
+    }
+
+    .footer__logo {
+      width: 160px;
+    }
+  }
+</style>
