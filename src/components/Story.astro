@@ -164,7 +164,8 @@ const heroWords = hero.title.split(' ');
     top: calc(50svh - 540 * var(--u) + 302 * var(--u));
     width: calc(862 * var(--u) * var(--wide));
     font-weight: 600;
-    font-size: calc(155 * var(--u) * var(--wide));
+    /* --title-fit (JS) shrinks the type when it would reach the clock */
+    font-size: calc(155 * var(--u) * var(--wide) * var(--title-fit, 1));
     line-height: 0.75;
     text-transform: uppercase;
   }
@@ -193,7 +194,7 @@ const heroWords = hero.title.split(' ');
     position: absolute;
     right: max(calc(84 * var(--u)), var(--gutter));
     top: calc(50svh - 540 * var(--u) + 500 * var(--u));
-    width: max(calc(419 * var(--u) * var(--wide)), 300px);
+    width: min(max(calc(419 * var(--u) * var(--wide)), 300px), var(--copy-max, 100vw));
     display: flex;
     flex-direction: column;
     align-items: flex-start;
@@ -233,7 +234,7 @@ const heroWords = hero.title.split(' ');
     position: absolute;
     left: max(calc(66 * var(--u)), var(--gutter));
     /* Just below the title, which grows on wide screens */
-    top: calc(50svh - 540 * var(--u) + (352 + 349 * var(--wide)) * var(--u));
+    top: calc(50svh - 540 * var(--u) + (352 + 349 * var(--wide) * var(--title-fit, 1)) * var(--u));
     display: grid;
     place-items: center;
     width: max(calc(64 * var(--u)), 44px);

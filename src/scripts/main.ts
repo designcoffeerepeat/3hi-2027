@@ -243,21 +243,34 @@ function updateStory(p: number, ms: number) {
   if (storyGL) {
     const r = story.getBoundingClientRect();
     const onScreen = r.bottom > 0 && r.top < vh;
-    if (onScreen && show < 1) storyGL.render(p, ms, safeZone);
+    if (onScreen && show < 1) storyGL.render(p, ms);
   }
 }
 
-// Horizontal band the hero clock may use without touching the hero copy:
-// from the end of the longest title line to the start of the copy column.
-let safeZone = { left: 0, right: 0 };
+// The hero clock always sits in the middle of the screen. Its second hand
+// sweeps a full circle, so the title and the copy are fitted to either side
+// of that circle (plus a margin) rather than the clock moving out of the way.
 function measureHero() {
-  if (!heroTitle || !heroCopy || window.innerWidth < 900) {
-    safeZone = { left: 0, right: window.innerWidth };
+  if (!story) return;
+  const w = window.innerWidth;
+  if (!heroTitle || !heroCopy || w < 900) {
+    story.style.removeProperty('--title-fit');
+    story.style.removeProperty('--copy-max');
     return;
   }
+  const u = Math.min(w / 1920, window.innerHeight / 1080);
+  const radius = (661 * u * (1 + 50 / 661)) / 2;
+  const margin = Math.max(24, 40 * u);
+  // Title: measure at full size, then scale the type down if it would cross
+  story.style.setProperty('--title-fit', '1');
   const lines = [...heroTitle.querySelectorAll<HTMLElement>('.hero__line > span')];
-  const titleRight = Math.max(...lines.map((l) => l.offsetLeft + l.offsetWidth)) + heroTitle.offsetLeft;
-  safeZone = { left: titleRight, right: heroCopy.offsetLeft };
+  const left = heroTitle.offsetLeft;
+  const natural = Math.max(...lines.map((l) => l.offsetLeft + l.offsetWidth));
+  const room = w / 2 - radius - margin - left;
+  story.style.setProperty('--title-fit', Math.min(1, room / natural).toFixed(3));
+  // Copy: narrow the column so it starts clear of the circle
+  const copyRight = heroCopy.offsetLeft + heroCopy.offsetWidth;
+  story.style.setProperty('--copy-max', `${Math.max(220, copyRight - (w / 2 + radius + margin))}px`);
 }
 
 function sizeStage() {
