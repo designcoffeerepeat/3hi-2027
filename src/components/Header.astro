@@ -78,6 +78,8 @@ const h = site.header;
   }
 
   .header__nav {
+    position: relative;
+    overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -112,10 +114,13 @@ const h = site.header;
   }
 
   .header.is-scan-away .header__nav :global(.header__scan) {
+    /* Out of the flow so it takes no room while the pill closes up */
+    position: absolute;
+    left: calc(var(--pill-h) * 0.15);
+    width: 671px;
     opacity: 0;
     translate: -40px 0;
     visibility: hidden;
-    overflow: hidden;
   }
 
   .header__right {
