@@ -91,6 +91,7 @@ const h = site.header;
     border-radius: 300px;
     transition:
       width 0.8s var(--ease-out),
+      padding 0.8s var(--ease-out),
       gap 0.8s var(--ease-out);
   }
 
@@ -108,7 +109,9 @@ const h = site.header;
   /* While the AI scan section is on screen the header scan bar steps
      aside and the yellow pill closes up around the links and menu. */
   .header.is-scan-away .header__nav {
-    width: var(--nav-short, auto);
+    /* Extra room on the left so Services does not hug the pill's edge */
+    width: calc(var(--nav-short, 0px) + var(--pill-h) * 0.25);
+    padding-left: calc(var(--pill-h) * 0.4);
     gap: 0;
     transition-delay: 0.12s;
   }
