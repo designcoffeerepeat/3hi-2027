@@ -52,6 +52,18 @@ const { label } = Astro.props;
     color: var(--ink);
   }
 
+  /* Over a black section: yellow with a black arrow, inverted on hover */
+  .to-top.is-on-dark {
+    background: var(--sun);
+    color: var(--ink);
+  }
+
+  .to-top.is-on-dark:hover {
+    background: var(--ink);
+    color: var(--sun);
+    box-shadow: inset 0 0 0 1.5px var(--sun);
+  }
+
   .to-top:hover svg {
     translate: 0 -3px;
   }

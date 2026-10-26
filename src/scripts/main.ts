@@ -46,6 +46,27 @@ if (scanSection && header) {
 
 /* Floating back to top button */
 const toTop = document.querySelector<HTMLAnchorElement>('[data-to-top]');
+// Finds the first solid background under the button's centre, so it can
+// switch to yellow over black sections.
+let toneCheck = 0;
+function updateToTopTone(ms: number) {
+  if (!toTop || !toTop.classList.contains('is-on') || ms - toneCheck < 120) return;
+  toneCheck = ms;
+  const r = toTop.getBoundingClientRect();
+  const stack = document.elementsFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+  let dark = false;
+  for (const el of stack) {
+    if (toTop.contains(el)) continue;
+    const cs = getComputedStyle(el);
+    const m = cs.backgroundColor.match(/[\d.]+/g);
+    if (!m) continue;
+    const [rr, gg, bb, a = '1'] = m;
+    if (Number(a) * Number(cs.opacity) < 0.5) continue;
+    dark = 0.2126 * +rr + 0.7152 * +gg + 0.0722 * +bb < 60;
+    break;
+  }
+  toTop.classList.toggle('is-on-dark', dark);
+}
 toTop?.addEventListener('click', (e) => {
   e.preventDefault();
   if (lenis) lenis.scrollTo(0, { duration: 2 });
@@ -315,6 +336,7 @@ function frame(ms: number) {
   lenis?.raf(ms);
   const y = scrollY();
   updateHeader(y);
+  updateToTopTone(ms);
   updateStory(storyProgress(), ms);
   updateParallax();
   updateScrub();
