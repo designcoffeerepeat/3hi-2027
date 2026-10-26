@@ -37,15 +37,29 @@ const h = site.header;
     gap: 24px;
     padding: clamp(16px, 2.6vw, 50px) var(--edge) 0;
     pointer-events: none;
-    transition: transform 0.6s var(--ease-out);
-  }
-
-  .header.is-hidden {
-    transform: translate3d(0, -140%, 0);
+    transition: padding 0.6s var(--ease-out);
   }
 
   .header > * {
     pointer-events: auto;
+    transition: scale 0.6s var(--ease-out);
+  }
+
+  .header__logo {
+    transform-origin: left center;
+  }
+
+  .header__nav {
+    transform-origin: right center;
+  }
+
+  /* Scrolled: everything shrinks to half size */
+  .header.is-compact {
+    padding-top: clamp(10px, 1.3vw, 25px);
+  }
+
+  .header.is-compact > * {
+    scale: 0.5;
   }
 
   .header__logo {
@@ -69,12 +83,13 @@ const h = site.header;
     gap: 24px;
     height: var(--pill-h);
     width: min(1204px, 62.7vw);
-    padding: 0 calc(var(--pill-h) * 0.15) 0 20px;
+    padding: 0 calc(var(--pill-h) * 0.15);
     background: var(--sun-nav);
     border-radius: 300px;
   }
 
   .header__nav :global(.header__scan) {
+    --scan-pad: calc(var(--pill-h) * 0.08);
     flex: 0 1 671px;
     height: calc(var(--pill-h) * 0.7);
   }
@@ -168,6 +183,11 @@ const h = site.header;
       width: var(--pill-h);
       height: var(--pill-h);
       padding: 0 18px;
+    }
+
+    /* Keep a comfortable tap target on phones */
+    .header.is-compact > * {
+      scale: 0.72;
     }
   }
 </style>

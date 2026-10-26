@@ -64,6 +64,9 @@ const heroWords = hero.title.split(' ');
   .story {
     /* 1 design pixel on the 1920 x 1080 artboard */
     --u: min(calc(100vw / 1920), calc(100svh / 1080));
+    /* Wider than 16:9: JS raises this (up to 1.35) so the hero text grows
+       into the extra width instead of staying sized to the height. */
+    --wide: 1;
     position: relative;
     height: 520svh;
     background: var(--paper);
@@ -121,9 +124,9 @@ const heroWords = hero.title.split(' ');
     position: absolute;
     left: max(calc(66 * var(--u)), var(--gutter));
     top: calc(50svh - 540 * var(--u) + 302 * var(--u));
-    width: calc(862 * var(--u));
+    width: calc(862 * var(--u) * var(--wide));
     font-weight: 600;
-    font-size: calc(155 * var(--u));
+    font-size: calc(155 * var(--u) * var(--wide));
     line-height: 0.75;
     text-transform: uppercase;
   }
@@ -152,12 +155,12 @@ const heroWords = hero.title.split(' ');
     position: absolute;
     right: max(calc(84 * var(--u)), var(--gutter));
     top: calc(50svh - 540 * var(--u) + 613 * var(--u));
-    width: max(calc(419 * var(--u)), 300px);
+    width: max(calc(419 * var(--u) * var(--wide)), 300px);
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     gap: calc(50 * var(--u));
-    font-size: max(calc(20 * var(--u)), 15px);
+    font-size: max(calc(20 * var(--u) * var(--wide)), 15px);
     line-height: 2;
   }
 

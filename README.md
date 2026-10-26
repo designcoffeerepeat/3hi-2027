@@ -34,6 +34,12 @@ In Cloudflare: Workers & Pages > Create > Pages > Connect to Git > pick `3hi-202
 
 Every push to `main` deploys to production; other branches get preview URLs.
 
+## The AI visibility scan
+
+Every scan bar on the site opens a full screen results modal. Its copy, steps and the six checks live under `scanModal` in `src/content/site.md`.
+
+A static site cannot read another website from the browser, so by default the modal shows a **demo result** built from the address alone. It is the same every time for the same address and is labelled as a demo. To run real scans, deploy an API and add `PUBLIC_SCAN_ENDPOINT` as a build variable in Cloudflare (see `.env.example` for the request and response shape). If the endpoint fails, the modal falls back to the demo.
+
 ## How the motion works
 
 - `src/scripts/three/story.ts`: the hero 'xt - 1' clock (the yellow arm ticks like a second hand), the blurred hero sun that breathes and drifts, and the scroll transition into the Shopify spotlight from the Mood page storyboard.

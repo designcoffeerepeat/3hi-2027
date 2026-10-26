@@ -1,0 +1,496 @@
+---
+import Logo from './Logo.astro';
+import XtMark from './XtMark.astro';
+import Icon from './Icon.astro';
+
+// Full screen results for the free AI visibility scan. Every scan bar on
+// the site opens it. Copy lives in src/content/site.md under scanModal.
+interface Props {
+  site: any;
+}
+const { site } = Astro.props;
+const m = site.scanModal;
+---
+<div
+  class="sm"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="sm-title"
+  hidden
+  data-scan-modal
+  data-state="scanning"
+  data-summaries={JSON.stringify(m.summaries)}
+  data-error={m.error}
+  data-lenis-prevent
+>
+  <div class="sm__top">
+    <a class="sm__logo" href="/" aria-label={`${site.brand} home`}><Logo /></a>
+    <button class="sm__close" type="button" aria-label={m.closeLabel} data-scan-close>
+      <XtMark />
+    </button>
+  </div>
+
+  <div class="sm__body">
+    <!-- While the scan runs -->
+    <div class="sm__scanning" aria-live="polite">
+      <div class="sm__xt"><XtMark /></div>
+      <p class="sm__label mono">{m.scanning}</p>
+      <p class="sm__host" data-scan-host></p>
+      <ol class="sm__steps mono" data-scan-steps>
+        {m.steps.map((s: string) => <li>{s}</li>)}
+      </ol>
+    </div>
+
+    <!-- Result -->
+    <div class="sm__result">
+      <div class="sm__main">
+        <p class="sm__label mono">{m.label}</p>
+        <p class="sm__url mono" data-scan-url></p>
+        <div class="sm__score">
+          <div class="sm__dial" data-scan-dial style="--v:0">
+            <svg viewBox="0 0 200 200" aria-hidden="true">
+              <circle cx="100" cy="100" r="88" pathLength="100"></circle>
+              <circle class="sm__arc" cx="100" cy="100" r="88" pathLength="100"></circle>
+            </svg>
+            <p><b data-scan-score>0</b><small>/100</small></p>
+          </div>
+          <div>
+            <p class="sm__label mono">{m.scoreLabel}</p>
+            <h2 class="sm__summary" id="sm-title" data-scan-summary></h2>
+          </div>
+        </div>
+        <p class="sm__demo" data-scan-demo>{m.demoNote}</p>
+        <div class="sm__ctas">
+          <a class="sm__btn sm__btn--yellow" href={m.button.href} data-scan-cta>
+            <span class="label">{m.button.label}</span>
+            <Icon name="arrow" />
+          </a>
+          <button class="sm__btn sm__btn--ghost" type="button" data-scan-again>
+            <span class="label">{m.again}</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="sm__checks">
+        <p class="sm__label mono">{m.checksTitle}</p>
+        <ul data-scan-checks>
+          {m.checks.map((c: any, i: number) => (
+            <li style={`--i:${i}`}>
+              <div class="sm__check-top">
+                <span>{c.label}</span>
+                <span class="mono" data-check-score>0/100</span>
+              </div>
+              <div class="sm__bar"><i data-check-bar></i></div>
+              <p class="sm__note">{c.note}</p>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .sm {
+    position: fixed;
+    inset: 0;
+    z-index: 110;
+    display: flex;
+    flex-direction: column;
+    padding: clamp(16px, 2.6vw, 50px) var(--edge);
+    background: var(--ink);
+    color: var(--paper);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    clip-path: inset(100% 0 0 0);
+    transition: clip-path 0.9s var(--ease-out);
+  }
+
+  .sm[hidden] {
+    display: none;
+  }
+
+  .sm.is-open {
+    clip-path: inset(0 0 0 0);
+  }
+
+  .sm__top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-height: clamp(64px, 5.21vw, 100px);
+  }
+
+  .sm__logo {
+    display: block;
+    width: clamp(120px, 9.2vw, 177px);
+    padding-left: clamp(0px, 1.7vw, 33px);
+  }
+
+  .sm__close {
+    width: clamp(64px, 5.21vw, 100px);
+    height: clamp(64px, 5.21vw, 100px);
+    padding: clamp(8px, 0.8vw, 14px);
+    border: 0;
+    background: none;
+    color: var(--paper);
+    cursor: pointer;
+    transition: transform 0.6s var(--ease-out);
+  }
+
+  .sm__close :global(svg) {
+    width: 100%;
+    height: 100%;
+  }
+
+  .sm__close:hover {
+    transform: rotate(90deg);
+  }
+
+  .sm__body {
+    flex: 1;
+    display: grid;
+    align-items: center;
+    padding: clamp(24px, 4vw, 64px) clamp(0px, 1.7vw, 33px);
+  }
+
+  .sm__scanning,
+  .sm__result {
+    grid-area: 1 / 1;
+    transition:
+      opacity 0.6s,
+      translate 0.9s var(--ease-out);
+  }
+
+  .sm[data-state='scanning'] .sm__result,
+  .sm[data-state='result'] .sm__scanning {
+    opacity: 0;
+    translate: 0 40px;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .sm__label {
+    color: var(--sun);
+    font-size: 13px;
+  }
+
+  /* Scanning */
+  .sm__scanning {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: clamp(16px, 2vw, 28px);
+  }
+
+  .sm__xt {
+    width: clamp(120px, 14vw, 240px);
+    aspect-ratio: 1;
+    margin-bottom: clamp(8px, 2vw, 32px);
+  }
+
+  .sm__xt :global(svg) {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* The second hand races while the scan runs */
+  .sm__xt :global(.xt__hand) {
+    animation-duration: 6s !important;
+  }
+
+  .sm__host {
+    max-width: 100%;
+    font-family: var(--font-wide);
+    font-size: clamp(28px, 5vw, 96px);
+    line-height: 1;
+    text-transform: uppercase;
+    overflow-wrap: anywhere;
+  }
+
+  .sm__steps {
+    display: grid;
+    gap: 10px;
+    padding: 0;
+    list-style: none;
+    font-size: 12px;
+    text-align: left;
+  }
+
+  .sm__steps li {
+    opacity: 0.25;
+    transition: opacity 0.4s;
+  }
+
+  .sm__steps li::before {
+    content: '';
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    margin-right: 12px;
+    border: 1.5px solid currentColor;
+    border-radius: 50%;
+    vertical-align: 1px;
+  }
+
+  .sm__steps li.is-on {
+    opacity: 1;
+  }
+
+  .sm__steps li.is-done::before {
+    background: var(--sun);
+    border-color: var(--sun);
+  }
+
+  /* Result */
+  .sm__result {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: clamp(40px, 6vw, 140px);
+    align-items: start;
+    width: 100%;
+    max-width: 2200px;
+    margin: 0 auto;
+  }
+
+  .sm__main {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: clamp(14px, 1.4vw, 24px);
+  }
+
+  .sm__url {
+    font-size: 12px;
+    opacity: 0.6;
+    letter-spacing: 0.1em;
+    text-transform: none;
+    word-break: break-all;
+  }
+
+  .sm__score {
+    display: flex;
+    align-items: center;
+    gap: clamp(24px, 2.6vw, 56px);
+    margin-block: clamp(8px, 1.4vw, 28px);
+  }
+
+  .sm__score .sm__label {
+    margin-bottom: 14px;
+  }
+
+  .sm__dial {
+    position: relative;
+    flex: none;
+    width: clamp(140px, 11vw, 240px);
+    aspect-ratio: 1;
+    display: grid;
+    place-items: center;
+  }
+
+  .sm__dial svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    rotate: -90deg;
+  }
+
+  .sm__dial circle {
+    fill: none;
+    stroke: rgb(255 255 255 / 0.14);
+    stroke-width: 10;
+  }
+
+  .sm__dial .sm__arc {
+    stroke: var(--sun);
+    stroke-dasharray: 100;
+    stroke-dashoffset: calc(100 - var(--v));
+    transition: stroke-dashoffset 1.4s var(--ease-out);
+  }
+
+  .sm__dial p {
+    display: flex;
+    align-items: baseline;
+    line-height: 1;
+  }
+
+  .sm__dial b {
+    font-family: var(--font-wide);
+    font-weight: 400;
+    font-size: clamp(40px, 3.4vw, 72px);
+  }
+
+  .sm__dial small {
+    font-size: 14px;
+    opacity: 0.6;
+    margin-left: 4px;
+  }
+
+  .sm__summary {
+    max-width: 20ch;
+    font-weight: 600;
+    font-size: clamp(26px, 2.3vw, 52px);
+    line-height: 1.05;
+    text-transform: uppercase;
+  }
+
+  .sm__demo {
+    max-width: 56ch;
+    padding: 12px 16px;
+    border: 1px dashed var(--sun);
+    border-radius: 14px;
+    background: color-mix(in srgb, var(--sun) 10%, transparent);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .sm__demo[hidden] {
+    display: none;
+  }
+
+  .sm__ctas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 8px;
+  }
+
+  .sm__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    height: 56px;
+    padding: 0 26px;
+    border: 1.5px solid transparent;
+    border-radius: 300px;
+    cursor: pointer;
+    transition:
+      background-color 0.3s,
+      color 0.3s,
+      border-color 0.3s;
+  }
+
+  .sm__btn--yellow {
+    background: var(--sun);
+    color: var(--ink);
+  }
+
+  .sm__btn--yellow:hover {
+    background: var(--paper);
+  }
+
+  .sm__btn--ghost {
+    background: none;
+    border-color: rgb(255 255 255 / 0.4);
+    color: var(--paper);
+  }
+
+  .sm__btn--ghost:hover {
+    border-color: var(--sun);
+    color: var(--sun);
+  }
+
+  .sm__checks ul {
+    display: grid;
+    margin-top: clamp(16px, 1.6vw, 28px);
+    padding: 0;
+    list-style: none;
+  }
+
+  .sm__checks li {
+    padding: clamp(14px, 1.2vw, 22px) 0;
+    border-top: 1px solid rgb(255 255 255 / 0.15);
+  }
+
+  .sm__checks li:last-child {
+    border-bottom: 1px solid rgb(255 255 255 / 0.15);
+  }
+
+  .sm[data-state='result'] .sm__checks li {
+    animation: sm-in 0.8s var(--ease-out) both;
+    animation-delay: calc(var(--i) * 80ms + 200ms);
+  }
+
+  .sm__check-top {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    font-weight: 500;
+    font-size: clamp(16px, 1.15vw, 22px);
+    line-height: 1.3;
+  }
+
+  .sm__check-top .mono {
+    flex: none;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+  }
+
+  .sm__bar {
+    height: 6px;
+    margin: 12px 0 10px;
+    border-radius: 6px;
+    background: rgb(255 255 255 / 0.12);
+    overflow: hidden;
+  }
+
+  .sm__bar i {
+    display: block;
+    height: 100%;
+    width: calc(var(--v, 0) * 1%);
+    border-radius: inherit;
+    background: var(--tone, var(--sun));
+    transition: width 1.2s var(--ease-out);
+    transition-delay: calc(var(--i) * 80ms + 300ms);
+  }
+
+  .sm__note {
+    font-size: 14px;
+    line-height: 1.5;
+    opacity: 0.6;
+  }
+
+  @keyframes sm-in {
+    from {
+      opacity: 0;
+      translate: 0 24px;
+    }
+  }
+
+  @media (max-width: 899px) {
+    .sm__body {
+      align-items: start;
+      padding-inline: 0;
+    }
+
+    .sm__scanning {
+      align-self: center;
+    }
+
+    .sm__result {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .sm__score {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .sm__btn {
+      flex: 1 1 auto;
+      justify-content: center;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sm,
+    .sm__scanning,
+    .sm__result,
+    .sm__bar i,
+    .sm__dial .sm__arc {
+      transition: none;
+    }
+  }
+</style>

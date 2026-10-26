@@ -1,6 +1,7 @@
 import Lenis from 'lenis';
 import { createStory, smooth, easeOut } from './three/story';
 import { createAxis } from './three/axis';
+import { initScan } from './scan';
 
 const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const root = document.documentElement;
@@ -20,16 +21,10 @@ if (!webgl) root.classList.add('no-webgl');
 const lenis = reduced ? null : new Lenis({ lerp: 0.1, wheelMultiplier: 0.9 });
 const scrollY = () => window.scrollY;
 
-/* Header: hide on the way down, show on the way up */
+/* Header: shrinks to half size once the page scrolls */
 const header = document.querySelector<HTMLElement>('[data-header]');
-let lastY = scrollY();
 function updateHeader(y: number) {
-  if (!header) return;
-  const down = y > lastY + 2;
-  const up = y < lastY - 2;
-  if (down && y > 200) header.classList.add('is-hidden');
-  else if (up || y < 200) header.classList.remove('is-hidden');
-  lastY = y;
+  header?.classList.toggle('is-compact', y > 120);
 }
 
 /* Full screen menu */
@@ -63,21 +58,8 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') closeMenu();
 });
 
-/* Scan forms are a demo: send everyone to the scan section with their URL */
-document.querySelectorAll<HTMLFormElement>('[data-scan]').forEach((form) => {
-  form.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const value = (form.querySelector('input') as HTMLInputElement).value;
-    const target = document.querySelector<HTMLInputElement>('#scan-home');
-    const section = document.querySelector<HTMLElement>('#ai-scan');
-    if (target && value) target.value = value;
-    if (section) {
-      if (lenis) lenis.scrollTo(section, { offset: -40 });
-      else section.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth' });
-    }
-    target?.focus({ preventScroll: true });
-  });
-});
+/* Every scan bar opens the AI visibility scan modal */
+initScan(lenis, reduced);
 
 /* Reveal on enter */
 const io = new IntersectionObserver(
@@ -183,9 +165,12 @@ function measureHero() {
 }
 
 function sizeStage() {
-  if (!stage) return;
   const w = window.innerWidth;
   const h = window.innerHeight;
+  // Measured against the content frame (3000px), not the whole screen.
+  const wide = w < 900 ? 1 : Math.min(1.35, Math.max(1, Math.min(w, 3000) / h / (16 / 9)));
+  story?.style.setProperty('--wide', wide.toFixed(3));
+  if (!stage) return;
   // Fit the 1080 tall artboard to the screen height, but never let a narrow
   // window squeeze it below 1400 artboard pixels wide.
   const s = Math.min(h / 1080, w / 1400);

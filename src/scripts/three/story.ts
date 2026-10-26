@@ -134,6 +134,7 @@ export function createStory(canvas: HTMLCanvasElement) {
     const u = Math.min(w / 1920, h / 1080);
     let S = mobile ? Math.min(w * 0.62, h * 0.32) : 661 * u;
     let cx0 = 0;
+    let reach = 0; // extra half length for the black arm on wide screens
     if (!mobile && safe.right > safe.left) {
       // The second hand sweeps a full circle, so keep that circle (plus a
       // margin) clear of the title and the copy column.
@@ -147,6 +148,11 @@ export function createStory(canvas: HTMLCanvasElement) {
       const lo = safe.left - w / 2 + margin + half;
       const hi = safe.right - w / 2 - margin - half;
       cx0 = lo <= 0 && hi >= 0 ? 0 : lo <= hi ? Math.min(Math.max(0, lo), hi) : mid;
+      // Wider than 16:9: the black arm reaches out into the extra white
+      // space, but stops short of the title and the copy.
+      const extra = Math.max(0, w - (h * 16) / 9) * 0.3;
+      const room = Math.min(cx0 + w / 2 - safe.left, safe.right - (cx0 + w / 2)) - margin - (S * (1 + 50 / 661)) / 2;
+      reach = Math.max(0, Math.min(extra, room));
     }
     const T = (S * 50) / 661;
     const cy0 = mobile ? h * 0.03 : -92 * u;
@@ -159,7 +165,8 @@ export function createStory(canvas: HTMLCanvasElement) {
     clock.position.set(lerp(cx0, 0, a), lerp(cy0, 0, a), 0);
 
     const flood = Math.max(w, h) * 1.6;
-    horiz.scale.set(Math.max(L + T, w * 1.2 * b + (L + T) * (1 - b)), lerp(T, flood, b), 1);
+    const arm = L + T + reach * 2 * (1 - a);
+    horiz.scale.set(Math.max(arm, w * 1.2 * b + arm * (1 - b)), lerp(T, flood, b), 1);
 
     vert.scale.set(T, L + T, 1);
     vert.position.x = lerp(0, -0.38 * w, b) - c * 0.5 * w;

@@ -38,7 +38,8 @@ const { placeholder, button, variant = 'light', id, class: className } = Astro.p
     gap: 12px;
     height: 70px;
     width: min(671px, 100%);
-    padding: 11px 10px;
+    /* Same inset on every side, so the button always sits evenly */
+    padding: var(--scan-pad, 10px);
     border-radius: 300px;
   }
 
@@ -91,7 +92,7 @@ const { placeholder, button, variant = 'light', id, class: className } = Astro.p
     display: inline-flex;
     align-items: center;
     gap: 10px;
-    height: 49px;
+    align-self: stretch;
     padding: 0 20px;
     border: 0;
     border-radius: 300px;

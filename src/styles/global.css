@@ -17,7 +17,7 @@
 
   /* Gutters: 60px and 200px at 1920. On ultrawide screens content stays
      inside a centred frame instead of stretching edge to edge. */
-  --frame: 2440px;
+  --frame: 3000px;
   --gutter: max(clamp(20px, 3.125vw, 60px), calc((100vw - var(--frame)) / 2));
   --gutter-wide: max(clamp(20px, 10.42vw, 200px), calc((100vw - 2000px) / 2));
   --edge: max(clamp(16px, 2.6vw, 50px), calc((100vw - var(--frame)) / 2 - 10px));

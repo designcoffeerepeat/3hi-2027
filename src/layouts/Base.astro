@@ -8,6 +8,7 @@ import '../styles/global.css';
 import { getEntry } from 'astro:content';
 import Header from '../components/Header.astro';
 import Menu from '../components/Menu.astro';
+import ScanModal from '../components/ScanModal.astro';
 import Footer from '../components/Footer.astro';
 
 interface Props {
@@ -37,6 +38,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
   <body>
     <Header site={site} />
     <Menu site={site} />
+    <ScanModal site={site} />
     <main>
       <slot />
     </main>
