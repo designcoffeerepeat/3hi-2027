@@ -25,7 +25,16 @@ const scrollY = () => window.scrollY;
 const header = document.querySelector<HTMLElement>('[data-header]');
 function updateHeader(y: number) {
   header?.classList.toggle('is-compact', y > 120);
+  toTop?.classList.toggle('is-on', y > window.innerHeight);
 }
+
+/* Floating back to top button */
+const toTop = document.querySelector<HTMLAnchorElement>('[data-to-top]');
+toTop?.addEventListener('click', (e) => {
+  e.preventDefault();
+  if (lenis) lenis.scrollTo(0, { duration: 2 });
+  else window.scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' });
+});
 
 /* Full screen menu */
 const menu = document.querySelector<HTMLElement>('[data-menu]');

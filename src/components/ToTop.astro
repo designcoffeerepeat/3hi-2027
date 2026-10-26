@@ -1,0 +1,64 @@
+---
+// Floating back to top button. Shows once the hero is out of view.
+interface Props {
+  label: string;
+}
+const { label } = Astro.props;
+---
+<a class="to-top" href="#top" aria-label={label} data-to-top>
+  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <path d="M12 20V4.5M5.5 11L12 4.5L18.5 11" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" />
+  </svg>
+</a>
+
+<style>
+  /* 3/4 of the menu button */
+  .to-top {
+    position: fixed;
+    right: var(--edge);
+    bottom: clamp(16px, 2.6vw, 50px);
+    z-index: 40;
+    display: grid;
+    place-items: center;
+    width: clamp(48px, 2.73vw, 52px);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: var(--ink);
+    color: var(--paper);
+    opacity: 0;
+    visibility: hidden;
+    translate: 0 16px;
+    transition:
+      opacity 0.4s,
+      visibility 0.4s,
+      translate 0.6s var(--ease-out),
+      background-color 0.3s,
+      color 0.3s;
+  }
+
+  .to-top.is-on {
+    opacity: 1;
+    visibility: visible;
+    translate: none;
+  }
+
+  .to-top svg {
+    width: 44%;
+    transition: translate 0.4s var(--ease-out);
+  }
+
+  .to-top:hover {
+    background: var(--sun);
+    color: var(--ink);
+  }
+
+  .to-top:hover svg {
+    translate: 0 -3px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .to-top {
+      transition: none;
+    }
+  }
+</style>

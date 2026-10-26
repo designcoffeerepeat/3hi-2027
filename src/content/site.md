@@ -3,6 +3,7 @@
 # Edit the text between the quotes. Keep the indentation as it is.
 
 brand: "3 Horizons Interactive"
+toTopLabel: "Back to top"
 
 header:
   scanPlaceholder: "Yourwebsite.com"
