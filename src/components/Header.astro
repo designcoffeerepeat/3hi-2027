@@ -87,12 +87,35 @@ const h = site.header;
     padding: 0 calc(var(--pill-h) * 0.15);
     background: var(--sun-nav);
     border-radius: 300px;
+    transition:
+      width 0.8s var(--ease-out),
+      gap 0.8s var(--ease-out);
   }
 
   .header__nav :global(.header__scan) {
     --scan-pad: calc(var(--pill-h) * 0.08);
     flex: 0 1 671px;
+    min-width: 0;
     height: calc(var(--pill-h) * 0.7);
+    transition:
+      opacity 0.35s,
+      translate 0.5s var(--ease-out),
+      visibility 0.35s;
+  }
+
+  /* While the AI scan section is on screen the header scan bar steps
+     aside and the yellow pill closes up around the links and menu. */
+  .header.is-scan-away .header__nav {
+    width: var(--nav-short, auto);
+    gap: 0;
+    transition-delay: 0.12s;
+  }
+
+  .header.is-scan-away .header__nav :global(.header__scan) {
+    opacity: 0;
+    translate: -40px 0;
+    visibility: hidden;
+    overflow: hidden;
   }
 
   .header__right {

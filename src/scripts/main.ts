@@ -28,6 +28,22 @@ function updateHeader(y: number) {
   toTop?.classList.toggle('is-on', y > window.innerHeight);
 }
 
+/* Header scan bar steps aside while the AI scan section is on screen */
+const scanSection = document.querySelector<HTMLElement>('#ai-scan');
+const headerNav = header?.querySelector<HTMLElement>('.header__nav');
+const headerRight = header?.querySelector<HTMLElement>('.header__right');
+function measureNav() {
+  if (!headerNav || !headerRight) return;
+  const cs = getComputedStyle(headerNav);
+  const w = headerRight.offsetWidth + parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight);
+  headerNav.style.setProperty('--nav-short', `${Math.ceil(w)}px`);
+}
+if (scanSection && header) {
+  new IntersectionObserver(([e]) => header.classList.toggle('is-scan-away', e.isIntersecting), {
+    rootMargin: '-35% 0px -35% 0px',
+  }).observe(scanSection);
+}
+
 /* Floating back to top button */
 const toTop = document.querySelector<HTMLAnchorElement>('[data-to-top]');
 toTop?.addEventListener('click', (e) => {
@@ -284,8 +300,12 @@ function resize() {
   axisGL?.resize();
   sizeStage();
   measureHero();
+  measureNav();
 }
-document.fonts?.ready.then(measureHero);
+document.fonts?.ready.then(() => {
+  measureHero();
+  measureNav();
+});
 window.addEventListener('resize', resize);
 resize();
 
