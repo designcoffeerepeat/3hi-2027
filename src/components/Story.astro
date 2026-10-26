@@ -196,7 +196,7 @@ const heroWords = hero.title.split(' ');
   .hero__copy {
     position: absolute;
     right: max(calc(84 * var(--u)), var(--gutter));
-    top: calc(50svh - 540 * var(--u) + 613 * var(--u));
+    top: calc(50svh - 540 * var(--u) + 500 * var(--u));
     width: max(calc(419 * var(--u) * var(--wide)), 300px);
     display: flex;
     flex-direction: column;
@@ -222,6 +222,11 @@ const heroWords = hero.title.split(' ');
     }
   }
 
+  /* A slimmer pill than the default button, as in the design (52px tall) */
+  .hero__copy :global(.btn) {
+    padding: clamp(14px, 0.95vw, 18px) 30px clamp(14px, 0.95vw, 18px) 34px;
+  }
+
   .hero__kicker {
     font-weight: 600;
     text-transform: uppercase;
@@ -231,10 +236,11 @@ const heroWords = hero.title.split(' ');
   .hero__down {
     position: absolute;
     left: max(calc(66 * var(--u)), var(--gutter));
-    top: calc(50svh - 540 * var(--u) + 820 * var(--u));
+    /* Just below the title, which grows on wide screens */
+    top: calc(50svh - 540 * var(--u) + (352 + 349 * var(--wide)) * var(--u));
     display: grid;
     place-items: center;
-    width: max(calc(64 * var(--u) * var(--wide)), 44px);
+    width: max(calc(64 * var(--u)), 44px);
     padding: 8px;
     margin-left: -8px;
     color: var(--ink);

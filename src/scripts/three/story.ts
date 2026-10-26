@@ -151,7 +151,7 @@ export function createStory(canvas: HTMLCanvasElement) {
       cx0 = lo <= 0 && hi >= 0 ? 0 : lo <= hi ? Math.min(Math.max(0, lo), hi) : mid;
       // Wider than 16:9: the black arm reaches out into the extra white
       // space, but stops short of the title and the copy.
-      const extra = Math.max(0, w - (h * 16) / 9) * 0.3;
+      const extra = Math.max(0, w - (h * 16) / 9) * 0.18;
       const room = Math.min(cx0 + w / 2 - safe.left, safe.right - (cx0 + w / 2)) - margin - (S * (1 + 50 / 661)) / 2;
       reach = Math.max(0, Math.min(extra, room));
     }
