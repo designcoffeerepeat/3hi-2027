@@ -148,6 +148,21 @@ const heroWords = hero.title.split(' ');
     display: none;
   }
 
+  /* 3D variant: the mark can be dragged to orbit it. Touch keeps vertical
+     scrolling; a sideways drag spins the mark. */
+  .story[data-variant='3d'] .story__sticky {
+    touch-action: pan-y;
+  }
+
+  .story__sticky:global(.is-grab) {
+    cursor: grab;
+  }
+
+  .story__sticky:global(.is-grabbing) {
+    cursor: grabbing;
+    user-select: none;
+  }
+
   /* 3D variant: the label that names the hovered arm */
   .xt-label {
     position: absolute;

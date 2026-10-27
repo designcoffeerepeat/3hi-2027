@@ -192,14 +192,40 @@ const xtName = xtLabel?.querySelector<HTMLElement>('[data-xt-name]');
 let xtShown = -1;
 if (xtGL && xtCanvas) {
   const sticky = xtCanvas.parentElement!;
-  const at = (e: PointerEvent) => {
+  let lastX = 0;
+  let lastY = 0;
+  const local = (e: PointerEvent) => {
     const r = xtCanvas.getBoundingClientRect();
-    xtGL.point(e.clientX - r.left, e.clientY - r.top);
+    return [e.clientX - r.left, e.clientY - r.top] as const;
   };
-  sticky.addEventListener('pointermove', at);
-  // Touch has no hover: a tap names the arm until the next tap
-  sticky.addEventListener('pointerdown', at);
-  sticky.addEventListener('pointerleave', (e) => e.pointerType === 'mouse' && xtGL.point(null));
+  sticky.addEventListener('pointermove', (e) => {
+    const [x, y] = local(e);
+    xtGL.point(x, y);
+    if (xtGL.dragging) xtGL.dragMove(e.clientX - lastX, e.clientY - lastY);
+    else sticky.classList.toggle('is-grab', storyProgress() <= 0 && xtGL.grabs(x, y));
+    lastX = e.clientX;
+    lastY = e.clientY;
+  });
+  // Press on the mark to orbit it, like the AI scan gizmo. Touch has no
+  // hover, so a tap also names the arm until the next tap.
+  sticky.addEventListener('pointerdown', (e) => {
+    const [x, y] = local(e);
+    xtGL.point(x, y);
+    if (storyProgress() > 0 || !xtGL.grabs(x, y) || (e.target as HTMLElement).closest('a, button')) return;
+    e.preventDefault();
+    lastX = e.clientX;
+    lastY = e.clientY;
+    xtGL.dragStart();
+    sticky.setPointerCapture(e.pointerId);
+    sticky.classList.add('is-grabbing');
+  });
+  const end = () => {
+    xtGL.dragEnd();
+    sticky.classList.remove('is-grabbing');
+  };
+  sticky.addEventListener('pointerup', end);
+  sticky.addEventListener('pointercancel', end);
+  sticky.addEventListener('pointerleave', (e) => e.pointerType === 'mouse' && !xtGL.dragging && xtGL.point(null));
 }
 
 function updateXtLabel(live: boolean) {

@@ -22,7 +22,7 @@ const page = (await getEntry('pages', 'home'))!.data as any;
   <Intro intro={page.intro} />
   <Services services={page.services} />
   <Method method={page.method} />
-  <AiScan scan={page.scan} />
+  <AiScan scan={page.scan} variant="clock" />
   <Testimonials testimonials={page.testimonials} />
   <Insights insights={page.insights} />
 </Base>
