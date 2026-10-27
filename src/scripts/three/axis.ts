@@ -54,7 +54,7 @@ export function createAxis(canvas: HTMLCanvasElement, surface: HTMLElement) {
   const capGeo = new THREE.SphereGeometry(T * 0.9, 20, 12);
   const caps: [THREE.Vector3, number][] = [
     [new THREE.Vector3(L / 2 + T, 0, 0), 0x111111],
-    [new THREE.Vector3(0, L / 2 + T, 0), 0xff00aa],
+    [new THREE.Vector3(0, L / 2 + T, 0), 0x2f6fd8],
     [new THREE.Vector3(0, 0, L / 2 + T), 0xffd600],
   ];
   for (const [p, c] of caps) {
