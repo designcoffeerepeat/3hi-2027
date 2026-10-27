@@ -1,28 +1,17 @@
 ---
 import Icon from './Icon.astro';
 import ScanBar from './ScanBar.astro';
-import XtMark from './XtMark.astro';
 
 interface Props {
-  scan: any;
-  // 'gizmo' is the live 3D axis. 'clock' shows the ticking 'xt - 1' clock
-  // instead, for the 3D hero preview (/hero-3d) where the gizmo is the hero.
-  variant?: 'gizmo' | 'clock';
-}
-const { scan, variant = 'gizmo' } = Astro.props;
+  scan: any;}
+const { scan } = Astro.props;
 ---
 <section class="section ai" id="ai-scan" aria-labelledby="ai-title">
-  {variant === 'clock' ? (
-    <div class="ai__visual ai__visual--clock" data-speed="0.04">
-      <XtMark class="ai__clock" />
-    </div>
-  ) : (
-    <div class="ai__visual" data-speed="0.04">
-      <canvas class="ai__gl" data-axis-gl aria-label="Interactive 3D axis. Drag to spin it." role="img"></canvas>
-      <img class="ai__fallback" src="/images/xt.svg" alt="" width="711" height="711" />
-      <p class="ai__hint mono" aria-hidden="true">{scan.hint}</p>
-    </div>
-  )}
+  <div class="ai__visual" data-speed="0.04">
+    <canvas class="ai__gl" data-axis-gl aria-label="Interactive 3D axis. Drag to spin it." role="img"></canvas>
+    <img class="ai__fallback" src="/images/xt.svg" alt="" width="711" height="711" />
+    <p class="ai__hint mono" aria-hidden="true">{scan.hint}</p>
+  </div>
   <div class="ai__copy">
     <p class="ai__overline mono"><Icon name="scan" />{scan.overline}</p>
     <h2 id="ai-title" class="ai__title" data-reveal>{scan.title}</h2>
@@ -68,19 +57,6 @@ const { scan, variant = 'gizmo' } = Astro.props;
     cursor: grabbing;
   }
 
-  .ai__visual--clock,
-  .ai__visual--clock:active {
-    cursor: auto;
-  }
-
-  /* Ticking clock: same size as the gizmo's rest pose */
-  .ai__visual--clock :global(.ai__clock) {
-    position: absolute;
-    inset: 16%;
-    width: 68%;
-    height: 68%;
-    color: var(--ink);
-  }
 
   .ai__gl,
   .ai__fallback {
@@ -126,7 +102,7 @@ const { scan, variant = 'gizmo' } = Astro.props;
     gap: clamp(28px, 2.6vw, 50px);
     max-width: 767px;
     min-width: 0;
-    justify-self: end;
+    justify-self: center;
   }
 
   .ai__overline {

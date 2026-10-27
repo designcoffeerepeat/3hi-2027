@@ -14,7 +14,7 @@ hero:
     label: "Talk to us"
     href: "/contact"
   scrollLabel: "Scroll to the next section"
-  # The 3 horizons, named on hover in the 3D hero (/hero-3d).
+  # The 3 horizons, named when someone hovers an arm of the hero clock.
   # In order: black arm, blue arm, yellow arm.
   horizons:
     - "Strategy"

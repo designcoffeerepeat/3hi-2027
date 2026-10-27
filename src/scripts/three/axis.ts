@@ -9,7 +9,7 @@ export function createAxis(canvas: HTMLCanvasElement, surface: HTMLElement) {
   renderer.setClearColor(0x000000, 0);
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(28, 1, 0.1, 50);
-  camera.position.set(0, 0, 6.6);
+  camera.position.set(0, 0, 5.8);
 
   scene.add(new THREE.HemisphereLight(0xffffff, 0xd9d4ff, 2.2));
   const key = new THREE.DirectionalLight(0xffffff, 1.6);
@@ -49,21 +49,6 @@ export function createAxis(canvas: HTMLCanvasElement, surface: HTMLElement) {
     new THREE.MeshStandardMaterial({ color: 0xffd600, roughness: 0.4 }),
   );
   gizmo.add(x, y, z);
-
-  // Tiny end caps hint at the positive direction of each axis, like a gizmo.
-  const capGeo = new THREE.SphereGeometry(T * 0.9, 20, 12);
-  const caps: [THREE.Vector3, number][] = [
-    [new THREE.Vector3(L / 2 + T, 0, 0), 0x111111],
-    [new THREE.Vector3(0, L / 2 + T, 0), 0x2f6fd8],
-    [new THREE.Vector3(0, 0, L / 2 + T), 0xffd600],
-  ];
-  for (const [p, c] of caps) {
-    const m = new THREE.Mesh(capGeo, new THREE.MeshStandardMaterial({ color: c, roughness: 0.4 }));
-    m.position.copy(p);
-    m.scale.setScalar(0.0001);
-    m.userData.cap = true;
-    gizmo.add(m);
-  }
 
   // Rest pose: z axis reads as the yellow diagonal of the logo.
   const rest = new THREE.Quaternion().setFromEuler(new THREE.Euler(0.52, -0.62, 0, 'XYZ'));
@@ -141,13 +126,6 @@ export function createAxis(canvas: HTMLCanvasElement, surface: HTMLElement) {
       target.copy(rest).multiply(wobble);
       const pull = idleFor > 2.2 ? Math.min(0.035, (idleFor - 2.2) * 0.01) : 0;
       if (pull > 0) gizmo.quaternion.slerp(target, pull);
-    }
-    // Caps grow in once someone starts to play, so the idle pose stays the logo.
-    for (const c of gizmo.children) {
-      if (c.userData.cap) {
-        const s = c.scale.x + ((touched ? 1 : 0.0001) - c.scale.x) * 0.08;
-        c.scale.setScalar(s);
-      }
     }
     renderer.render(scene, camera);
   }

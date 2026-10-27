@@ -7,14 +7,11 @@ import Button from './Button.astro';
 interface Props {
   hero: any;
   spotlight: any;
-  // 'clock' is the live hero. '3d' swaps the clock for the turning 3D mark
-  // whose arms name the 3 horizons (preview at /hero-3d).
-  variant?: 'clock' | '3d';
 }
-const { hero, spotlight, variant = 'clock' } = Astro.props;
+const { hero, spotlight } = Astro.props;
 const heroWords = hero.title.split(' ');
 ---
-<section class="story" id="top" data-story data-variant={variant} aria-label="Introduction">
+<section class="story" id="top" data-story aria-label="Introduction">
   <div class="story__sticky">
     <!-- Big '3' from the Home - 2 design. Its gradient slowly turns over,
          so the cyan and yellow ends trade places and come back. -->
@@ -32,18 +29,14 @@ const heroWords = hero.title.split(' ');
       </svg>
     </div>
     <canvas class="story__gl" data-story-gl aria-hidden="true"></canvas>
-    {variant === '3d' && (
-      <>
-        <canvas class="story__gl story__xt" data-xt-gl aria-hidden="true"></canvas>
-        <p class="xt-label" data-xt-label data-labels={JSON.stringify(hero.horizons)} aria-hidden="true">
-          <span class="xt-label__num mono" data-xt-num></span>
-          <span class="xt-label__name" data-xt-name></span>
-        </p>
-        <ul class="visually-hidden">
-          {hero.horizons.map((h: string) => <li>{h}</li>)}
-        </ul>
-      </>
-    )}
+    <!-- Names the horizon of the clock arm under the pointer (main.ts) -->
+    <p class="xt-label" data-xt-label data-labels={JSON.stringify(hero.horizons)} aria-hidden="true">
+      <span class="xt-label__num mono" data-xt-num></span>
+      <span class="xt-label__name" data-xt-name></span>
+    </p>
+    <ul class="visually-hidden">
+      {hero.horizons.map((h: string) => <li>{h}</li>)}
+    </ul>
     <!-- Fallback art for no WebGL or reduced motion -->
     <div class="story__fallback" aria-hidden="true">
       <span class="story__fallback-sun"></span>
@@ -148,22 +141,7 @@ const heroWords = hero.title.split(' ');
     display: none;
   }
 
-  /* 3D variant: the mark can be dragged to orbit it. Touch keeps vertical
-     scrolling; a sideways drag spins the mark. */
-  .story[data-variant='3d'] .story__sticky {
-    touch-action: pan-y;
-  }
-
-  .story__sticky:global(.is-grab) {
-    cursor: grab;
-  }
-
-  .story__sticky:global(.is-grabbing) {
-    cursor: grabbing;
-    user-select: none;
-  }
-
-  /* 3D variant: the label that names the hovered arm */
+  /* Label that names the hovered clock arm */
   .xt-label {
     position: absolute;
     left: 0;

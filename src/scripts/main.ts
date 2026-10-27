@@ -1,7 +1,6 @@
 import Lenis from 'lenis';
 import { createStory, smooth, easeOut } from './three/story';
 import { createAxis } from './three/axis';
-import { createXt3d } from './three/xt3d';
 import { initScan } from './scan';
 
 const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -181,71 +180,45 @@ const spotText = story?.querySelector<HTMLElement>('[data-spot-text]');
 const spotLetters = story ? [...story.querySelectorAll<HTMLElement>('[data-spot-title] span')] : [];
 const clouds = story ? [...story.querySelectorAll<HTMLElement>('[data-spot-clouds]')] : [];
 
-// 3D variant (/hero-3d): a turning 3D mark whose arms name the 3 horizons
-// stands in for the clock at the top, then hands over to the flat clock.
-const xtCanvas = story?.querySelector<HTMLCanvasElement>('[data-xt-gl]');
-const xtGL = webgl && xtCanvas ? createXt3d(xtCanvas) : null;
+const storyGL = webgl && storyCanvas ? createStory(storyCanvas) : null;
+
+// Hovering (or tapping) an arm of the hero clock names its horizon
 const xtLabel = story?.querySelector<HTMLElement>('[data-xt-label]');
 const xtNames: string[] = JSON.parse(xtLabel?.dataset.labels || '[]');
 const xtNum = xtLabel?.querySelector<HTMLElement>('[data-xt-num]');
 const xtName = xtLabel?.querySelector<HTMLElement>('[data-xt-name]');
+const xtAt = { x: 0, y: 0 };
 let xtShown = -1;
-if (xtGL && xtCanvas) {
-  const sticky = xtCanvas.parentElement!;
-  let lastX = 0;
-  let lastY = 0;
-  const local = (e: PointerEvent) => {
-    const r = xtCanvas.getBoundingClientRect();
-    return [e.clientX - r.left, e.clientY - r.top] as const;
+if (storyGL && storyCanvas && xtLabel) {
+  const sticky = storyCanvas.parentElement!;
+  const at = (e: PointerEvent) => {
+    const r = storyCanvas.getBoundingClientRect();
+    xtAt.x = e.clientX - r.left;
+    xtAt.y = e.clientY - r.top;
+    storyGL.point(xtAt.x, xtAt.y);
   };
-  sticky.addEventListener('pointermove', (e) => {
-    const [x, y] = local(e);
-    xtGL.point(x, y);
-    if (xtGL.dragging) xtGL.dragMove(e.clientX - lastX, e.clientY - lastY);
-    else sticky.classList.toggle('is-grab', storyProgress() <= 0 && xtGL.grabs(x, y));
-    lastX = e.clientX;
-    lastY = e.clientY;
-  });
-  // Press on the mark to orbit it, like the AI scan gizmo. Touch has no
-  // hover, so a tap also names the arm until the next tap.
-  sticky.addEventListener('pointerdown', (e) => {
-    const [x, y] = local(e);
-    xtGL.point(x, y);
-    if (storyProgress() > 0 || !xtGL.grabs(x, y) || (e.target as HTMLElement).closest('a, button')) return;
-    e.preventDefault();
-    lastX = e.clientX;
-    lastY = e.clientY;
-    xtGL.dragStart();
-    sticky.setPointerCapture(e.pointerId);
-    sticky.classList.add('is-grabbing');
-  });
-  const end = () => {
-    xtGL.dragEnd();
-    sticky.classList.remove('is-grabbing');
-  };
-  sticky.addEventListener('pointerup', end);
-  sticky.addEventListener('pointercancel', end);
-  sticky.addEventListener('pointerleave', (e) => e.pointerType === 'mouse' && !xtGL.dragging && xtGL.point(null));
+  sticky.addEventListener('pointermove', at);
+  // Touch has no hover: a tap names the arm until the next tap
+  sticky.addEventListener('pointerdown', at);
+  sticky.addEventListener('pointerleave', (e) => e.pointerType === 'mouse' && storyGL.point(null));
 }
 
 function updateXtLabel(live: boolean) {
-  if (!xtGL || !xtLabel) return;
-  const i = live ? xtGL.hovered : -1;
+  if (!storyGL || !xtLabel) return;
+  const i = live ? storyGL.hovered : -1;
   if (i >= 0) {
     if (i !== xtShown && xtNum && xtName) {
       xtNum.textContent = `Horizon ${String(i + 1).padStart(2, '0')}`;
       xtName.textContent = xtNames[i] ?? '';
     }
-    const p = xtGL.label(i)!;
-    const x = Math.min(p.x + 18, window.innerWidth - xtLabel.offsetWidth - 16);
-    const y = Math.max(p.y - xtLabel.offsetHeight - 18, 16);
+    // Up and to the right of the pointer, kept on screen
+    const x = Math.min(xtAt.x + 20, window.innerWidth - xtLabel.offsetWidth - 16);
+    const y = Math.max(xtAt.y - xtLabel.offsetHeight - 20, 16);
     xtLabel.style.translate = `${x}px ${y}px`;
   }
   if ((i >= 0) !== (xtShown >= 0)) xtLabel.classList.toggle('is-on', i >= 0);
   xtShown = i;
 }
-
-const storyGL = webgl && storyCanvas ? createStory(storyCanvas, xtGL ? xtGL.HANDOFF : 0) : null;
 
 function storyProgress() {
   if (!story) return 0;
@@ -309,12 +282,7 @@ function updateStory(p: number, ms: number) {
     const r = story.getBoundingClientRect();
     const onScreen = r.bottom > 0 && r.top < vh;
     if (onScreen && show < 1) storyGL.render(p, ms);
-    if (xtGL && xtCanvas) {
-      const live = onScreen && p < xtGL.HANDOFF;
-      xtCanvas.style.visibility = live ? '' : 'hidden';
-      if (live) xtGL.render(p, ms, reduced);
-      updateXtLabel(live);
-    }
+    updateXtLabel(onScreen && p < 0.04);
   }
 }
 
@@ -435,7 +403,6 @@ if (quotes) {
 /* Loop */
 function resize() {
   storyGL?.resize();
-  xtGL?.resize();
   axisGL?.resize();
   sizeStage();
   measureHero();

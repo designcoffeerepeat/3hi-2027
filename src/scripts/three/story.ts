@@ -41,6 +41,7 @@ const barVert = /* glsl */ `
 // Vertical arm: cyan with a 50% pink to purple to cyan gradient on top.
 const vertFrag = /* glsl */ `
   precision highp float;
+  uniform float uDim;
   varying vec2 vUv;
   void main() {
     vec3 cyan = vec3(0.0, 0.804, 0.894);
@@ -48,7 +49,7 @@ const vertFrag = /* glsl */ `
     vec3 purple = vec3(0.224, 0.0, 0.494);
     float t = 1.0 - vUv.y;
     vec3 g = t < 0.5 ? mix(pink, purple, t / 0.5) : mix(purple, cyan, (t - 0.5) / 0.5);
-    gl_FragColor = vec4(mix(cyan, g, 0.5), 1.0);
+    gl_FragColor = vec4(mix(mix(cyan, g, 0.5), vec3(1.0), uDim * 0.6), 1.0);
   }
 `;
 
@@ -73,9 +74,7 @@ function tickAngle(ms: number) {
   return Math.PI / 4 - (whole + back) * step;
 }
 
-// handoff: when set, the 3D mark (xt3d.ts) owns the top of the story and the
-// flat clock only appears from that progress on, with its hand at rest.
-export function createStory(canvas: HTMLCanvasElement, handoff = 0) {
+export function createStory(canvas: HTMLCanvasElement) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
   renderer.setClearColor(0x000000, 0);
   const scene = new THREE.Scene();
@@ -105,7 +104,12 @@ export function createStory(canvas: HTMLCanvasElement, handoff = 0) {
   const horiz = new THREE.Mesh(plane, new THREE.MeshBasicMaterial({ color: 0x000000, depthTest: false }));
   const vert = new THREE.Mesh(
     plane,
-    new THREE.ShaderMaterial({ vertexShader: barVert, fragmentShader: vertFrag, depthTest: false }),
+    new THREE.ShaderMaterial({
+      vertexShader: barVert,
+      fragmentShader: vertFrag,
+      depthTest: false,
+      uniforms: { uDim: { value: 0 } },
+    }),
   );
   const hand = new THREE.Mesh(plane, new THREE.MeshBasicMaterial({ color: 0xffd600, depthTest: false }));
   horiz.renderOrder = 1;
@@ -116,6 +120,38 @@ export function createStory(canvas: HTMLCanvasElement, handoff = 0) {
   let w = 1;
   let h = 1;
   let dpr = 1;
+
+  // Hover: each arm is one of the 3 horizons (0 black, 1 blue, 2 yellow).
+  // The arm under the pointer stays, the other two fade back.
+  const pointer = { x: -1e4, y: -1e4 };
+  let hovered = -1;
+  let lastMs = 0;
+  const dims = [0, 0, 0];
+  const base = [new THREE.Color(0x000000), null, new THREE.Color(0xffd600)];
+  const white = new THREE.Color(0xffffff);
+
+  /** Pointer in CSS px relative to the canvas, or null when it left. */
+  function point(x: number | null, y = 0) {
+    pointer.x = x ?? -1e4;
+    pointer.y = y;
+  }
+
+  function hitTest(S: number, T: number) {
+    // Pointer relative to the clock centre, y up
+    const dx = pointer.x - w / 2 - clock.position.x;
+    const dy = h / 2 - pointer.y - clock.position.y;
+    const half = (S + T) / 2;
+    const reach = T / 2 + Math.max(10, T * 0.4);
+    // Top most first: the hand, then blue, then black
+    const c = Math.cos(-hand.rotation.z);
+    const s = Math.sin(-hand.rotation.z);
+    const rx = dx * c - dy * s;
+    const ry = dx * s + dy * c;
+    if (Math.abs(rx) <= half && Math.abs(ry) <= reach) return 2;
+    if (Math.abs(dx) <= reach && Math.abs(dy) <= half) return 1;
+    if (Math.abs(dy) <= reach && Math.abs(dx) <= half) return 0;
+    return -1;
+  }
 
   function resize() {
     const r = canvas.getBoundingClientRect();
@@ -160,9 +196,21 @@ export function createStory(canvas: HTMLCanvasElement, handoff = 0) {
     let delta = (Math.PI / 4 - tick) % half;
     if (delta > half / 2) delta -= half;
     if (delta < -half / 2) delta += half;
-    hand.rotation.z = handoff ? Math.PI / 4 : tick + delta * smooth(0.04, 0.16, progress);
-    clock.visible = progress >= handoff;
+    hand.rotation.z = tick + delta * smooth(0.04, 0.16, progress);
     hand.position.set(lerp(0, 0.34 * w, b) + c * 0.6 * w, lerp(0, -0.3 * h, b) - c * 0.6 * h, 0);
+
+    // Hover only while the clock rests in the hero
+    const dt = Math.min(0.05, (ms - (lastMs || ms)) / 1000);
+    lastMs = ms;
+    hovered = progress < 0.04 ? hitTest(S, T) : -1;
+    const fade = 1 - smooth(0, 0.04, progress);
+    [horiz, vert, hand].forEach((m, i) => {
+      dims[i] += ((hovered >= 0 && hovered !== i ? 1 : 0) - dims[i]) * Math.min(1, dt * 10);
+      const d = dims[i] * fade;
+      const col = base[i];
+      if (col) (m.material as THREE.MeshBasicMaterial).color.copy(col).lerp(white, d * 0.6);
+      else (m.material as THREE.ShaderMaterial).uniforms.uDim.value = d;
+    });
 
     // Sun: drifts back and forth and breathes. Fades as the clock grows.
     const t = ms / 1000;
@@ -179,5 +227,13 @@ export function createStory(canvas: HTMLCanvasElement, handoff = 0) {
     renderer.render(scene, camera);
   }
 
-  return { resize, render, renderer };
+  return {
+    resize,
+    render,
+    point,
+    get hovered() {
+      return hovered;
+    },
+    renderer,
+  };
 }
