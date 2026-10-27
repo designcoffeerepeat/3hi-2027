@@ -1,7 +1,8 @@
 import * as THREE from 'three';
 
-// 3D take on the hero 'xt - 1' mark, built like the AI scan gizmo: black x,
-// blue y and yellow z axes that turn slowly and can be dragged to orbit.
+// 3D take on the hero 'xt - 1' mark, built like the AI scan gizmo (without
+// its end spheres): black x, blue y and yellow z axes that turn slowly and
+// can be dragged to orbit.
 // Each arm is one of the 3 horizons; hovering (or tapping) an arm names it.
 // On scroll the gizmo faces front, the yellow axis swings down into the
 // diagonal and everything flattens, handing over to the 2D clock in
@@ -93,14 +94,6 @@ export function createXt3d(canvas: HTMLCanvasElement) {
   // once flat. Both are rotations of a bar along x.
   const zAxis = new THREE.Quaternion().setFromEuler(new THREE.Euler(0, -Math.PI / 2, 0));
   const zFlat = new THREE.Quaternion().setFromEuler(new THREE.Euler(0, 0, Math.PI / 4));
-
-  // End caps on the positive end of each axis, like the AI scan gizmo
-  const capGeo = new THREE.SphereGeometry(T * 0.9, 20, 12);
-  const caps = [0x111111, 0x2f6fd8, 0xffd600].map((c) => new THREE.Mesh(capGeo, mat(c)));
-  gizmo.add(...caps);
-  const tipX = new THREE.Vector3(L / 2 + T, 0, 0);
-  caps[0].position.copy(tipX);
-  caps[1].position.set(0, L / 2 + T, 0);
 
   // Rest pose: the same three quarter view as the AI scan gizmo
   const rest = new THREE.Quaternion().setFromEuler(new THREE.Euler(0.52, -0.62, 0, 'XYZ'));
@@ -200,31 +193,21 @@ export function createXt3d(canvas: HTMLCanvasElement) {
     gizmo.quaternion.copy(orbit).slerp(qa.identity(), e);
     z.quaternion.copy(zAxis).slerp(zFlat, e);
     flat.scale.z = 1 - e * 0.98;
-    const cap = 1 - smooth(0, HANDOFF * 0.5, progress);
-    caps[2].position.copy(tipX).applyQuaternion(z.quaternion);
-    caps.forEach((c) => {
-      c.scale.setScalar(Math.max(0.0001, cap));
-      c.visible = cap > 0.01;
-    });
-    for (const m of [...arms, ...caps]) (m.material as THREE.ShaderMaterial).uniforms.uFlat.value = e;
+    for (const m of arms) (m.material as THREE.ShaderMaterial).uniforms.uFlat.value = e;
 
     // Hover: the arm under the pointer stays, the other two fade back
     hovered = -1;
     if (progress <= 0.002) {
       xt.updateMatrixWorld(true);
       ray.setFromCamera(pointer, camera);
-      const hit = ray.intersectObjects([...arms, ...caps], false)[0];
-      if (hit) {
-        const i = arms.indexOf(hit.object as THREE.Mesh);
-        hovered = i >= 0 ? i : caps.indexOf(hit.object as THREE.Mesh);
-      }
+      const hit = ray.intersectObjects(arms, false)[0];
+      if (hit) hovered = arms.indexOf(hit.object as THREE.Mesh);
     }
     arms.forEach((a, i) => {
       const target = hovered >= 0 && hovered !== i ? 1 : 0;
       dims[i] += (target - dims[i]) * Math.min(1, dt * 10);
       const d = dims[i] * (1 - e);
       (a.material as THREE.ShaderMaterial).uniforms.uDim.value = d;
-      (caps[i].material as THREE.ShaderMaterial).uniforms.uDim.value = d;
     });
 
     renderer.render(scene, camera);
