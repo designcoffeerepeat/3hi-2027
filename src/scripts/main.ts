@@ -1,6 +1,7 @@
 import Lenis from 'lenis';
 import { createStory, smooth, easeOut } from './three/story';
 import { createAxis } from './three/axis';
+import { createXt3d } from './three/xt3d';
 import { initScan } from './scan';
 
 const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -180,7 +181,45 @@ const spotText = story?.querySelector<HTMLElement>('[data-spot-text]');
 const spotLetters = story ? [...story.querySelectorAll<HTMLElement>('[data-spot-title] span')] : [];
 const clouds = story ? [...story.querySelectorAll<HTMLElement>('[data-spot-clouds]')] : [];
 
-const storyGL = webgl && storyCanvas ? createStory(storyCanvas) : null;
+// 3D variant (/hero-3d): a turning 3D mark whose arms name the 3 horizons
+// stands in for the clock at the top, then hands over to the flat clock.
+const xtCanvas = story?.querySelector<HTMLCanvasElement>('[data-xt-gl]');
+const xtGL = webgl && xtCanvas ? createXt3d(xtCanvas) : null;
+const xtLabel = story?.querySelector<HTMLElement>('[data-xt-label]');
+const xtNames: string[] = JSON.parse(xtLabel?.dataset.labels || '[]');
+const xtNum = xtLabel?.querySelector<HTMLElement>('[data-xt-num]');
+const xtName = xtLabel?.querySelector<HTMLElement>('[data-xt-name]');
+let xtShown = -1;
+if (xtGL && xtCanvas) {
+  const sticky = xtCanvas.parentElement!;
+  const at = (e: PointerEvent) => {
+    const r = xtCanvas.getBoundingClientRect();
+    xtGL.point(e.clientX - r.left, e.clientY - r.top);
+  };
+  sticky.addEventListener('pointermove', at);
+  // Touch has no hover: a tap names the arm until the next tap
+  sticky.addEventListener('pointerdown', at);
+  sticky.addEventListener('pointerleave', (e) => e.pointerType === 'mouse' && xtGL.point(null));
+}
+
+function updateXtLabel(live: boolean) {
+  if (!xtGL || !xtLabel) return;
+  const i = live ? xtGL.hovered : -1;
+  if (i >= 0) {
+    if (i !== xtShown && xtNum && xtName) {
+      xtNum.textContent = `Horizon ${String(i + 1).padStart(2, '0')}`;
+      xtName.textContent = xtNames[i] ?? '';
+    }
+    const p = xtGL.label(i)!;
+    const x = Math.min(p.x + 18, window.innerWidth - xtLabel.offsetWidth - 16);
+    const y = Math.max(p.y - xtLabel.offsetHeight - 18, 16);
+    xtLabel.style.translate = `${x}px ${y}px`;
+  }
+  if ((i >= 0) !== (xtShown >= 0)) xtLabel.classList.toggle('is-on', i >= 0);
+  xtShown = i;
+}
+
+const storyGL = webgl && storyCanvas ? createStory(storyCanvas, xtGL ? xtGL.HANDOFF : 0) : null;
 
 function storyProgress() {
   if (!story) return 0;
@@ -244,6 +283,12 @@ function updateStory(p: number, ms: number) {
     const r = story.getBoundingClientRect();
     const onScreen = r.bottom > 0 && r.top < vh;
     if (onScreen && show < 1) storyGL.render(p, ms);
+    if (xtGL && xtCanvas) {
+      const live = onScreen && p < xtGL.HANDOFF;
+      xtCanvas.style.visibility = live ? '' : 'hidden';
+      if (live) xtGL.render(p, ms, reduced);
+      updateXtLabel(live);
+    }
   }
 }
 
@@ -364,6 +409,7 @@ if (quotes) {
 /* Loop */
 function resize() {
   storyGL?.resize();
+  xtGL?.resize();
   axisGL?.resize();
   sizeStage();
   measureHero();

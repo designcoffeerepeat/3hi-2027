@@ -7,11 +7,14 @@ import Button from './Button.astro';
 interface Props {
   hero: any;
   spotlight: any;
+  // 'clock' is the live hero. '3d' swaps the clock for the turning 3D mark
+  // whose arms name the 3 horizons (preview at /hero-3d).
+  variant?: 'clock' | '3d';
 }
-const { hero, spotlight } = Astro.props;
+const { hero, spotlight, variant = 'clock' } = Astro.props;
 const heroWords = hero.title.split(' ');
 ---
-<section class="story" id="top" data-story aria-label="Introduction">
+<section class="story" id="top" data-story data-variant={variant} aria-label="Introduction">
   <div class="story__sticky">
     <!-- Big '3' from the Home - 2 design. Its gradient slowly turns over,
          so the cyan and yellow ends trade places and come back. -->
@@ -29,6 +32,18 @@ const heroWords = hero.title.split(' ');
       </svg>
     </div>
     <canvas class="story__gl" data-story-gl aria-hidden="true"></canvas>
+    {variant === '3d' && (
+      <>
+        <canvas class="story__gl story__xt" data-xt-gl aria-hidden="true"></canvas>
+        <p class="xt-label" data-xt-label data-labels={JSON.stringify(hero.horizons)} aria-hidden="true">
+          <span class="xt-label__num mono" data-xt-num></span>
+          <span class="xt-label__name" data-xt-name></span>
+        </p>
+        <ul class="visually-hidden">
+          {hero.horizons.map((h: string) => <li>{h}</li>)}
+        </ul>
+      </>
+    )}
     <!-- Fallback art for no WebGL or reduced motion -->
     <div class="story__fallback" aria-hidden="true">
       <span class="story__fallback-sun"></span>
@@ -131,6 +146,46 @@ const heroWords = hero.title.split(' ');
 
   .no-webgl .story__gl {
     display: none;
+  }
+
+  /* 3D variant: the label that names the hovered arm */
+  .xt-label {
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 14px 22px 16px;
+    border-radius: 18px;
+    background: var(--ink);
+    color: var(--paper);
+    pointer-events: none;
+    opacity: 0;
+    scale: 0.92;
+    transform-origin: 0 100%;
+    transition:
+      opacity 0.3s,
+      scale 0.4s var(--ease-out);
+    white-space: nowrap;
+  }
+
+  .xt-label.is-on {
+    opacity: 1;
+    scale: 1;
+  }
+
+  .xt-label__num {
+    color: var(--sun);
+    font-size: 11px;
+  }
+
+  .xt-label__name {
+    font-weight: 600;
+    font-size: clamp(20px, 1.5vw, 30px);
+    line-height: 1;
+    text-transform: uppercase;
   }
 
   .no-webgl .story__fallback {

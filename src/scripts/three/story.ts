@@ -73,7 +73,9 @@ function tickAngle(ms: number) {
   return Math.PI / 4 - (whole + back) * step;
 }
 
-export function createStory(canvas: HTMLCanvasElement) {
+// handoff: when set, the 3D mark (xt3d.ts) owns the top of the story and the
+// flat clock only appears from that progress on, with its hand at rest.
+export function createStory(canvas: HTMLCanvasElement, handoff = 0) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
   renderer.setClearColor(0x000000, 0);
   const scene = new THREE.Scene();
@@ -158,7 +160,8 @@ export function createStory(canvas: HTMLCanvasElement) {
     let delta = (Math.PI / 4 - tick) % half;
     if (delta > half / 2) delta -= half;
     if (delta < -half / 2) delta += half;
-    hand.rotation.z = tick + delta * smooth(0.04, 0.16, progress);
+    hand.rotation.z = handoff ? Math.PI / 4 : tick + delta * smooth(0.04, 0.16, progress);
+    clock.visible = progress >= handoff;
     hand.position.set(lerp(0, 0.34 * w, b) + c * 0.6 * w, lerp(0, -0.3 * h, b) - c * 0.6 * h, 0);
 
     // Sun: drifts back and forth and breathes. Fades as the clock grows.

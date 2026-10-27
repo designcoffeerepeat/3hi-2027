@@ -14,6 +14,12 @@ hero:
     label: "Talk to us"
     href: "/contact"
   scrollLabel: "Scroll to the next section"
+  # The 3 horizons, named on hover in the 3D hero (/hero-3d).
+  # In order: black arm, blue arm, yellow arm.
+  horizons:
+    - "Strategy"
+    - "Innovation"
+    - "Growth"
 
 spotlight:
   overline: "Shopify development · AI visibility · Store care"
