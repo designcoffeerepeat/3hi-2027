@@ -1,0 +1,44 @@
+---
+// Pill filters. The page script listens for clicks on [data-filter].
+interface Props {
+  items: { label: string; value: string }[];
+  label: string;
+}
+const { items, label } = Astro.props;
+---
+<div class="filters" role="group" aria-label={label}>
+  {items.map((f, i) => (
+    <button type="button" class="filters__pill label" data-filter={f.value} aria-pressed={i === 0 ? 'true' : 'false'}>{f.label}</button>
+  ))}
+</div>
+
+<style>
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .filters__pill {
+    padding: 16px 26px;
+    border: 1px solid var(--ink);
+    border-radius: 300px;
+    background: none;
+    cursor: pointer;
+    transition:
+      background-color 0.3s,
+      color 0.3s,
+      border-color 0.3s;
+  }
+
+  .filters__pill:hover {
+    background: var(--sun);
+    border-color: var(--sun);
+  }
+
+  .filters__pill[aria-pressed='true'] {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--paper);
+  }
+</style>

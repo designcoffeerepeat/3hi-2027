@@ -1,0 +1,366 @@
+---
+import { getEntry } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import Filters from '../../components/Filters.astro';
+import Overline from '../../components/Overline.astro';
+import Button from '../../components/Button.astro';
+import PostCard from '../../components/PostCard.astro';
+import Icon from '../../components/Icon.astro';
+import { getPosts } from '../../lib/content';
+
+// Copy comes from src/content/pages/blog.md, articles from src/content/posts
+const page = (await getEntry('pages', 'blog'))!.data as any;
+const posts = await getPosts();
+const featured = posts.find((p) => (p.data as any).featured) ?? posts[0];
+const rest = posts.filter((p) => p !== featured);
+const f = featured.data as any;
+const PAGE = 6;
+---
+<Base title={page.seo.title} description={page.seo.description}>
+  <PageHero overline={page.hero.overline} title={page.hero.title} text={page.hero.text} size="l" />
+
+  <div class="bl-tools">
+    <Filters items={page.filters} label="Filter articles" />
+    <label class="bl-search">
+      <Icon name="search" size={20} />
+      <span class="visually-hidden">{page.search}</span>
+      <input type="search" placeholder={page.search} data-filter-search />
+    </label>
+  </div>
+
+  <section class="bl-feat" aria-labelledby="bl-feat-title">
+    <a class="bl-feat__media" href={`/blog/${featured.id}`} tabindex="-1" aria-hidden="true">
+      <img src={f.image} alt="" width="860" height="640" decoding="async" />
+    </a>
+    <div class="bl-feat__copy" data-reveal>
+      <Overline text={`${page.featuredLabel}  /  ${f.categoryLabel}  /  ${f.readTime}`} />
+      <h2 id="bl-feat-title" class="bl-feat__title"><a href={`/blog/${featured.id}`}>{f.title}</a></h2>
+      <p>{f.excerpt}</p>
+      <p class="bl-byline"><span class="bl-byline__dot" aria-hidden="true"></span><span><strong>3 Horizons Interactive</strong><br />Strategy team</span></p>
+      <Button href={`/blog/${featured.id}`} label={page.readButton} />
+    </div>
+  </section>
+
+  <section class="bl-latest" aria-labelledby="bl-latest-title">
+    <div class="bl-latest__head">
+      <div class="bl-latest__intro">
+        <Overline text={page.latest.overline} />
+        <h2 id="bl-latest-title" class="display-xl">{page.latest.title}</h2>
+      </div>
+      <p class="mono" data-filter-count>{String(rest.length).padStart(2, '0')} articles</p>
+    </div>
+    <div class="bl-grid" data-filter-list data-page={PAGE}>
+      {rest.map((p, i) => <PostCard post={p} delay={(i % 3) * 100} />)}
+    </div>
+    <p class="bl-empty" hidden data-filter-empty>{page.latest.empty}</p>
+    {rest.length > PAGE && (
+      <button class="bl-more label" type="button" data-more>{page.latest.more} <Icon name="arrow" size={16} /></button>
+    )}
+  </section>
+
+  <section class="bl-news" aria-labelledby="bl-news-title">
+    <div class="bl-news__intro">
+      <Overline text={page.newsletter.overline} />
+      <h2 id="bl-news-title" class="bl-news__title">{page.newsletter.title}</h2>
+    </div>
+    <form class="bl-news__form" data-newsletter data-thanks={page.newsletter.thanks}>
+      <p>{page.newsletter.text}</p>
+      <div class="bl-news__row">
+        <label class="visually-hidden" for="news-email">Email</label>
+        <input id="news-email" type="email" name="email" required placeholder={page.newsletter.placeholder} autocomplete="email" />
+        <button class="label" type="submit">{page.newsletter.button} <Icon name="arrow" size={16} /></button>
+      </div>
+      <p class="bl-news__note" data-news-note>{page.newsletter.note}</p>
+    </form>
+  </section>
+</Base>
+
+<style>
+  .bl-tools {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px 40px;
+    padding: clamp(24px, 2.45vw, 47px) var(--gutter-wide);
+  }
+
+  .bl-search {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    width: min(420px, 100%);
+    padding: 16px 28px;
+    border-radius: 300px;
+    background: var(--mist);
+  }
+
+  .bl-search input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    background: none;
+    font-size: 18px;
+    outline: none;
+  }
+
+  .bl-feat {
+    display: grid;
+    grid-template-columns: minmax(0, 860px) minmax(0, 580px);
+    justify-content: space-between;
+    align-items: center;
+    gap: 40px 80px;
+    padding: clamp(48px, 5.2vw, 100px) var(--gutter-wide) clamp(64px, 6.25vw, 120px);
+  }
+
+  .bl-feat__media {
+    aspect-ratio: 860 / 640;
+    overflow: hidden;
+    border-radius: 20px;
+  }
+
+  .bl-feat__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: scale 1.2s var(--ease-out);
+  }
+
+  .bl-feat__media:hover img {
+    scale: 1.04;
+  }
+
+  .bl-feat__copy {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 32px;
+  }
+
+  .bl-feat__title {
+    font-weight: 600;
+    font-size: clamp(30px, 2.92vw, 56px);
+    line-height: 1.15;
+  }
+
+  .bl-feat__title a:hover {
+    text-decoration: underline;
+    text-decoration-color: var(--sun);
+    text-decoration-thickness: 3px;
+    text-underline-offset: 8px;
+  }
+
+  .bl-byline {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+
+  .bl-byline__dot {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--sun);
+  }
+
+  .bl-latest {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(48px, 4.2vw, 80px);
+    padding: clamp(80px, 6.25vw, 120px) var(--gutter-wide);
+    background: var(--mist);
+  }
+
+  .bl-latest__head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+  }
+
+  .bl-latest__intro {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+
+  .bl-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 80px 40px;
+  }
+
+  .bl-grid :global(.is-paged) {
+    display: none;
+  }
+
+  .bl-empty {
+    text-align: center;
+  }
+
+  .bl-more {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    align-self: center;
+    padding: 22px 40px;
+    border: 1px solid var(--ink);
+    border-radius: 300px;
+    background: none;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+
+  .bl-more[hidden] {
+    display: none;
+  }
+
+  .bl-more:hover {
+    background: var(--sun);
+  }
+
+  .bl-news {
+    display: flex;
+    justify-content: space-between;
+    gap: 40px;
+    padding: clamp(80px, 6.25vw, 120px) var(--gutter-wide);
+    background: var(--sun);
+  }
+
+  .bl-news__intro {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .bl-news__title {
+    font-weight: 600;
+    font-size: clamp(52px, 4.69vw, 90px);
+    line-height: 1;
+    text-transform: uppercase;
+    white-space: pre-line;
+  }
+
+  .bl-news__form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: min(640px, 100%);
+    font-size: clamp(18px, 1.354vw, 26px);
+    line-height: 1.5;
+  }
+
+  .bl-news__row {
+    display: flex;
+    gap: 8px;
+    padding: 8px;
+    border-radius: 300px;
+    background: var(--paper);
+  }
+
+  .bl-news__row input {
+    flex: 1;
+    min-width: 0;
+    padding: 0 22px;
+    border: 0;
+    background: none;
+    font-size: 18px;
+    outline: none;
+  }
+
+  .bl-news__row button {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 20px 30px;
+    border: 0;
+    border-radius: 300px;
+    background: var(--ink);
+    color: var(--paper);
+    cursor: pointer;
+  }
+
+  .bl-news__note {
+    font-size: 13px;
+  }
+
+  @media (max-width: 1100px) {
+    .bl-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .bl-feat {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 699px) {
+    .bl-grid {
+      grid-template-columns: 1fr;
+      gap: 56px;
+    }
+
+    .bl-news {
+      flex-direction: column;
+    }
+
+    .bl-news__row button {
+      padding: 16px 20px;
+    }
+  }
+</style>
+
+<script>
+  import { initFilters } from '../../scripts/filters';
+  initFilters();
+
+  /* Six at a time while no filter or search is active. Paged cards get a
+     class so they do not clash with the filter's hidden attribute. */
+  const list = document.querySelector<HTMLElement>('[data-filter-list]');
+  const more = document.querySelector<HTMLButtonElement>('[data-more]');
+  const count = document.querySelector<HTMLElement>('[data-filter-count]');
+  if (list) {
+    const size = Number(list.dataset.page) || 6;
+    const cards = [...list.querySelectorAll<HTMLElement>('[data-tags]')];
+    let limit = size;
+    let filtering = false;
+    const paginate = () => {
+      cards.forEach((c, i) => c.classList.toggle('is-paged', !filtering && i >= limit));
+      if (more) more.hidden = filtering || cards.length <= limit;
+    };
+    list.addEventListener('filtered', (e) => {
+      const pill = document.querySelector('[data-filter][aria-pressed="true"]')?.getAttribute('data-filter');
+      const q = document.querySelector<HTMLInputElement>('[data-filter-search]')?.value.trim();
+      filtering = pill !== 'all' || !!q;
+      paginate();
+      if (count) count.textContent = `${String((e as CustomEvent).detail.shown).padStart(2, '0')} articles`;
+    });
+    more?.addEventListener('click', () => {
+      limit += size;
+      paginate();
+    });
+    paginate();
+  }
+
+  /* Newsletter: posts to PUBLIC_NEWSLETTER_ENDPOINT when set */
+  const news = document.querySelector<HTMLFormElement>('[data-newsletter]');
+  news?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!news.reportValidity()) return;
+    const endpoint = import.meta.env.PUBLIC_NEWSLETTER_ENDPOINT as string | undefined;
+    const email = new FormData(news).get('email');
+    if (endpoint) {
+      try {
+        await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email }) });
+      } catch {
+        // Still thank the visitor; the team can follow up by hand
+      }
+    }
+    news.reset();
+    const note = news.querySelector('[data-news-note]');
+    if (note) note.textContent = news.dataset.thanks ?? '';
+  });
+</script>

@@ -11,19 +11,28 @@ const { services } = Astro.props;
   <div class="services__head">
     <div class="services__intro">
       <Overline text={services.overline} />
-      <h2 id="services-title" class="display-xl" data-reveal data-speed="0.05">{services.title}</h2>
+      <h2 id="services-title" class="display-xl services__title" data-reveal data-speed="0.05">{services.title}</h2>
     </div>
     <p class="services__text" data-reveal style="--reveal-delay:150ms">{services.text}</p>
   </div>
   <ul class="services__list">
     {services.items.map((s: any) => (
       <li data-reveal>
-        <a class="row" href={s.href}>
-          <span class="row__num mono">{s.number}</span>
-          <span class="row__title display-l">{s.title}</span>
-          <span class="row__text">{s.text}</span>
-          <span class="row__cta" aria-hidden="true"><Icon name="arrow" size={28} /></span>
-        </a>
+        {s.href ? (
+          <a class="row" href={s.href}>
+            <span class="row__num mono">{s.number}</span>
+            <span class="row__title display-l">{s.title}</span>
+            <span class="row__text">{s.text}</span>
+            <span class="row__cta" aria-hidden="true"><Icon name="arrow" size={28} /></span>
+          </a>
+        ) : (
+          <div class="row">
+            <span class="row__num mono">{s.number}</span>
+            <span class="row__title display-l">{s.title}</span>
+            <span class="row__text">{s.text}</span>
+            <span class="row__cta" aria-hidden="true"><Icon name="arrow" size={28} /></span>
+          </div>
+        )}
       </li>
     ))}
   </ul>
@@ -50,6 +59,10 @@ const { services } = Astro.props;
     display: flex;
     flex-direction: column;
     gap: 28px;
+  }
+
+  .services__title {
+    white-space: pre-line;
   }
 
   .services__text {
@@ -127,6 +140,10 @@ const { services } = Astro.props;
     .services__head {
       flex-direction: column;
       align-items: flex-start;
+    }
+
+    .services__text {
+      flex: none;
     }
 
     .row {

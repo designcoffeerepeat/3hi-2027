@@ -1,0 +1,131 @@
+---
+import Button from './Button.astro';
+
+// Previous / Next project, shown at the bottom of every case study.
+interface Props {
+  prev: any;
+  next: any;
+  labels?: { prev: string; next: string; button: string };
+}
+const { prev, next, labels = { prev: 'Previous project', next: 'Next project', button: 'View case study' } } = Astro.props;
+const items = [
+  { label: labels.prev, entry: prev, rel: 'prev' },
+  { label: labels.next, entry: next, rel: 'next' },
+];
+---
+<nav class="pn" aria-label="More case studies">
+  {items.map(({ label, entry, rel }) => (
+    <a class="pn__item" href={`/work/${entry.id}`} rel={rel}>
+      <div class="pn__head">
+        <div class="pn__txt">
+          <p class="overline-row mono"><span class="pn__mark" aria-hidden="true"></span>{label}</p>
+          <p class="pn__title">{entry.data.title}</p>
+        </div>
+        <span class="pn__btn">
+          <Button label={labels.button} />
+        </span>
+      </div>
+      <div class="pn__media">
+        <img src={entry.data.card.image} alt="" width="960" height="960" loading="lazy" decoding="async" />
+      </div>
+    </a>
+  ))}
+</nav>
+
+<style>
+  .pn {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .pn__item {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  .pn__item + .pn__item {
+    border-left: 1px solid #dadad6;
+  }
+
+  .pn__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding: clamp(28px, 2.6vw, 50px) clamp(20px, 2.6vw, 50px) clamp(24px, 2.08vw, 40px) var(--gutter);
+  }
+
+  .pn__txt {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-width: 0;
+  }
+
+  .overline-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .pn__mark {
+    width: 10px;
+    height: 10px;
+    background: var(--sun);
+  }
+
+  .pn__title {
+    font-size: clamp(30px, 3.33vw, 64px);
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  .pn__btn {
+    flex: none;
+  }
+
+  .pn__btn :global(.btn) {
+    padding: 18px 28px 18px 34px;
+  }
+
+  .pn__item:hover .pn__btn :global(.btn) {
+    background: var(--sun);
+    color: var(--ink);
+  }
+
+  .pn__item:hover .pn__btn :global(.btn__icon) {
+    transform: rotate(45deg);
+  }
+
+  .pn__media {
+    aspect-ratio: 960 / 640;
+    overflow: hidden;
+  }
+
+  .pn__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: scale 1.2s var(--ease-out);
+  }
+
+  .pn__item:hover .pn__media img {
+    scale: 1.05;
+  }
+
+  @media (max-width: 899px) {
+    .pn {
+      grid-template-columns: 1fr;
+    }
+
+    .pn__item + .pn__item {
+      border-left: 0;
+      border-top: 1px solid #dadad6;
+    }
+
+    .pn__btn {
+      display: none;
+    }
+  }
+</style>

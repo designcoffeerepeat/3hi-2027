@@ -44,8 +44,9 @@ const heroWords = hero.title.split(' ');
 
     <div class="hero" data-hero>
       <h1 class="hero__title">
+        {hero.overline && <span class="hero__overline mono">{hero.overline}</span>}
         {heroWords.map((w: string, i: number) => (
-          <span class="hero__line" style={`--i:${i}`}><span>{w}</span></span>
+          <span class="hero__line" style={`--i:${i}`}><span class:list={{ 'hero__mark': w === hero.highlight }}>{w}</span></span>
         ))}
       </h1>
       <div class="hero__copy" data-hero-copy>
@@ -54,6 +55,7 @@ const heroWords = hero.title.split(' ');
         <Button href={hero.button.href} label={hero.button.label} />
       </div>
       <a class="hero__down" href="#work-title" aria-label={hero.scrollLabel} data-hero-down>
+        {hero.arrowLabel && <span class="hero__down-label mono" aria-hidden="true">{hero.arrowLabel}</span>}
         <svg viewBox="0 0 44 99" fill="none" aria-hidden="true">
           <path d="M21.7731 1.5L21.7731 97.5M2.12126 77.8484L21.7731 97.5L41.4248 77.8485" stroke="currentColor" stroke-width="3" stroke-linecap="square" stroke-linejoin="round" />
         </svg>
@@ -79,13 +81,19 @@ const heroWords = hero.title.split(' ');
         <h2 class="spot__title" data-spot-title>
           {spotlight.title.split('').map((c: string, i: number) => <span style={`--i:${i}`}>{c}</span>)}
         </h2>
-        <p class="spot__text" data-spot-text>{spotlight.text}</p>
+        <div class="spot__text" data-spot-text>
+          {spotlight.heading && <h3 class="spot__heading">{spotlight.heading}</h3>}
+          <p>{spotlight.text}</p>
+          {spotlight.button && <Button href={spotlight.button.href} label={spotlight.button.label} variant="yellow" class="spot__btn" />}
+        </div>
       </div>
     </div>
   </div>
 </section>
-<div class="spot-after" aria-hidden="true">
+<div class="spot-after">
+  {spotlight.heading && <p class="spot__heading">{spotlight.heading}</p>}
   <p>{spotlight.text}</p>
+  {spotlight.button && <Button href={spotlight.button.href} label={spotlight.button.label} variant="yellow" />}
 </div>
 
 <style>
@@ -218,6 +226,24 @@ const heroWords = hero.title.split(' ');
     text-transform: uppercase;
   }
 
+  .hero__overline {
+    position: absolute;
+    left: 0;
+    bottom: calc(100% + max(calc(36 * var(--u)), 16px));
+    font-size: max(calc(15 * var(--u)), 11px);
+    font-weight: 400;
+    white-space: nowrap;
+    opacity: 0;
+    animation: fade-in 1.2s var(--ease-out) 0.3s forwards;
+  }
+
+  /* Highlighted word: yellow block behind it, as in Home - 2 */
+  .hero__mark {
+    background: linear-gradient(var(--sun), var(--sun)) 0 0.06em / 100% 0.86em no-repeat;
+    padding-inline: 0.03em;
+    margin-inline: -0.03em;
+  }
+
   .hero__line {
     display: block;
     overflow: hidden;
@@ -289,6 +315,18 @@ const heroWords = hero.title.split(' ');
     padding: 8px;
     margin-left: -8px;
     color: var(--ink);
+  }
+
+  .hero__down {
+    gap: 14px;
+  }
+
+  .hero__down-label {
+    writing-mode: vertical-rl;
+    rotate: 180deg;
+    font-size: 10px;
+    white-space: nowrap;
+    animation: fade-in 1.2s var(--ease-out) 1s both;
   }
 
   .hero__down svg {
@@ -438,8 +476,25 @@ const heroWords = hero.title.split(' ');
     top: 140px;
     width: clamp(360px, calc(449px - var(--shift) / 2), 449px);
     z-index: 4;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 30px;
     font-size: 20px;
     line-height: 2;
+    color: var(--paper);
+  }
+
+  .spot__heading {
+    font-weight: 600;
+    font-size: 20px;
+    line-height: 1.6;
+    text-transform: uppercase;
+  }
+
+  .spot__text :global(.spot__btn) {
+    margin-top: 10px;
+    padding: 18px 30px 18px 34px;
   }
 
   .spot-after {
@@ -560,9 +615,17 @@ const heroWords = hero.title.split(' ');
       display: block;
       background: var(--ink);
       color: var(--paper);
-      padding: 48px var(--gutter) 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 20px;
+      padding: 48px var(--gutter) 48px;
       font-size: 16px;
       line-height: 1.9;
+    }
+
+    .spot-after .spot__heading {
+      font-size: 16px;
     }
   }
 

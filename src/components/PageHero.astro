@@ -1,0 +1,89 @@
+---
+import Overline from './Overline.astro';
+import Three from './Three.astro';
+
+// Hero for listing pages (Work, Blog): overline, big title, short text on
+// the right and the faint gradient '3' behind.
+interface Props {
+  overline: string;
+  title: string;
+  text: string;
+  size?: 'l' | 'xl';
+}
+const { overline, title, text, size = 'xl' } = Astro.props;
+---
+<header class="ph">
+  <Three id="ph-three" class="ph__three" />
+  <Overline text={overline} />
+  <div class="ph__row">
+    <h1 class:list={['ph__title', `ph__title--${size}`]}>{title}</h1>
+    <p class="ph__text" data-reveal style="--reveal-delay:200ms">{text}</p>
+  </div>
+  <slot />
+</header>
+
+<style>
+  .ph {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(28px, 3.9vw, 75px);
+    padding: calc(var(--header-h) + clamp(32px, 6.25vw, 120px)) var(--gutter) clamp(40px, 3.125vw, 60px);
+    overflow: hidden;
+  }
+
+  .ph > :global(*:not(.ph__three)) {
+    position: relative;
+  }
+
+  .ph :global(.ph__three) {
+    position: absolute;
+    right: 12%;
+    top: 0;
+    width: min(903px, 55vw);
+    opacity: 0.18;
+    filter: blur(2px);
+  }
+
+  .ph__row {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 40px;
+  }
+
+  .ph__title {
+    font-weight: 600;
+    font-size: clamp(56px, 9.375vw, 180px);
+    line-height: 0.92;
+    text-transform: uppercase;
+    white-space: pre-line;
+    animation: ph-up 1.2s var(--ease-out) both;
+  }
+
+  .ph__title--l {
+    font-size: clamp(52px, 8.07vw, 155px);
+  }
+
+  @keyframes ph-up {
+    from {
+      opacity: 0;
+      transform: translate3d(0, 0.3em, 0);
+    }
+  }
+
+  .ph__text {
+    flex: 0 0 min(500px, 30vw);
+  }
+
+  @media (max-width: 899px) {
+    .ph__row {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .ph__text {
+      flex: none;
+    }
+  }
+</style>

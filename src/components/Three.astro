@@ -1,0 +1,26 @@
+---
+// The big '3' from the brand mark with the cyan, pink and yellow gradient.
+// Used faintly behind page heroes. The gradient slowly turns over.
+interface Props {
+  class?: string;
+  id: string;
+}
+const { class: className, id } = Astro.props;
+---
+<svg class:list={['three', className]} viewBox="388 -4 1031 1265" fill="none" aria-hidden="true">
+  <defs>
+    <linearGradient id={id} gradientUnits="objectBoundingBox" x1="0" y1="0.5" x2="1" y2="0.5">
+      <stop offset="0" stop-color="#00D0FF" />
+      <stop offset="0.495" stop-color="#F7C7FF" />
+      <stop offset="1" stop-color="#FFD600" />
+      <animateTransform attributeName="gradientTransform" type="rotate" values="0 0.5 0.5;90 0.5 0.5;180 0.5 0.5;270 0.5 0.5;360 0.5 0.5" dur="36s" repeatCount="indefinite" />
+    </linearGradient>
+  </defs>
+  <path d="M535.846 1027.94L632.102 931.262L645.144 938.556C732.744 987.53 906.789 1076.1 1020.93 1076.1L1039.4 1075.87L1119.27 1072.63L1059.830 1111.65C1011.47 1143.02 947.3 1159.23 869.741 1159.23C780.295 1159.23 635.334 1078.42 560.199 1040.09L535.846 1027.94ZM952.494 645.404L916.022 641.93L993.004 546.413H1008.35C1262.5 546.413 1300.47 679.79 1300.47 759.099L1286.39 836.439L1267.46 884.834L1249.57 836.092C1210.21 727.375 1104.61 659.529 952.494 645.404ZM714.739 180.667L800.723 94.4121H1238.61L1168.43 180.667H714.739ZM868.587 1261C1076.8 1253.01 1213.91 1172.43 1254.42 1034.31L1256.73 1026.55L1264 1022.73C1364.06 967.964 1419 873.951 1419 757.941C1419 587.977 1304.16 479.84 1104.03 461.315L1067.79 457.61L1374.91 77.0452V-4H760.097L577.511 179.278L587.552 278.732H1087.07L788.028 647.14V731.08H856.699C1109.8 731.08 1148.35 863.184 1148.93 941.682V956.733L1134.27 960.785C1100.34 969.932 1062.02 974.563 1020.7 974.563C896.402 974.563 714.97 872.793 632.102 803.789L630.948 802.631L626.101 798L388 1037.2C439.706 1079 674.69 1268.29 868.587 1260.77Z" fill={`url(#${id})`} />
+</svg>
+
+<style>
+  .three {
+    pointer-events: none;
+  }
+</style>

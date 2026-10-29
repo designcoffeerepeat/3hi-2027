@@ -1,0 +1,50 @@
+---
+import { getEntry } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import Filters from '../../components/Filters.astro';
+import CaseCard from '../../components/CaseCard.astro';
+import Clients from '../../components/Clients.astro';
+import { getCases, caseCard } from '../../lib/content';
+
+// Copy comes from src/content/pages/work.md, cards from src/content/work
+const page = (await getEntry('pages', 'work'))!.data as any;
+const home = (await getEntry('pages', 'home'))!.data as any;
+const cards = (await getCases()).map(caseCard);
+---
+<Base title={page.seo.title} description={page.seo.description}>
+  <PageHero overline={page.hero.overline.replace('{count}', String(cards.length))} title={page.hero.title} text={page.hero.text}>
+    <Filters items={page.filters} label="Filter case studies" />
+  </PageHero>
+  <section class="grid" aria-label="Case studies" data-filter-list>
+    {cards.map((c: any, i: number) => <CaseCard card={c} delay={(i % 2) * 120} />)}
+  </section>
+  <p class="empty" hidden data-filter-empty>{page.empty}</p>
+  <Clients clients={home.clients} />
+</Base>
+
+<style>
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .grid :global(.case[hidden]) {
+    display: none;
+  }
+
+  .empty {
+    padding: 80px var(--gutter);
+  }
+
+  @media (max-width: 899px) {
+    .grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script>
+  import { initFilters } from '../../scripts/filters';
+  initFilters();
+</script>

@@ -1,0 +1,310 @@
+---
+import Button from './Button.astro';
+
+// Service hero ('Hero Services' in Figma): background, flowing sun, drifting
+// clouds and an interactive glass shape drawn in WebGL (scripts/three/float.ts),
+// with the title blended over it. Without WebGL the sun and clouds are CSS.
+interface Props {
+  hero: any;
+  clouds?: string;
+}
+const { hero, clouds = '/images/clouds.webp' } = Astro.props;
+const stops = hero.sun.map((s: any) => `${s.color} ${Math.round(s.at * 100)}%`).join(', ');
+const config = JSON.stringify({ shape: hero.shape, background: hero.background, sun: hero.sun, clouds });
+---
+<section
+  class:list={['sh', `sh--${hero.tone ?? 'dark'}`]}
+  style={`--sh-bg:${hero.background};--sh-sun:radial-gradient(circle at 23.9% 88.2%, ${stops})`}
+  aria-labelledby="sh-title"
+  data-float
+>
+  <div class="sh__fallback" aria-hidden="true">
+    <img class="sh__cloud sh__cloud--2" src={clouds} alt="" width="2000" height="1122" />
+    <img class="sh__cloud sh__cloud--1" src={clouds} alt="" width="2000" height="1122" />
+    <span class="sh__sun"></span>
+    <img class="sh__cloud sh__cloud--3" src={clouds} alt="" width="2000" height="1122" />
+  </div>
+  <canvas class="sh__gl" data-float-gl data-config={config} aria-hidden="true"></canvas>
+  <!-- The title gets its own stage so its exclusion blend reaches the canvas -->
+  <div class="sh__stage sh__stage--title" data-stage>
+    <h1 id="sh-title" class:list={['sh__title', `sh__title--${hero.titleSize ?? 'l'}`]}>{hero.title}</h1>
+  </div>
+  <div class="sh__stage" data-stage>
+    <p class:list={['sh__overline mono', `sh__overline--${hero.overlineColor ?? 'yellow'}`]}>{hero.overline}</p>
+    {hero.card ? (
+      <div class="sh__card">
+        <p class="sh__card-title">{hero.card.title}</p>
+        <p>{hero.card.text}</p>
+        <Button href={hero.card.button.href} label={hero.card.button.label} />
+      </div>
+    ) : (
+      <p class="sh__text">{hero.text}</p>
+    )}
+  </div>
+  <p class="sh__hint mono" aria-hidden="true">{hero.hint ?? 'Drag to spin'}</p>
+</section>
+
+<style>
+  .sh {
+    position: relative;
+    height: 100svh;
+    min-height: 600px;
+    overflow: hidden;
+    background: var(--sh-bg);
+    color: var(--paper);
+    isolation: isolate;
+  }
+
+  .sh--light {
+    color: var(--ink);
+  }
+
+  .sh__gl,
+  .sh__fallback {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .sh__gl {
+    touch-action: pan-y;
+    cursor: grab;
+  }
+
+  .sh.is-dragging .sh__gl {
+    cursor: grabbing;
+  }
+
+  /* Hidden once the WebGL scene draws (main.ts adds .is-gl) */
+  .sh.is-gl .sh__fallback {
+    display: none;
+  }
+
+  .sh__fallback {
+    overflow: hidden;
+  }
+
+  .sh__sun {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    width: min(800px, 74svh);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: var(--sh-sun);
+    translate: -50% -50%;
+  }
+
+  .sh__cloud {
+    position: absolute;
+    max-width: none;
+    height: auto;
+  }
+
+  .sh__cloud--2 {
+    left: calc(50% - 1367px);
+    bottom: -574px;
+    width: 2111px;
+    opacity: 0.5;
+    transform: scaleX(-1);
+  }
+
+  .sh__cloud--1 {
+    left: calc(50% - 988px);
+    bottom: -542px;
+    width: 2443px;
+  }
+
+  .sh__cloud--3 {
+    left: calc(50% - 1010px);
+    bottom: -656px;
+    width: 1623px;
+  }
+
+  /* 1920 x 1080 artboard, scaled to the screen by main.ts like the spotlight */
+  .sh__stage {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: var(--stage-w, 1920px);
+    height: var(--stage-h, 1080px);
+    transform: translate(-50%, -50%) scale(var(--stage-scale, 1));
+    pointer-events: none;
+  }
+
+  /* Only the card takes clicks; everything else lets the shape be dragged
+     right through the title and copy */
+  .sh__card {
+    pointer-events: auto;
+  }
+
+  .sh__stage--title {
+    mix-blend-mode: exclusion;
+  }
+
+  .sh__overline {
+    position: absolute;
+    left: max(45px, calc(50% - 1180px));
+    top: 479px;
+  }
+
+  .sh__overline--yellow {
+    color: var(--sun);
+  }
+
+  .sh__overline--ink {
+    color: var(--ink);
+  }
+
+  .sh__title {
+    position: absolute;
+    left: max(36px, calc(50% - 1200px));
+    top: 520px;
+    font-weight: 400;
+    font-size: 235px;
+    line-height: 0.75;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--paper);
+    animation: sh-in 1.4s var(--ease-out) 0.15s both;
+  }
+
+  .sh__title--m {
+    font-size: 200px;
+    top: 540px;
+  }
+
+  @keyframes sh-in {
+    from {
+      opacity: 0;
+      translate: 0 60px;
+    }
+  }
+
+  .sh__text {
+    position: absolute;
+    right: max(45px, calc(50% - 1200px));
+    top: 834px;
+    width: 449px;
+    font-size: 20px;
+    line-height: 2;
+    /* Black on every hero, as in Figma: it sits over the clouds */
+    color: var(--ink);
+    animation: sh-in 1.4s var(--ease-out) 0.5s both;
+  }
+
+  .sh__card {
+    position: absolute;
+    right: max(45px, calc(50% - 1200px));
+    top: 616px;
+    width: 515px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 24px;
+    padding: 36px 20px 30px;
+    border-radius: 20px;
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 20px;
+    line-height: 2;
+    animation: sh-in 1.4s var(--ease-out) 0.5s both;
+  }
+
+  .sh__card-title {
+    font-weight: 600;
+    text-transform: uppercase;
+    line-height: 1.4;
+  }
+
+  .sh__card :global(.btn) {
+    padding: 18px 30px 18px 34px;
+  }
+
+  .sh__hint {
+    position: absolute;
+    left: 50%;
+    bottom: 24px;
+    translate: -50% 0;
+    z-index: 2;
+    font-size: 11px;
+    color: var(--paper);
+    mix-blend-mode: difference;
+    white-space: nowrap;
+    pointer-events: none;
+    transition: opacity 0.6s;
+  }
+
+  .sh.is-touched .sh__hint,
+  :global(.no-webgl) .sh__hint {
+    opacity: 0;
+  }
+
+  @media (max-width: 899px) {
+    /* Phones: no artboard scaling, the copy stacks under the shape */
+    .sh {
+      height: auto;
+      min-height: 100svh;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      gap: 18px;
+      padding: 60svh var(--gutter) 48px;
+    }
+
+    .sh__stage {
+      display: contents;
+    }
+
+    .sh__overline,
+    .sh__title,
+    .sh__text,
+    .sh__card {
+      position: relative;
+      inset: auto;
+      width: auto;
+    }
+
+    .sh__overline {
+      order: 1;
+    }
+
+    .sh__title,
+    .sh__title--m {
+      order: 2;
+      font-size: clamp(48px, 15vw, 120px);
+      white-space: normal;
+      line-height: 0.85;
+      mix-blend-mode: exclusion;
+    }
+
+    .sh__text,
+    .sh__card {
+      order: 3;
+      font-size: 15px;
+      line-height: 1.8;
+    }
+
+    .sh__card {
+      padding: 24px;
+    }
+
+    /* The clouds sit right behind the copy here, so give it a soft panel */
+    .sh__text {
+      padding: 18px 20px;
+      border-radius: 16px;
+      background: rgb(255 255 255 / 0.82);
+      backdrop-filter: blur(8px);
+    }
+
+    .sh__sun {
+      width: 90vw;
+    }
+
+    .sh__hint {
+      top: calc(var(--header-h) + 8px);
+      bottom: auto;
+    }
+  }
+</style>

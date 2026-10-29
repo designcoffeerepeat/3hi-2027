@@ -1,6 +1,7 @@
 import Lenis from 'lenis';
 import { createStory, smooth, easeOut } from './three/story';
 import { createAxis } from './three/axis';
+import { createFloat } from './three/float';
 import { initScan } from './scan';
 
 const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -135,6 +136,88 @@ menu?.addEventListener('click', (e) => {
 });
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') closeMenu();
+});
+
+/* Services dropdown: opens on hover (mouse) or click, closes on Escape,
+   on the scrim or when the pointer leaves for a moment. */
+const drop = document.querySelector<HTMLElement>('[data-drop]');
+const dropBtn = document.querySelector<HTMLButtonElement>('[data-drop-open]');
+const dropScrim = document.querySelector<HTMLElement>('[data-drop-scrim]');
+let dropTimer = 0;
+let dropOpen = false;
+let dropOpenedAt = 0;
+function setDrop(open: boolean) {
+  if (!drop || !dropBtn) return;
+  window.clearTimeout(dropTimer);
+  if (open === dropOpen) return;
+  dropOpen = open;
+  dropOpenedAt = performance.now();
+  dropBtn.setAttribute('aria-expanded', String(open));
+  dropScrim?.classList.toggle('is-on', open);
+  if (open) {
+    drop.hidden = false;
+    requestAnimationFrame(() => requestAnimationFrame(() => drop.classList.add('is-open')));
+  } else {
+    drop.classList.remove('is-open');
+    dropTimer = window.setTimeout(() => (drop.hidden = true), reduced ? 0 : 350);
+  }
+}
+if (drop && dropBtn) {
+  const hoverable = window.matchMedia('(hover: hover)').matches;
+  // A click right after hover opened it should not close it again
+  dropBtn.addEventListener('click', () => {
+    if (dropOpen && performance.now() - dropOpenedAt < 600) return;
+    setDrop(!dropOpen);
+  });
+  if (hoverable) {
+    const later = () => {
+      window.clearTimeout(dropTimer);
+      dropTimer = window.setTimeout(() => setDrop(false), 260);
+    };
+    for (const el of [dropBtn, drop]) {
+      el.addEventListener('pointerenter', (e) => e.pointerType === 'mouse' && setDrop(true));
+      el.addEventListener('pointerleave', (e) => e.pointerType === 'mouse' && later());
+    }
+  }
+  dropScrim?.addEventListener('click', () => setDrop(false));
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && dropOpen) {
+      setDrop(false);
+      dropBtn.focus();
+    }
+  });
+  // "Run the scan" jumps to the nearest scan bar on the page
+  drop.querySelector('[data-drop-scan]')?.addEventListener('click', () => {
+    setDrop(false);
+    const input =
+      document.querySelector<HTMLInputElement>('#ai-scan input') ??
+      document.querySelector<HTMLInputElement>('footer input');
+    if (!input) return;
+    const target = input.closest('form') ?? input;
+    if (lenis) lenis.scrollTo(target as HTMLElement, { offset: -window.innerHeight / 3, duration: 1.6 });
+    else target.scrollIntoView({ block: 'center' });
+    window.setTimeout(() => input.focus({ preventScroll: true }), lenis ? 1600 : 0);
+  });
+}
+
+/* FAQ: smooth open and close for the <details> accordion */
+document.querySelectorAll<HTMLDetailsElement>('[data-faq]').forEach((d) => {
+  const summary = d.querySelector('summary');
+  const body = d.querySelector<HTMLElement>('.faq__a');
+  if (!summary || !body || reduced) return;
+  summary.addEventListener('click', (e) => {
+    e.preventDefault();
+    const opening = !d.open;
+    if (opening) d.open = true;
+    const full = body.scrollHeight;
+    const anim = body.animate(
+      { height: opening ? ['0px', `${full}px`] : [`${full}px`, '0px'], opacity: opening ? [0, 1] : [1, 0] },
+      { duration: 450, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' },
+    );
+    anim.onfinish = () => {
+      if (!opening) d.open = false;
+    };
+  });
 });
 
 /* Every scan bar opens the AI visibility scan modal */
@@ -318,13 +401,34 @@ function sizeStage() {
   // Measured against the content frame (3000px), not the whole screen.
   const wide = w < 900 ? 1 : Math.min(1.35, Math.max(1, Math.min(w, 3000) / h / (16 / 9)));
   story?.style.setProperty('--wide', wide.toFixed(3));
-  if (!stage) return;
   // Fit the 1080 tall artboard to the screen height, but never let a narrow
   // window squeeze it below 1400 artboard pixels wide.
-  const s = Math.min(h / 1080, w / 1400);
-  stage.style.setProperty('--stage-scale', String(s));
-  stage.style.setProperty('--stage-w', `${w / s}px`);
-  stage.style.setProperty('--stage-h', `${h / s}px`);
+  for (const el of stages) {
+    // The spotlight fills the window; service heroes measure their section
+    const box = el === stage ? null : el.parentElement!.getBoundingClientRect();
+    const sw = box?.width || w;
+    const sh = box?.height || h;
+    const s = Math.min(sh / 1080, sw / 1400);
+    el.style.setProperty('--stage-scale', String(s));
+    el.style.setProperty('--stage-w', `${sw / s}px`);
+    el.style.setProperty('--stage-h', `${sh / s}px`);
+  }
+}
+const stages = [stage, ...document.querySelectorAll<HTMLElement>('[data-stage]')].filter(Boolean) as HTMLElement[];
+
+/* Service heroes: glass shape over the flowing sun and clouds */
+const floatSurface = document.querySelector<HTMLElement>('[data-float]');
+const floatCanvas = floatSurface?.querySelector<HTMLCanvasElement>('[data-float-gl]');
+let floatGL: ReturnType<typeof createFloat> | null = null;
+let floatVisible = true;
+if (webgl && floatSurface && floatCanvas) {
+  try {
+    floatGL = createFloat(floatCanvas, floatSurface, { ...JSON.parse(floatCanvas.dataset.config || '{}'), reduced });
+    floatSurface.classList.add('is-gl');
+    new IntersectionObserver((entries) => (floatVisible = entries[0].isIntersecting)).observe(floatSurface);
+  } catch (err) {
+    console.warn('3D hero unavailable', err);
+  }
 }
 
 /* Interactive axis in the AI scan section */
@@ -404,6 +508,7 @@ if (quotes) {
 function resize() {
   storyGL?.resize();
   axisGL?.resize();
+  floatGL?.resize();
   sizeStage();
   measureHero();
   measureNav();
@@ -428,6 +533,7 @@ function frame(ms: number) {
   updateMarquee();
   if (!lenis) velocity *= 0.9;
   if (axisGL && axisVisible) axisGL.render(ms);
+  if (floatGL && floatVisible && !document.hidden) floatGL.render();
   requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);

@@ -12,4 +12,18 @@ const site = defineCollection({
   loader: glob({ pattern: 'site.md', base: './src/content' }),
 });
 
-export const collections = { pages, site };
+// One file per case study (/work/[slug]) and per service (/services/[slug]).
+const work = defineCollection({
+  loader: glob({ pattern: '*.md', base: './src/content/work' }),
+});
+
+const services = defineCollection({
+  loader: glob({ pattern: '*.md', base: './src/content/services' }),
+});
+
+// Blog articles (/blog/[slug]). The article itself is the Markdown body.
+const posts = defineCollection({
+  loader: glob({ pattern: '*.md', base: './src/content/posts' }),
+});
+
+export const collections = { pages, site, work, services, posts };

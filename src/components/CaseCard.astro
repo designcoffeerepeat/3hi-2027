@@ -1,0 +1,124 @@
+---
+import Icon from './Icon.astro';
+
+// Square case study card: image, services and client top right, result pill
+// bottom left. Used on the home page, the Work page and service pages.
+interface Props {
+  card: any;
+  delay?: number;
+}
+const { card, delay = 0 } = Astro.props;
+---
+<a
+  class:list={['case', `case--${card.textColor ?? 'black'}`]}
+  href={card.href}
+  data-reveal
+  data-tags={card.tags?.join(' ')}
+  style={`--reveal-delay:${delay}ms`}
+>
+  <div class="case__media">
+    <img class="case__img" src={card.image} alt={card.imageAlt} width="960" height="960" loading="lazy" decoding="async" data-speed="-0.08" />
+  </div>
+  <div class="case__txt">
+    <p class="case__services">{card.services}</p>
+    <h3 class="case__client">{card.client}</h3>
+  </div>
+  <p class="case__result label">
+    {card.result}
+    <Icon name="arrow" size={18} />
+  </p>
+</a>
+
+<style>
+  .case {
+    position: relative;
+    display: block;
+    aspect-ratio: 1;
+    max-height: 100svh;
+    overflow: hidden;
+    background: var(--mist);
+  }
+
+  .case__media {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+  }
+
+  .case__img {
+    position: absolute;
+    inset: -8% 0;
+    width: 100%;
+    height: 116%;
+    max-width: none;
+    object-fit: cover;
+    transition: scale 1.2s var(--ease-out);
+  }
+
+  .case:hover .case__img {
+    scale: 1.04;
+  }
+
+  .case__txt {
+    position: absolute;
+    top: clamp(20px, 2.9vw, 56px);
+    right: clamp(20px, 2.9vw, 56px);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: min(264px, 45%);
+  }
+
+  .case--white .case__txt {
+    color: var(--paper);
+  }
+
+  .case__services {
+    font-size: clamp(13px, 0.83vw, 16px);
+    line-height: 1.8;
+  }
+
+  .case__client {
+    font-weight: 600;
+    font-size: var(--fs-h2);
+    line-height: 1.1;
+    text-transform: uppercase;
+    white-space: pre;
+  }
+
+  .case__result {
+    position: absolute;
+    left: clamp(20px, 2.9vw, 56px);
+    bottom: clamp(20px, 2.9vw, 56px);
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 22px;
+    border-radius: 300px;
+    background: var(--sun);
+    color: var(--ink);
+    transition:
+      background-color 0.3s,
+      color 0.3s;
+  }
+
+  .case__result :global(svg) {
+    transition: transform 0.4s var(--ease-out);
+  }
+
+  .case:hover .case__result {
+    background: var(--ink);
+    color: var(--sun);
+  }
+
+  .case:hover .case__result :global(svg) {
+    transform: rotate(45deg);
+  }
+
+  @media (max-width: 899px) {
+    .case__result {
+      font-size: 12px;
+      padding: 12px 18px;
+    }
+  }
+</style>

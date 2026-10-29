@@ -2,18 +2,26 @@
 import Icon from './Icon.astro';
 
 // Pill button. Dark is the primary CTA, Yellow for dark sections, Light for image overlays.
+// Without href it renders as a span, for use inside a larger link.
 interface Props {
-  href: string;
+  href?: string;
   label: string;
   variant?: 'dark' | 'yellow' | 'light';
   class?: string;
 }
 const { href, label, variant = 'dark', class: className } = Astro.props;
 ---
-<a href={href} class:list={['btn', `btn--${variant}`, className]}>
-  <span class="label">{label}</span>
-  <Icon name="arrow" class="btn__icon" />
-</a>
+{href ? (
+  <a href={href} class:list={['btn', `btn--${variant}`, className]}>
+    <span class="label">{label}</span>
+    <Icon name="arrow" class="btn__icon" />
+  </a>
+) : (
+  <span class:list={['btn', `btn--${variant}`, className]}>
+    <span class="label">{label}</span>
+    <Icon name="arrow" class="btn__icon" />
+  </span>
+)}
 
 <style>
   .btn {

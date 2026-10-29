@@ -10,13 +10,16 @@ import Method from '../components/Method.astro';
 import AiScan from '../components/AiScan.astro';
 import Testimonials from '../components/Testimonials.astro';
 import Insights from '../components/Insights.astro';
+import { getCases, caseCard } from '../lib/content';
 
 // All copy comes from src/content/pages/home.md
 const page = (await getEntry('pages', 'home'))!.data as any;
+const all = await getCases();
+const cards = page.work.cases.map((slug: string) => caseCard(all.find((c) => c.id === slug)));
 ---
 <Base title={page.seo.title} description={page.seo.description}>
   <Story hero={page.hero} spotlight={page.spotlight} />
-  <Work work={page.work} />
+  <Work work={page.work} cards={cards} />
   <Clients clients={page.clients} />
   <Intro intro={page.intro} />
   <Services services={page.services} />

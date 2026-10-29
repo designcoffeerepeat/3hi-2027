@@ -8,6 +8,17 @@ toTopLabel: "Back to top"
 header:
   scanPlaceholder: "Yourwebsite.com"
   scanButton: "Ai Scan"
+  # The Services link opens a dropdown listing every service page, plus
+  # this feature card on the right.
+  dropdown:
+    overline: "Services"
+    allLabel: "All services"
+    allHref: "/services"
+    feature:
+      overline: "Free tool"
+      title: "Does AI recommend you?"
+      text: "Run a free AI visibility scan on your site in under a minute."
+      button: "Run the scan"
   quickLinks:
     - label: "Services"
       href: "/services"
@@ -61,6 +72,8 @@ menu:
       href: "/services"
     - label: "AI Integration"
       href: "/services/ai-integration"
+    - label: "Shopify"
+      href: "/services/shopify"
     - label: "Work"
       href: "/work"
     - label: "About"
@@ -81,11 +94,10 @@ footer:
     href: "/contact"
   email: "info@3h-i.com"
   columns:
-    - title: "Studios"
+    - title: "Locations"
       links:
         - label: "Los Angeles"
         - label: "New York"
-        - label: "Paris"
     - title: "Services"
       links:
         - label: "SEO"
@@ -98,6 +110,8 @@ footer:
           href: "/services/ai-integration"
         - label: "UX/UI Web Design"
           href: "/services/web-design"
+        - label: "Shopify"
+          href: "/services/shopify"
     - title: "Studio"
       links:
         - label: "Work"

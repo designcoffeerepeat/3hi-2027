@@ -1,0 +1,63 @@
+---
+// Blog card: image, mono tag line and title.
+interface Props {
+  post: any;
+  delay?: number;
+}
+const { post, delay = 0 } = Astro.props;
+const d = post.data;
+---
+<a class="pc" href={`/blog/${post.id}`} data-reveal data-tags={d.category} style={`--reveal-delay:${delay}ms`}>
+  <div class="pc__media">
+    <img src={d.image} alt={d.imageAlt} loading="lazy" decoding="async" />
+  </div>
+  <p class="pc__tag mono">{d.categoryLabel}  /  {d.readTime}</p>
+  <h3 class="pc__title">{d.title}</h3>
+</a>
+
+<style>
+  .pc {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .pc[hidden] {
+    display: none;
+  }
+
+  .pc__media {
+    aspect-ratio: 480 / 430;
+    overflow: hidden;
+    background: var(--paper);
+  }
+
+  .pc__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: scale 1s var(--ease-out);
+  }
+
+  .pc:hover .pc__media img {
+    scale: 1.05;
+  }
+
+  .pc__tag {
+    white-space: pre-wrap;
+    color: var(--ink-60);
+  }
+
+  .pc__title {
+    font-weight: 600;
+    font-size: var(--fs-h3);
+    line-height: 1.3;
+  }
+
+  .pc:hover .pc__title {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 6px;
+    text-decoration-color: var(--sun);
+  }
+</style>
