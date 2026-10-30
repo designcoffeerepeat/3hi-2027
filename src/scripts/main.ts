@@ -416,7 +416,7 @@ function sizeStage() {
 }
 const stages = [stage, ...document.querySelectorAll<HTMLElement>('[data-stage]')].filter(Boolean) as HTMLElement[];
 
-/* Service heroes: glass shape over the flowing sun and clouds */
+/* Service heroes: a light bar shape over the CSS sun and clouds */
 const floatSurface = document.querySelector<HTMLElement>('[data-float]');
 const floatCanvas = floatSurface?.querySelector<HTMLCanvasElement>('[data-float-gl]');
 let floatGL: ReturnType<typeof createFloat> | null = null;

@@ -1,16 +1,16 @@
 ---
 import Button from './Button.astro';
 
-// Service hero ('Hero Services' in Figma): background, flowing sun, drifting
-// clouds and an interactive glass shape drawn in WebGL (scripts/three/float.ts),
-// with the title blended over it. Without WebGL the sun and clouds are CSS.
+// Service hero ('Hero Services' in Figma): background, a slowly flowing sun
+// and drifting clouds in CSS, a light interactive shape in WebGL
+// (scripts/three/float.ts) and the title blended over it.
 interface Props {
   hero: any;
   clouds?: string;
 }
 const { hero, clouds = '/images/clouds.webp' } = Astro.props;
 const stops = hero.sun.map((s: any) => `${s.color} ${Math.round(s.at * 100)}%`).join(', ');
-const config = JSON.stringify({ shape: hero.shape, background: hero.background, sun: hero.sun, clouds });
+const config = JSON.stringify({ shape: hero.shape, tone: hero.tone ?? 'dark' });
 ---
 <section
   class:list={['sh', `sh--${hero.tone ?? 'dark'}`]}
@@ -18,13 +18,16 @@ const config = JSON.stringify({ shape: hero.shape, background: hero.background, 
   aria-labelledby="sh-title"
   data-float
 >
-  <div class="sh__fallback" aria-hidden="true">
+  <div class="sh__sky" aria-hidden="true">
+    <span class="sh__sun"><span class="sh__sun-flow"></span></span>
     <img class="sh__cloud sh__cloud--2" src={clouds} alt="" width="2000" height="1122" />
     <img class="sh__cloud sh__cloud--1" src={clouds} alt="" width="2000" height="1122" />
-    <span class="sh__sun"></span>
-    <img class="sh__cloud sh__cloud--3" src={clouds} alt="" width="2000" height="1122" />
   </div>
   <canvas class="sh__gl" data-float-gl data-config={config} aria-hidden="true"></canvas>
+  <!-- The front cloud passes over the shape, as in the spotlight -->
+  <div class="sh__sky sh__sky--front" aria-hidden="true">
+    <img class="sh__cloud sh__cloud--3" src={clouds} alt="" width="2000" height="1122" />
+  </div>
   <!-- The title gets its own stage so its exclusion blend reaches the canvas -->
   <div class="sh__stage sh__stage--title" data-stage>
     <h1 id="sh-title" class:list={['sh__title', `sh__title--${hero.titleSize ?? 'l'}`]}>{hero.title}</h1>
@@ -60,11 +63,16 @@ const config = JSON.stringify({ shape: hero.shape, background: hero.background, 
   }
 
   .sh__gl,
-  .sh__fallback {
+  .sh__sky {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
+  }
+
+  .sh__sky {
+    overflow: hidden;
+    pointer-events: none;
   }
 
   .sh__gl {
@@ -76,15 +84,8 @@ const config = JSON.stringify({ shape: hero.shape, background: hero.background, 
     cursor: grabbing;
   }
 
-  /* Hidden once the WebGL scene draws (main.ts adds .is-gl) */
-  .sh.is-gl .sh__fallback {
-    display: none;
-  }
-
-  .sh__fallback {
-    overflow: hidden;
-  }
-
+  /* The sun's gradient flows: an oversized gradient layer turns slowly and
+     drifts inside the round mask, all on the compositor */
   .sh__sun {
     position: absolute;
     left: 50%;
@@ -92,14 +93,57 @@ const config = JSON.stringify({ shape: hero.shape, background: hero.background, 
     width: min(800px, 74svh);
     aspect-ratio: 1;
     border-radius: 50%;
-    background: var(--sh-sun);
+    overflow: hidden;
     translate: -50% -50%;
+  }
+
+  .sh__sun-flow {
+    position: absolute;
+    inset: -25%;
+    background: var(--sh-sun);
+    animation: sh-flow 26s ease-in-out infinite alternate;
+  }
+
+  @keyframes sh-flow {
+    0% {
+      transform: rotate(-14deg) translate(-4%, 3%) scale(1);
+    }
+    50% {
+      transform: rotate(10deg) translate(5%, -4%) scale(1.08);
+    }
+    100% {
+      transform: rotate(-6deg) translate(-3%, -6%) scale(1.03);
+    }
   }
 
   .sh__cloud {
     position: absolute;
     max-width: none;
     height: auto;
+    animation: sh-drift 14s ease-in-out infinite alternate;
+  }
+
+  .sh__cloud--1 {
+    animation-duration: 18s;
+    animation-delay: -6s;
+  }
+
+  .sh__cloud--3 {
+    animation-duration: 11s;
+    animation-delay: -3s;
+  }
+
+  @keyframes sh-drift {
+    to {
+      translate: 28px 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sh__sun-flow,
+    .sh__cloud {
+      animation: none;
+    }
   }
 
   .sh__cloud--2 {
