@@ -59,10 +59,14 @@ function box(w: number, h: number, d: number, look: Look, pal: Pal) {
   return new THREE.Mesh(geo, pal[look]);
 }
 
-// A bar from a to b, with square caps like the mark
+// A bar from a to b, with square caps like the mark. Where bars cross, faces
+// that sit in exactly the same plane flicker (z-fighting), so each bar gets a
+// slightly different weight and none of their faces coincide.
+let barCount = 0;
 function bar(a: THREE.Vector3, b: THREE.Vector3, look: Look, pal: Pal, weight = T) {
   const dir = b.clone().sub(a);
-  const m = box(weight, dir.length() + weight, weight, look, pal);
+  const w = weight * (1 + ((barCount++ % 5) - 2) * 0.035);
+  const m = box(w, dir.length() + w, w, look, pal);
   m.position.copy(a).add(b).multiplyScalar(0.5);
   m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.normalize());
   return m;
@@ -145,7 +149,7 @@ function buildRibbon(pal: Pal): Built {
       cols.forEach(({ c, hgt }, i) => {
         const h = hgt * (1 + lift * 0.25) + Math.sin(t * 0.9 + i) * 0.015;
         c.scale.y = h;
-        c.position.y = -0.38 + T / 2 + h / 2;
+        c.position.y = -0.38 + T * 0.6 + h / 2; // sits just above the base, no shared face
       });
     },
   };
@@ -320,7 +324,7 @@ export function createFloat(canvas: HTMLCanvasElement, surface: HTMLElement, opt
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
 
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(28, 1, 0.1, 50);
+  const camera = new THREE.PerspectiveCamera(28, 1, 5, 15); // tight range for depth precision
   camera.position.set(0, 0, 10);
   scene.add(new THREE.HemisphereLight(0xffffff, 0xd9d4ff, 2.2));
   const key = new THREE.DirectionalLight(0xffffff, 1.6);
