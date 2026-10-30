@@ -30,13 +30,18 @@ const { card, delay = 0 } = Astro.props;
 </a>
 
 <style>
+  /* Always fills its grid cell. On very wide screens the height stops at
+     the viewport and the image crops instead of the card shrinking, so a
+     two up grid never opens a gap down the middle. */
   .case {
     position: relative;
     display: block;
+    width: 100%;
     aspect-ratio: 1;
     max-height: 100svh;
     overflow: hidden;
     background: var(--mist);
+    container-type: inline-size;
   }
 
   .case__media {
@@ -66,7 +71,10 @@ const { card, delay = 0 } = Astro.props;
     display: flex;
     flex-direction: column;
     gap: 8px;
-    width: min(264px, 45%);
+    width: min(264px, 38%);
+    transition:
+      background-color 0.3s,
+      padding 0.3s;
   }
 
   .case--white .case__txt {
@@ -83,7 +91,9 @@ const { card, delay = 0 } = Astro.props;
     font-size: var(--fs-h2);
     line-height: 1.1;
     text-transform: uppercase;
-    white-space: pre;
+    /* Line breaks from the content stay, long names still wrap */
+    white-space: pre-line;
+    overflow-wrap: anywhere;
   }
 
   .case__result {
@@ -113,6 +123,36 @@ const { card, delay = 0 } = Astro.props;
 
   .case:hover .case__result :global(svg) {
     transform: rotate(45deg);
+  }
+
+  /* Smaller cards: the caption would reach the people in the photo, so it
+     shrinks and sits on its own panel */
+  @container (max-width: 760px) {
+    .case__txt {
+      top: 14px;
+      right: 14px;
+      width: auto;
+      max-width: 52%;
+      gap: 4px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: rgb(255 255 255 / 0.82);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    .case--white .case__txt {
+      background: rgb(0 0 0 / 0.55);
+    }
+
+    .case__services {
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
+    .case__client {
+      font-size: clamp(18px, 5cqi, 28px);
+    }
   }
 
   @media (max-width: 899px) {

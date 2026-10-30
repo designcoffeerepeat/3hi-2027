@@ -186,6 +186,29 @@ function glass(params: THREE.MeshPhysicalMaterialParameters = {}) {
   });
 }
 
+// Soft aqua, lilac, mint and pink patches, like holographic film
+function holoTexture() {
+  const c = document.createElement('canvas');
+  c.width = c.height = 256;
+  const g = c.getContext('2d')!;
+  g.fillStyle = '#74dbe9';
+  g.fillRect(0, 0, 256, 256);
+  const blobs = ['#b29cff', '#86f0c8', '#ffb8e0', '#6cc4ff', '#e2fbff', '#9bffe6', '#c6aaff'];
+  blobs.forEach((col, i) => {
+    const x = (Math.sin(i * 2.3) * 0.5 + 0.5) * 256;
+    const y = (Math.cos(i * 1.7) * 0.5 + 0.5) * 256;
+    const r = 70 + (i % 3) * 30;
+    const grad = g.createRadialGradient(x, y, 0, x, y, r);
+    grad.addColorStop(0, col);
+    grad.addColorStop(1, col + '00');
+    g.fillStyle = grad;
+    g.fillRect(0, 0, 256, 256);
+  });
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+
 /* ---------- Shapes ----------
    Each builder returns a group sized to about 1 world unit across, plus an
    update hook for its own idle motion and hover reaction. */
@@ -196,23 +219,61 @@ interface Built {
   pickables?: THREE.Object3D[];
 }
 
+// 'DFs-h 1': a clear crystal cube stood on a corner, rainbow light splitting
+// along its edges. Hover spins it faster and brightens the dispersion.
 function buildPrism(): Built {
   const group = new THREE.Group();
-  const mat = glass({ dispersion: 6, thickness: 1.2, iridescence: 1, flatShading: true, roughness: 0.02 });
-  const m = new THREE.Mesh(new THREE.DodecahedronGeometry(0.4, 0), mat);
-  group.add(m);
-  // Small chip floating below, as in the Figma render
-  const chip = new THREE.Mesh(new THREE.OctahedronGeometry(0.06, 0), mat);
-  chip.position.set(-0.2, -0.44, 0.25);
-  group.add(chip);
+  const mat = glass({
+    color: 0xffffff,
+    thickness: 2.2,
+    ior: 1.7,
+    dispersion: 14,
+    iridescence: 0.35,
+    iridescenceThicknessRange: [200, 900],
+    roughness: 0,
+    envMapIntensity: 1.6,
+    side: THREE.FrontSide,
+  });
+  const E = 0.46;
+  const cube = new THREE.Mesh(new RoundedBoxGeometry(E, E, E, 3, 0.01), mat);
+  // Rainbow light caught along the twelve edges: thin additive rods, each
+  // fading through the spectrum
+  const rodMats: THREE.MeshBasicMaterial[] = [];
+  const h = E / 2;
+  const ends: [number[], number[]][] = [];
+  for (const a of [-h, h]) for (const b of [-h, h]) {
+    ends.push([[-h, a, b], [h, a, b]], [[a, -h, b], [a, h, b]], [[a, b, -h], [a, b, h]]);
+  }
+  ends.forEach(([from, to], i) => {
+    const geo = new THREE.CylinderGeometry(0.0045, 0.0045, E, 6, 12, true);
+    const cols: number[] = [];
+    const pos = geo.attributes.position as THREE.BufferAttribute;
+    const c = new THREE.Color();
+    for (let k = 0; k < pos.count; k++) {
+      c.setHSL((pos.getY(k) / E + 0.5 + i * 0.21) % 1, 1, 0.6);
+      cols.push(c.r, c.g, c.b);
+    }
+    geo.setAttribute('color', new THREE.Float32BufferAttribute(cols, 3));
+    const m = new THREE.MeshBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.6, blending: THREE.AdditiveBlending, depthWrite: false });
+    rodMats.push(m);
+    const rod = new THREE.Mesh(geo, m);
+    const a = new THREE.Vector3(...from);
+    const b = new THREE.Vector3(...to);
+    rod.position.copy(a).add(b).multiplyScalar(0.5);
+    rod.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), b.sub(a).normalize());
+    cube.add(rod);
+  });
+  // Stood on a corner, as in the render
+  cube.rotation.set(0.62, 0.78, 0.18);
+  group.add(cube);
   return {
     group,
-    pickables: [m, chip],
+    pickables: [cube],
     update: (t, dt, hover) => {
-      m.rotation.x += dt * (0.12 + hover * 0.5);
-      m.rotation.z += dt * (0.05 + hover * 0.2);
-      chip.rotation.y += dt * 0.8;
-      chip.position.y = -0.44 + Math.sin(t * 1.3) * 0.03;
+      cube.rotation.y += dt * (0.1 + hover * 0.7);
+      cube.rotation.x = 0.62 + Math.sin(t * 0.35) * 0.08;
+      mat.dispersion = 14 + hover * 10;
+      rodMats.forEach((m, i) => (m.opacity = 0.35 + 0.3 * (0.5 + 0.5 * Math.sin(t * 1.3 + i)) + hover * 0.3));
     },
   };
 }
@@ -315,92 +376,176 @@ function buildKnot(): Built {
   };
 }
 
+// 'shubham-dhage': seven thin satin plates shaped like insoles, their tops
+// curling forward, stacked so they cascade down and to the right. Hover fans
+// every plate out on its own so the stack comes apart into its pieces.
 function buildFins(): Built {
   const group = new THREE.Group();
-  const shape = new THREE.Shape();
-  // A paddle: wide round head, tapering stem
-  shape.moveTo(0, -0.42);
-  shape.bezierCurveTo(0.08, -0.4, 0.06, -0.1, 0.2, 0.12);
-  shape.bezierCurveTo(0.32, 0.32, 0.18, 0.46, 0, 0.46);
-  shape.bezierCurveTo(-0.18, 0.46, -0.32, 0.32, -0.2, 0.12);
-  shape.bezierCurveTo(-0.06, -0.1, -0.08, -0.4, 0, -0.42);
-  const geo = new THREE.ExtrudeGeometry(shape, {
-    depth: 0.02,
+  const outline = new THREE.Shape();
+  // Long rounded plate: broad round head, gentle waist, narrower round toe
+  outline.moveTo(-0.13, 0.36);
+  outline.bezierCurveTo(-0.13, 0.5, 0.13, 0.5, 0.13, 0.36);
+  outline.bezierCurveTo(0.13, 0.1, 0.07, -0.05, 0.08, -0.3);
+  outline.bezierCurveTo(0.09, -0.46, -0.09, -0.46, -0.08, -0.3);
+  outline.bezierCurveTo(-0.07, -0.05, -0.13, 0.1, -0.13, 0.36);
+  const geo = new THREE.ExtrudeGeometry(outline, {
+    depth: 0.004,
     bevelEnabled: true,
-    bevelThickness: 0.025,
-    bevelSize: 0.02,
-    bevelSegments: 6,
-    curveSegments: 32,
+    bevelThickness: 0.004,
+    bevelSize: 0.004,
+    bevelSegments: 3,
+    curveSegments: 48,
   });
   geo.center();
-  const pink = glass({ color: 0xffc4e0, thickness: 0.3, iridescence: 0.7, attenuationColor: new THREE.Color(0xf29ac4), attenuationDistance: 3 });
-  const green = glass({ color: 0xbff0d4, thickness: 0.3, iridescence: 0.7, attenuationColor: new THREE.Color(0x7fd6a8), attenuationDistance: 3 });
+  // Curl the head forward and give the toe a slight kick, like the render
+  const p = geo.attributes.position as THREE.BufferAttribute;
+  for (let i = 0; i < p.count; i++) {
+    const y = p.getY(i);
+    const curl = y > 0.1 ? Math.pow((y - 0.1) / 0.36, 2) * 0.2 : 0;
+    const kick = y < -0.2 ? Math.pow((-0.2 - y) / 0.26, 2) * 0.05 : 0;
+    p.setZ(i, p.getZ(i) + curl + kick - Math.sin(y * 3) * 0.02);
+  }
+  geo.computeVertexNormals();
+  const mat = new THREE.MeshPhysicalMaterial({
+    color: 0x8fb4b8,
+    metalness: 0.45,
+    roughness: 0.3,
+    clearcoat: 1,
+    clearcoatRoughness: 0.12,
+    iridescence: 0.75,
+    iridescenceIOR: 1.5,
+    iridescenceThicknessRange: [300, 520],
+    sheen: 0.6,
+    sheenColor: new THREE.Color(0xf7c3a4),
+    envMapIntensity: 0.9,
+    side: THREE.DoubleSide,
+  });
   const fins: THREE.Mesh[] = [];
   const N = 7;
   for (let i = 0; i < N; i++) {
-    const f = new THREE.Mesh(geo, i === N - 1 ? green : pink);
+    const f = new THREE.Mesh(geo, mat);
     fins.push(f);
     group.add(f);
   }
-  // Tipped over so the stack cascades from top right to bottom left
-  group.rotation.set(0.35, -0.55, -0.95);
+  group.rotation.set(0.15, 0.4, 0.18);
+  group.scale.setScalar(0.92);
   let spread = 0;
+  const seeds = fins.map((_, i) => Math.sin(i * 12.9898) * 0.5);
   return {
     group,
     pickables: fins,
     update: (t, _dt, hover) => {
-      spread += (hover - spread) * 0.06;
-      const s = 0.1 + spread * 0.12 + Math.sin(t * 0.8) * 0.015;
+      spread += (hover - spread) * 0.07;
+      const breathe = Math.sin(t * 0.8) * 0.004;
       fins.forEach((f, i) => {
         const k = i - (N - 1) / 2;
-        f.position.set(k * 0.03, k * -0.075, k * 0.07);
-        f.rotation.set(k * 0.05, k * s, 0);
+        // Packed: tight cascade. Spread: each plate drifts apart and turns
+        const gap = 0.03 + breathe + spread * 0.09;
+        f.position.set(
+          k * (0.04 + spread * 0.17),
+          -k * (0.03 + spread * 0.07) + seeds[i] * spread * 0.1,
+          -k * gap,
+        );
+        f.rotation.set(
+          seeds[i] * spread * 0.6,
+          k * spread * 0.22,
+          -k * (0.02 + spread * 0.1) + Math.sin(t * 1.2 + i) * spread * 0.06,
+        );
       });
     },
   };
 }
 
-function buildBag(): Built {
+// 'shopBag2x': a tall holographic film bag with a side gusset, glassy rope
+// handles and a crumpled base. Hover still swings it; it also flips over and
+// tips out a handful of small glass shapes that fall away, then rights itself.
+function buildBag(space: THREE.Object3D): Built {
   const group = new THREE.Group();
-  const body = new RoundedBoxGeometry(0.62, 0.7, 0.26, 4, 0.025);
-  // Slight taper: wider at the top like a shopping bag
+  const flip = new THREE.Group(); // turned over on hover
+  group.add(flip);
+  const BW = 0.5;
+  const BH = 0.72;
+  const BD = 0.22;
+  const body = new RoundedBoxGeometry(BW, BH, BD, 6, 0.012);
   const p = body.attributes.position as THREE.BufferAttribute;
   for (let i = 0; i < p.count; i++) {
+    let x = p.getX(i);
     const y = p.getY(i);
-    const k = 1 + y * 0.12;
-    p.setX(i, p.getX(i) * k);
+    let z = p.getZ(i);
+    // Side gusset: the side panels fold in down the middle
+    const side = Math.abs(x) / (BW / 2);
+    if (side > 0.96) x -= Math.sign(x) * 0.035 * (1 - Math.abs(z) / (BD / 2));
+    // Soft crinkles in the film and a squashed, crumpled base
+    const n = Math.sin(x * 23 + y * 7) * Math.cos(y * 19 - z * 11) * 0.006;
+    z += Math.sign(z) * n;
+    const base = y < -BH / 2 + 0.06 ? (Math.sin(x * 40) * 0.006) : 0;
+    p.setXYZ(i, x * (1 + y * 0.06), y + base, z);
   }
   body.computeVertexNormals();
-  // Holographic film rather than solid glass, so the dark sky does not
-  // turn it black
-  const mat = glass({
-    color: 0xc8fbff,
-    transmission: 0.92,
-    metalness: 0.12,
-    roughness: 0.05,
-    thickness: 0.06,
+  const film = new THREE.MeshPhysicalMaterial({
+    map: holoTexture(),
+    color: 0xffffff,
+    metalness: 0.1,
+    roughness: 0.14,
+    transmission: 0.15,
+    thickness: 0.05,
+    ior: 1.4,
     iridescence: 1,
-    iridescenceIOR: 1.6,
-    iridescenceThicknessRange: [100, 1400],
-    envMapIntensity: 2.4,
-    dispersion: 3,
+    iridescenceIOR: 1.8,
+    iridescenceThicknessRange: [150, 1100],
+    clearcoat: 1,
+    clearcoatRoughness: 0.06,
+    envMapIntensity: 1.2,
+    side: THREE.DoubleSide,
   });
-  const bag = new THREE.Mesh(body, mat);
-  group.add(bag);
-  const handleMat = glass({ color: 0xc6ffb8, thickness: 0.2, iridescence: 0.6 });
-  for (const z of [0.08, -0.08]) {
+  const bag = new THREE.Mesh(body, film);
+  flip.add(bag);
+  // Bright aqua rims along the edges of the film
+  const rim = new THREE.LineSegments(
+    new THREE.EdgesGeometry(new THREE.BoxGeometry(BW * 1.02, BH, BD)),
+    new THREE.LineBasicMaterial({ color: 0x9ff6ff, transparent: true, opacity: 0.7 }),
+  );
+  flip.add(rim);
+  const handleMat = new THREE.MeshPhysicalMaterial({ color: 0x86eef5, roughness: 0.08, transmission: 0.35, thickness: 0.2, clearcoat: 1, iridescence: 0.6, envMapIntensity: 1.6 });
+  for (const z of [BD / 2 - 0.01, -BD / 2 + 0.01]) {
     const c = new THREE.CubicBezierCurve3(
-      new THREE.Vector3(-0.17, 0.33, z),
-      new THREE.Vector3(-0.18, 0.72, z),
-      new THREE.Vector3(0.18, 0.72, z),
-      new THREE.Vector3(0.17, 0.33, z),
+      new THREE.Vector3(-0.13, BH / 2 - 0.02, z),
+      new THREE.Vector3(-0.15, BH / 2 + 0.36, z * 0.6),
+      new THREE.Vector3(0.15, BH / 2 + 0.36, z * 0.6),
+      new THREE.Vector3(0.13, BH / 2 - 0.02, z),
     );
-    group.add(new THREE.Mesh(new THREE.TubeGeometry(c, 48, 0.014, 10, false), handleMat));
+    flip.add(new THREE.Mesh(new THREE.TubeGeometry(c, 60, 0.016, 12, false), handleMat));
   }
-  group.position.y = -0.12;
-  group.rotation.y = 0.45;
+  flip.position.y = -0.1;
+  group.rotation.set(0.08, 0.5, 0.06);
+  group.scale.setScalar(0.88);
+
+  /* Shapes that tumble out when the bag flips */
+  const goodies = [
+    new THREE.SphereGeometry(0.05, 24, 16),
+    new RoundedBoxGeometry(0.08, 0.08, 0.08, 3, 0.012),
+    new THREE.TorusGeometry(0.045, 0.018, 16, 32),
+    new THREE.ConeGeometry(0.05, 0.1, 24),
+    new THREE.OctahedronGeometry(0.055, 0),
+  ];
+  const tints = [0xff8fb8, 0xffe066, 0x7ce0ff, 0xb59cff, 0x8ff0c2, 0xffffff];
+  const goodieMats = tints.map((c) => glass({ color: c, thickness: 0.4, iridescence: 0.8, dispersion: 2, attenuationColor: new THREE.Color(c), attenuationDistance: 0.4 }));
+  interface Drop {
+    mesh: THREE.Mesh;
+    vel: THREE.Vector3;
+    spin: THREE.Vector3;
+    life: number;
+  }
+  const drops: Drop[] = [];
+  const mouth = new THREE.Vector3();
+
   let swing = 0;
   let swingV = 0;
+  let wasHover = false;
+  let phase = 0; // 0 still, then flips over, pours, turns back
+  let clock = 0;
+  let poured = 0;
+
   return {
     group,
     pickables: [bag],
@@ -409,7 +554,64 @@ function buildBag(): Built {
       swingV += (-swing * 6 + hover * 0.8 * Math.sin(t * 3)) * dt;
       swingV *= 0.985;
       swing += swingV * dt * 4;
-      group.rotation.z = swing * 0.25 + Math.sin(t * 0.6) * 0.04;
+      group.rotation.z = 0.06 + swing * 0.25 + Math.sin(t * 0.6) * 0.04;
+
+      const on = hover > 0.5;
+      if (on && !wasHover && phase === 0) {
+        phase = 1;
+        clock = 0;
+        poured = 0;
+      }
+      wasHover = on;
+
+      if (phase) {
+        clock += dt;
+        // 0 to 0.7s: turn over. 0.7 to 1.9s: pour. Then turn back over 0.8s
+        const over = clock < 0.7 ? clock / 0.7 : clock < 1.9 ? 1 : Math.max(0, 1 - (clock - 1.9) / 0.8);
+        const e = over * over * (3 - 2 * over);
+        flip.rotation.z = e * Math.PI;
+        flip.position.y = -0.1 + Math.sin(e * Math.PI) * 0.12;
+        if (clock > 0.55 && clock < 1.9 && poured < 9 && clock > 0.55 + poured * 0.13) {
+          // The opening is the top of the bag, now pointing down
+          mouth.set((Math.random() - 0.5) * 0.25, BH / 2 - 0.05, (Math.random() - 0.5) * 0.08);
+          flip.localToWorld(mouth);
+          space.worldToLocal(mouth);
+          const mesh = new THREE.Mesh(goodies[poured % goodies.length], goodieMats[poured % goodieMats.length]);
+          mesh.position.copy(mouth);
+          mesh.scale.setScalar(0.01);
+          space.add(mesh);
+          drops.push({
+            mesh,
+            vel: new THREE.Vector3((Math.random() - 0.5) * 0.5, -0.1 - Math.random() * 0.2, (Math.random() - 0.5) * 0.4),
+            spin: new THREE.Vector3(Math.random() * 6 - 3, Math.random() * 6 - 3, Math.random() * 6 - 3),
+            life: 0,
+          });
+          poured++;
+        }
+        if (clock > 2.7) {
+          phase = 0;
+          flip.rotation.z = 0;
+          flip.position.y = -0.1;
+        }
+      }
+
+      for (let i = drops.length - 1; i >= 0; i--) {
+        const d = drops[i];
+        d.life += dt;
+        d.vel.y -= 1.6 * dt;
+        d.mesh.position.addScaledVector(d.vel, dt);
+        d.mesh.rotation.x += d.spin.x * dt;
+        d.mesh.rotation.y += d.spin.y * dt;
+        d.mesh.rotation.z += d.spin.z * dt;
+        // Pop in, then shrink away as they fall off the bottom
+        const grow = Math.min(1, d.life / 0.2);
+        const fade = Math.max(0, 1 - Math.max(0, d.life - 1.4) / 0.6);
+        d.mesh.scale.setScalar(grow * fade);
+        if (fade <= 0) {
+          space.remove(d.mesh);
+          drops.splice(i, 1);
+        }
+      }
     },
   };
 }
@@ -430,16 +632,31 @@ function buildCubes(): Built & { cubes: Cube[]; slots: THREE.Vector3[] } {
   const d = size / 2 + 0.01;
   const slots: THREE.Vector3[] = [];
   for (const x of [-d, d]) for (const y of [-d, d]) for (const z of [-d, d]) slots.push(new THREE.Vector3(x, y, z));
-  const tints = [0xbfefff, 0xffd6f4, 0xfff2a8, 0xd8ccff, 0xb9ffe2, 0xffc9b8, 0xc7e0ff, 0xf8ffc8];
-  const geo = new RoundedBoxGeometry(size, size, size, 4, 0.035);
+  // The Figma cube: red, white, blue and cyan blocks, a charcoal one, and two
+  // frosted glass ones. Slot order is x, then y, then z (- before +).
+  const solid = (color: number, emissive = 0) =>
+    new THREE.MeshPhysicalMaterial({ color, roughness: 0.35, clearcoat: 0.5, clearcoatRoughness: 0.3, envMapIntensity: 0.5, emissive, emissiveIntensity: 0.15, toneMapped: false });
+  const frosted = (color: number) =>
+    new THREE.MeshPhysicalMaterial({ color, roughness: 0.38, transmission: 1, thickness: 0.6, ior: 1.4, clearcoat: 0.4, envMapIntensity: 1.1 });
+  const looks = [
+    solid(0x2a2a2c), // left bottom back
+    solid(0x2a2a2c), // left bottom front: charcoal
+    solid(0xf4f6f8, 0xffffff), // left top back: white
+    solid(0xe8443c, 0xe8443c), // left top front: red
+    solid(0x22d8e6, 0x22d8e6), // right bottom back: cyan
+    frosted(0xc6d8ff), // right bottom front: frosted blue
+    solid(0x2f8cf0, 0x2f8cf0), // right top back: blue
+    frosted(0xf3dce6), // right top front: frosted pink
+  ];
+  const geo = new RoundedBoxGeometry(size, size, size, 5, 0.03);
   const cubes: Cube[] = slots.map((s, i) => {
-    const mesh = new THREE.Mesh(geo, glass({ color: tints[i], thickness: 0.6, iridescence: 0.9, dispersion: 2 }));
+    const mesh = new THREE.Mesh(geo, looks[i]);
     mesh.position.copy(s);
     mesh.userData.cube = i;
     group.add(mesh);
     return { mesh, slot: i, pos: s.clone(), vel: new THREE.Vector3(), target: s.clone() };
   });
-  group.rotation.set(0.5, 0.7, 0);
+  group.rotation.set(0.55, -0.72, 0);
   return { group, cubes, slots, pickables: cubes.map((c) => c.mesh) };
 }
 
@@ -526,7 +743,7 @@ export function createFloat(canvas: HTMLCanvasElement, surface: HTMLElement, opt
     ribbon: buildRibbon,
     knot: buildKnot,
     fins: buildFins,
-    bag: buildBag,
+    bag: () => buildBag(holder),
     cubes: buildCubes,
   };
   const built = (builders[opts.shape] ?? buildPrism)();
@@ -633,6 +850,8 @@ export function createFloat(canvas: HTMLCanvasElement, surface: HTMLElement, opt
     touched = true;
     surface.classList.add('is-touched');
     const h = pick();
+    // Touch has no hover, so pressing the shape plays its hover reaction
+    if (e.pointerType !== 'mouse' && h) hoverTarget = 1;
     if (cubeKit && h) {
       const cube = cubeKit.cubes.find((c) => c.mesh === h.object)!;
       held = cube;
@@ -678,6 +897,7 @@ export function createFloat(canvas: HTMLCanvasElement, surface: HTMLElement, opt
   });
 
   function release(e: PointerEvent) {
+    if (e.pointerType !== 'mouse') hoverTarget = 0;
     if (!dragging) return;
     if (dragging === 'cube' && held && cubeKit) {
       // Snap into the nearest slot; whoever was there swaps places

@@ -69,7 +69,7 @@ const px = (v: number) => `min(${v}px, ${((v / 1920) * 100).toFixed(3)}vw)`;
         {g.full ? (
           <img src={g.full.src} alt={g.full.alt} width={g.full.width} height={g.full.height} loading="lazy" decoding="async" />
         ) : (
-          <>
+          <div class="cs-rows">
             <div class="cs-cols">
               {g.columns.map((col: any) => (
                 <div class="cs-col" style={`width:${pct(col.width)};gap:${px(col.gap ?? 100)}`}>
@@ -96,7 +96,7 @@ const px = (v: number) => `min(${v}px, ${((v / 1920) * 100).toFixed(3)}vw)`;
             {g.after?.map((it: any) => (
               <img class="cs-after" src={it.src} alt={it.alt} width={it.width} height={it.height} loading="lazy" decoding="async" style={`width:${pct(it.size)};margin-top:${px(100)}`} data-reveal />
             ))}
-          </>
+          </div>
         )}
       </section>
     )}
@@ -294,6 +294,15 @@ const px = (v: number) => `min(${v}px, ${((v / 1920) * 100).toFixed(3)}vw)`;
   .cs-gallery--full img {
     width: 100%;
     height: auto;
+  }
+
+  /* Rows stop growing at 1600px so ultrawide screens keep the layout */
+  .cs-rows {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 1600px;
   }
 
   .cs-cols {
