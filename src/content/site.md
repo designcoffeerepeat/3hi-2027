@@ -83,7 +83,7 @@ menu:
     - label: "Contact"
       href: "/contact"
   email: "info@3h-i.com"
-  studios: "Los Angeles  /  New York  /  Paris"
+  studios: "Los Angeles  /  New York"
 
 footer:
   overline: "Have a project in mind?"

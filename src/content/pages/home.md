@@ -75,8 +75,8 @@ intro:
   stats:
     - value: "20+"
       label: "Years building for the web, since 2005"
-    - value: "3"
-      label: "Studios: Los Angeles, New York, Paris"
+    - value: "2"
+      label: "Studios: Los Angeles, New York"
     - value: "5"
       label: "Disciplines under one roof"
     - value: "5"

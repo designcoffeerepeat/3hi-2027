@@ -15,9 +15,6 @@ studios:
 - city: "New York"
   zone: "Eastern Time"
   tz: "America/New_York"
-- city: "Paris"
-  zone: "Central European Time"
-  tz: "Europe/Paris"
 social:
 - label: "LinkedIn"
   href: "https://www.linkedin.com/"
