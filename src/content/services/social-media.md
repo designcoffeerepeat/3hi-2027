@@ -1,7 +1,7 @@
 ---
 # Service page copy. Edit the text between the quotes. Keep the indentation as it is.
 # hero.sun lists the colours of the sun's flowing gradient, each with its
-# position from 0 to 1. hero.shape picks the interactive 3D shape.
+# position from 0 to 1. hero.art is the picture in the middle, placed on the 1920 x 1080 artboard.
 
 number: "05"
 name: "Social Media"
@@ -23,7 +23,13 @@ hero:
     at: 0.62
   - color: "#225c79"
     at: 1
-  shape: "fins"
+  art:
+    src: "/images/services/social-headphones.webp"
+    alt: "Two people back to back wearing headphones"
+    x: 431
+    y: 198
+    w: 1193
+    h: 895
 overview: "Social is where your brand earns attention every day. We make sure it is worth the scroll."
 offerings:
   overline: "Grow your audience"

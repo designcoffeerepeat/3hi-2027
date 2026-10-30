@@ -68,12 +68,11 @@ menu:
   links:
     - label: "Home"
       href: "/"
+    # submenu: true lists every service page under this link
     - label: "Services"
       href: "/services"
-    - label: "AI Integration"
-      href: "/services/ai-integration"
-    - label: "Shopify"
-      href: "/services/shopify"
+      submenu: true
+      allLabel: "All services"
     - label: "Work"
       href: "/work"
     - label: "About"

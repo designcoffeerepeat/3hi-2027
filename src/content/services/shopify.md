@@ -1,7 +1,7 @@
 ---
 # Service page copy. Edit the text between the quotes. Keep the indentation as it is.
 # hero.sun lists the colours of the sun's flowing gradient, each with its
-# position from 0 to 1. hero.shape picks the interactive 3D shape.
+# position from 0 to 1. hero.art is the picture in the middle, placed on the 1920 x 1080 artboard.
 
 number: "06"
 name: "Shopify"
@@ -21,7 +21,13 @@ hero:
     at: 0.53
   - color: "#b1e3df"
     at: 1
-  shape: "bag"
+  art:
+    src: "/images/services/shopify-bag.webp"
+    alt: ""
+    x: 620
+    y: 103
+    w: 680
+    h: 874
 overview: "A Shopify store is not a template with your logo on it. It is your best salesperson, open all night. We build stores that load fast, read clearly and show up when people, and AI assistants, go looking."
 offerings:
   overline: "What we build"

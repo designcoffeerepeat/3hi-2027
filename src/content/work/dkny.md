@@ -43,24 +43,20 @@ bullets:
 - title: "Shopify store care"
   text: "Theme improvements and ongoing care to keep the store fast and stable."
 gallery:
+  gap: 75
   columns:
-  - width: 400
+  - width: 700
     items:
     - src: "/images/work/dkny-g1.webp"
-      alt: "DKNY store on mobile"
-      width: 216
-      height: 4096
-  - width: 1180
-    gap: 137
+      alt: "DKNY home page on desktop"
+      width: 1050
+      height: 2879
+  - width: 700
     items:
     - src: "/images/work/dkny-g2.webp"
-      alt: "DKNY home page on desktop"
-      width: 1180
-      height: 3235
-    - src: "/images/work/dkny-g3.webp"
       alt: "DKNY collection and product pages"
-      width: 907
-      height: 4096
+      width: 1050
+      height: 4746
 results:
   stats:
   - value: "+00%"

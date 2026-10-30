@@ -65,12 +65,16 @@ const px = (v: number) => `min(${v}px, ${((v / 1920) * 100).toFixed(3)}vw)`;
     </section>
 
     {g && (
-      <section class:list={['cs-gallery', { 'cs-gallery--full': g.full }]} aria-label="Project gallery">
+      <section class:list={['cs-gallery', { 'cs-gallery--full': g.full, 'cs-gallery--pair': g.pair }]} aria-label="Project gallery">
         {g.full ? (
           <img src={g.full.src} alt={g.full.alt} width={g.full.width} height={g.full.height} loading="lazy" decoding="async" />
+        ) : g.pair ? (
+          g.pair.map((it: any) => (
+            <img src={it.src} alt={it.alt} width={it.width} height={it.height} loading="lazy" decoding="async" data-reveal />
+          ))
         ) : (
           <div class="cs-rows">
-            <div class="cs-cols">
+            <div class="cs-cols" style={g.gap != null ? `gap:${pct(g.gap)}` : undefined}>
               {g.columns.map((col: any) => (
                 <div class="cs-col" style={`width:${pct(col.width)};gap:${px(col.gap ?? 100)}`}>
                   {col.items.map((it: any) => (
@@ -94,7 +98,7 @@ const px = (v: number) => `min(${v}px, ${((v / 1920) * 100).toFixed(3)}vw)`;
               ))}
             </div>
             {g.after?.map((it: any) => (
-              <img class="cs-after" src={it.src} alt={it.alt} width={it.width} height={it.height} loading="lazy" decoding="async" style={`width:${pct(it.size)};margin-top:${px(100)}`} data-reveal />
+              <img class="cs-after" src={it.src} alt={it.alt} width={it.width} height={it.height} loading="lazy" decoding="async" style={`width:${pct(it.size)};margin-top:${px(it.gap ?? 100)}`} data-reveal />
             ))}
           </div>
         )}
@@ -291,6 +295,21 @@ const px = (v: number) => `min(${v}px, ${((v / 1920) * 100).toFixed(3)}vw)`;
     padding: 0;
   }
 
+  /* Two pictures side by side, as 'Gallery-PH' in Figma */
+  .cs-gallery--pair {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 0 var(--gutter, 60px) clamp(32px, 3.125vw, 60px);
+    background: none;
+  }
+
+  .cs-gallery--pair img {
+    flex: 1 1 0;
+    min-width: 0;
+    height: auto;
+  }
+
   .cs-gallery--full img {
     width: 100%;
     height: auto;
@@ -472,6 +491,16 @@ const px = (v: number) => `min(${v}px, ${((v / 1920) * 100).toFixed(3)}vw)`;
 
     .cs-cols {
       gap: 3%;
+    }
+
+    .cs-gallery--pair {
+      flex-direction: column;
+      padding-inline: 0;
+    }
+
+    .cs-gallery--pair img {
+      flex: none;
+      width: 100%;
     }
   }
 </style>

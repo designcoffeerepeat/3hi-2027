@@ -1,7 +1,7 @@
 ---
 # Service page copy. Edit the text between the quotes. Keep the indentation as it is.
 # hero.sun lists the colours of the sun's flowing gradient, each with its
-# position from 0 to 1. hero.shape picks the interactive 3D shape.
+# position from 0 to 1. hero.art is the picture in the middle, placed on the 1920 x 1080 artboard.
 
 number: "02"
 name: "UX/UI Web Design"
@@ -21,8 +21,13 @@ hero:
     at: 0.53
   - color: "#b1e3df"
     at: 1
-  shape: "cubes"
-  hint: "Drag a cube out. It snaps back."
+  art:
+    src: "/images/services/ux-model.webp"
+    alt: "Model in a cream knit set and white sunglasses"
+    x: 418
+    y: 151
+    w: 1162
+    h: 1744
 overview: "Good design is invisible. Customers find what they want, trust what they see and check out without friction."
 offerings:
   overline: "Design services"

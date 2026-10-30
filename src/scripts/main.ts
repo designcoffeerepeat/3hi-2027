@@ -1,7 +1,7 @@
 import Lenis from 'lenis';
-import { createStory, smooth, easeOut } from './three/story';
+import { createStory, smooth, easeOut, easeInOut, tickAngle } from './three/story';
 import { createAxis } from './three/axis';
-import { createFloat } from './three/float';
+import { createCubes } from './three/cubes';
 import { initScan } from './scan';
 
 const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -93,6 +93,10 @@ document.querySelectorAll<HTMLAnchorElement>('a[href="#top"]').forEach((a) =>
 const menu = document.querySelector<HTMLElement>('[data-menu]');
 const openBtn = document.querySelector<HTMLButtonElement>('[data-menu-open]');
 const closeBtn = document.querySelector<HTMLButtonElement>('[data-menu-close]');
+// Services submenu inside the menu
+menu?.querySelectorAll<HTMLButtonElement>('[data-menu-toggle]').forEach((btn) => {
+  btn.addEventListener('click', () => btn.setAttribute('aria-expanded', String(btn.getAttribute('aria-expanded') !== 'true')));
+});
 // The burger bars first turn into the close mark, then the menu opens out
 // from that spot. Closing runs the same steps backwards.
 const MORPH = reduced ? 0 : 380;
@@ -408,7 +412,8 @@ function sizeStage() {
     const box = el === stage ? null : el.parentElement!.getBoundingClientRect();
     const sw = box?.width || w;
     const sh = box?.height || h;
-    const s = Math.min(sh / 1080, sw / 1400);
+    // On phones the service art is fitted to the width instead
+    const s = sw < 900 && el.hasAttribute('data-sh-art') ? sw / 1000 : Math.min(sh / 1080, sw / 1400);
     el.style.setProperty('--stage-scale', String(s));
     el.style.setProperty('--stage-w', `${sw / s}px`);
     el.style.setProperty('--stage-h', `${sh / s}px`);
@@ -416,19 +421,85 @@ function sizeStage() {
 }
 const stages = [stage, ...document.querySelectorAll<HTMLElement>('[data-stage]')].filter(Boolean) as HTMLElement[];
 
-/* Service heroes: a light bar shape over the CSS sun and clouds */
-const floatSurface = document.querySelector<HTMLElement>('[data-float]');
-const floatCanvas = floatSurface?.querySelector<HTMLCanvasElement>('[data-float-gl]');
-let floatGL: ReturnType<typeof createFloat> | null = null;
-let floatVisible = true;
-if (webgl && floatSurface && floatCanvas) {
+/* Service heroes. On the AI page: the glass cubes. On every one: layers
+   lift at their own speeds, then the ticking 'xt - 2sm' mark grows to the
+   middle, its flat arm floods the screen in the next section's colour and
+   the other two arms fly off, like the clock on the home page. */
+const sh = document.querySelector<HTMLElement>('[data-sh]');
+const shPin = sh?.querySelector<HTMLElement>('.sh__pin');
+const shAnchor = sh?.querySelector<HTMLElement>('[data-sh-anchor]');
+const shArms = sh ? (['x', 'y', 'hand'].map((k) => sh.querySelector<HTMLElement>(`[data-sh-${k}]`)) as HTMLElement[]) : [];
+const shRest = { x: 0, y: 0, s: 100 };
+let shCopyY = 0;
+let shVisible = true;
+if (sh) new IntersectionObserver((entries) => (shVisible = entries[0].isIntersecting)).observe(sh);
+
+const cubesCanvas = sh?.querySelector<HTMLCanvasElement>('[data-cubes-gl]');
+let cubesGL: ReturnType<typeof createCubes> | null = null;
+if (webgl && shPin && cubesCanvas) {
   try {
-    floatGL = createFloat(floatCanvas, floatSurface, { ...JSON.parse(floatCanvas.dataset.config || '{}'), reduced });
-    floatSurface.classList.add('is-gl');
-    new IntersectionObserver((entries) => (floatVisible = entries[0].isIntersecting)).observe(floatSurface);
+    cubesGL = createCubes(cubesCanvas, shPin, reduced);
   } catch (err) {
     console.warn('3D hero unavailable', err);
   }
+}
+
+function measureSh() {
+  if (!shPin || !shAnchor) return;
+  const p = shPin.getBoundingClientRect();
+  const r = shAnchor.getBoundingClientRect();
+  // The copy stage carries the anchor and may be mid parallax on desktop
+  const lift = window.innerWidth < 900 ? 0 : shCopyY;
+  shRest.x = r.left - p.left + r.width / 2;
+  shRest.y = r.top - p.top + r.height / 2 - lift;
+  shRest.s = r.width;
+  sh!.classList.add('is-ready');
+}
+
+const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
+function placeArm(el: HTMLElement, x: number, y: number, len: number, thick: number, angle = 0) {
+  el.style.transform = `translate(${x.toFixed(1)}px,${y.toFixed(1)}px) rotate(${angle.toFixed(4)}rad) scale(${(len / 100).toFixed(4)},${(thick / 100).toFixed(4)}) translate(-50px,-50px)`;
+}
+
+function shProgress() {
+  if (!sh || reduced) return 0;
+  const r = sh.getBoundingClientRect();
+  const span = r.height - window.innerHeight;
+  return span > 0 ? Math.min(1, Math.max(0, -r.top / span)) : 0;
+}
+
+function updateSh(p: number, ms: number) {
+  if (!sh || !shPin || shArms.some((a) => !a)) return;
+  const w = shPin.clientWidth;
+  const h = shPin.clientHeight;
+  const mobile = w < 900;
+  const lift = smooth(0, 0.5, p);
+  shCopyY = -lift * h * 0.3;
+  sh.style.setProperty('--sy', `${(-lift * h * 0.08).toFixed(1)}px`);
+  sh.style.setProperty('--ay', `${(-lift * h * 0.2).toFixed(1)}px`);
+  sh.style.setProperty('--ty', `${(-lift * h * 0.42).toFixed(1)}px`);
+  sh.style.setProperty('--cy', `${shCopyY.toFixed(1)}px`);
+
+  const a = easeInOut(smooth(0.02, 0.42, p)); // grows to the middle
+  const b = easeInOut(smooth(0.38, 0.72, p)); // flat arm floods
+  const c = easeInOut(smooth(0.68, 0.94, p)); // the other arms fly off
+  const L = lerp(shRest.s, mobile ? Math.max(w * 1.3, h * 0.9) : h * 1.7, a);
+  const T = L * 0.0756; // stroke to length, as drawn
+  const cx = lerp(shRest.x, w / 2, a);
+  const cy = lerp(shRest.y, h / 2, a);
+  const [x, y, hand] = shArms;
+
+  placeArm(x, cx, cy, lerp(L + T, Math.max(L + T, w * 1.3), b), lerp(T, h * 1.4, b));
+  // Turns to the flood colour early, while it is still a thin bar
+  x.style.setProperty('--fill', smooth(0, 0.22, b).toFixed(3));
+  placeArm(y, cx + lerp(0, -0.38 * w, b) - c * 0.6 * w, cy, T, L + T);
+  // Second hand ticks like a quartz watch, then settles on the diagonal
+  const tick = reduced ? Math.PI / 4 : tickAngle(ms);
+  let delta = (Math.PI / 4 - tick) % Math.PI;
+  if (delta > Math.PI / 2) delta -= Math.PI;
+  if (delta < -Math.PI / 2) delta += Math.PI;
+  const angle = -(tick + delta * smooth(0.02, 0.2, p));
+  placeArm(hand, cx + lerp(0, 0.34 * w, b) + c * 0.6 * w, cy + lerp(0, 0.3 * h, b) + c * 0.6 * h, L + T, T, angle);
 }
 
 /* Interactive axis in the AI scan section */
@@ -508,12 +579,14 @@ if (quotes) {
 function resize() {
   storyGL?.resize();
   axisGL?.resize();
-  floatGL?.resize();
+  cubesGL?.resize();
   sizeStage();
+  measureSh();
   measureHero();
   measureNav();
 }
 document.fonts?.ready.then(() => {
+  measureSh();
   measureHero();
   measureNav();
 });
@@ -533,7 +606,8 @@ function frame(ms: number) {
   updateMarquee();
   if (!lenis) velocity *= 0.9;
   if (axisGL && axisVisible) axisGL.render(ms);
-  if (floatGL && floatVisible && !document.hidden) floatGL.render();
+  if (sh && shVisible) updateSh(shProgress(), ms);
+  if (cubesGL && shVisible && !document.hidden) cubesGL.render();
   requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);

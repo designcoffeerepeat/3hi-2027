@@ -1,7 +1,7 @@
 ---
 # Service page copy. Edit the text between the quotes. Keep the indentation as it is.
 # hero.sun lists the colours of the sun's flowing gradient, each with its
-# position from 0 to 1. hero.shape picks the interactive 3D shape.
+# position from 0 to 1. hero.art is the picture in the middle, placed on the 1920 x 1080 artboard.
 
 number: "04"
 name: "Growth Marketing"
@@ -21,7 +21,14 @@ hero:
     at: 0.5
   - color: "#e3b1d6"
     at: 1
-  shape: "knot"
+  art:
+    src: "/images/services/growth-family.webp"
+    alt: "A child on a parent's shoulders"
+    x: 526
+    y: 108
+    w: 868
+    h: 1024
+    blend: "luminosity"
 overview: "Growth is a system, not a campaign. We test, measure and refine every channel until the numbers move."
 offerings:
   overline: "Grow faster"

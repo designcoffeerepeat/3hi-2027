@@ -1,7 +1,7 @@
 ---
 # Service page copy. Edit the text between the quotes. Keep the indentation as it is.
 # hero.sun lists the colours of the sun's flowing gradient, each with its
-# position from 0 to 1. hero.shape picks the interactive 3D shape.
+# position from 0 to 1. hero.art is the picture in the middle, placed on the 1920 x 1080 artboard.
 
 number: "03"
 name: "SEO"
@@ -21,7 +21,15 @@ hero:
     at: 0.53
   - color: "#e3e1b1"
     at: 1
-  shape: "ribbon"
+  art:
+    src: "/images/services/seo-ribbon.webp"
+    alt: ""
+    x: 391
+    y: 1185
+    w: 780
+    h: 1386
+    rotate: 105
+    blend: "exclusion"
 overview: "SEO is not dead. It is evolving into generative engine optimization, and the brands that adapt first will own both Google and AI answers."
 offerings:
   overline: "Rank higher"

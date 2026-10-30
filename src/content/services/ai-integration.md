@@ -1,7 +1,7 @@
 ---
 # Service page copy. Edit the text between the quotes. Keep the indentation as it is.
 # hero.sun lists the colours of the sun's flowing gradient, each with its
-# position from 0 to 1. hero.shape picks the interactive 3D shape.
+# position from 0 to 1. hero.art is the picture in the middle, placed on the 1920 x 1080 artboard.
 
 number: "01"
 name: "AI Integration"
@@ -21,7 +21,8 @@ hero:
     at: 0.47
   - color: "#ab36e2"
     at: 1
-  shape: "blob"
+  cubes: true
+  hint: "Drag a cube out. It snaps back."
 overview: "We find the places where AI saves the most time or makes the most money, then build it into the tools your team already uses."
 offerings:
   overline: "The power of AI"

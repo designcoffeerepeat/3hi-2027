@@ -43,25 +43,27 @@ bullets:
 - title: "Shopify store care"
   text: "Theme improvements and ongoing care to keep the store fast and stable."
 gallery:
+  gap: 100
   columns:
-  - width: 300
+  - width: 700
     items:
     - src: "/images/work/5springs-g1.webp"
-      alt: "5 Springs Pilates site on mobile"
-      width: 302
-      height: 2088
-  - width: 1180
+      alt: "5 Springs Pilates pages on desktop"
+      width: 1053
+      height: 7304
+  - width: 700
     items:
     - src: "/images/work/5springs-g2.webp"
-      alt: "5 Springs Pilates pages on desktop"
-      width: 1180
-      height: 3556
+      alt: "5 Springs Pilates home page on desktop"
+      width: 1050
+      height: 3164
   after:
   - src: "/images/work/5springs-g3.webp"
     alt: "5 Springs Pilates class and pricing sections"
     width: 1680
     height: 930
     size: 1680
+    gap: 153
 results:
   stats:
   - value: "+00%"

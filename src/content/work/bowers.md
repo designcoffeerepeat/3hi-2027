@@ -23,7 +23,7 @@ hero:
   src: "/images/work/bowers-hero.webp"
   alt: "Bowers & Wilkins website on desktop"
   width: 1920
-  height: 1080
+  height: 1188
 card:
   services: "SEO / Content creation"
   result: "+00% result metric"
@@ -42,11 +42,16 @@ bullets:
 - title: "Launch support"
   text: "Launch pages for releases like the Px8 S2, optimized, published and indexed on day one."
 gallery:
-  full:
-    src: "/images/work/bowers-gallery.webp"
-    alt: "Bowers & Wilkins Px8 S2 product pages"
-    width: 1920
-    height: 2047
+  # pair: two pictures side by side, edge to edge
+  pair:
+  - src: "/images/work/bowers-g1.webp"
+    alt: "Bowers & Wilkins Px8 S2 headphones"
+    width: 1790
+    height: 1490
+  - src: "/images/work/bowers-g2.webp"
+    alt: "Man wearing Bowers & Wilkins Px8 S2 headphones"
+    width: 1790
+    height: 1490
 results:
   stats:
   - value: "+00%"

@@ -21,7 +21,14 @@ hero:
     at: 0.53
   - color: "#e3e1b1"
     at: 1
-  shape: "prism"
+  art:
+    src: "/images/services/services-prism.webp"
+    alt: ""
+    x: 553
+    y: 200
+    w: 815
+    h: 811
+    blend: "exclusion"
 index:
   overline: "Capabilities"
   title: "Five\ndisciplines"

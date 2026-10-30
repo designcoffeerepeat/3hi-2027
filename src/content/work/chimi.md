@@ -44,13 +44,15 @@ bullets:
 - title: "Shopify store care"
   text: "Theme improvements and ongoing care to keep the store fast and stable."
 gallery:
+  # gap: space between the columns, in pixels on the 1680 wide design
+  gap: 64
   columns:
-  - width: 400
+  - width: 347
     items:
     - src: "/images/work/chimi-g1.webp"
       alt: "Chimi store on mobile"
-      width: 216
-      height: 4096
+      width: 521
+      height: 3231
   - width: 1180
     gap: 137
     items:
@@ -62,14 +64,6 @@ gallery:
       alt: "Chimi product page on desktop"
       width: 1180
       height: 1526
-      overlay:
-        src: "/images/work/chimi-g4.webp"
-        alt: "Chimi product page on mobile"
-        width: 347
-        height: 2154
-        left: 51.3
-        top: 48.2
-        size: 29.4
 results:
   stats:
   - value: "+00%"

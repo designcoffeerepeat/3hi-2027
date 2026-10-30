@@ -59,12 +59,12 @@ export const smooth = (a: number, b: number, v: number) => {
   return t * t * (3 - 2 * t);
 };
 export const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
-const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+export const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 
 // Second hand: snaps forward every half second with a small overshoot,
 // like a quartz watch, and still goes round once a minute.
-function tickAngle(ms: number) {
+export function tickAngle(ms: number) {
   const s = ms / 500;
   const whole = Math.floor(s);
   const f = Math.min(1, (s - whole) / 0.36);
