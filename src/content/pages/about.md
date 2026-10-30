@@ -15,9 +15,10 @@ hero:
   arrowLabel: "Time’s Ticking"
 visual:
   caption: "Innovating for tomorrow"
-  # Still from the brand film. To play the film instead, add its file to
-  # /public/videos and set video: "/videos/brand.mp4"
-  image: "/images/about-hollywood.webp"
+  # The brand film plays muted on a loop; the image is its poster and the
+  # fallback when video cannot play
+  video: "/videos/about-brand.mp4"
+  image: "/images/about-brand-poster.webp"
   imageAlt: "Aerial view of the Hollywood sign"
 story:
   overline: "Our story"

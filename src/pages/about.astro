@@ -41,7 +41,7 @@ const words = page.hero.title.split(' ');
 
   <section class="ab-visual" id="visual" aria-label={page.visual.caption}>
     {page.visual.video ? (
-      <video src={page.visual.video} poster={page.visual.image} autoplay muted loop playsinline aria-hidden="true"></video>
+      <video src={page.visual.video} poster={page.visual.image} autoplay muted loop playsinline preload="metadata" aria-hidden="true"></video>
     ) : (
       <img src={page.visual.image} alt={page.visual.imageAlt} width="1920" height="900" loading="lazy" decoding="async" data-speed="-0.1" />
     )}
