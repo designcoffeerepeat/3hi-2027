@@ -626,8 +626,23 @@ if (quotes) {
   quotes.querySelector('[data-quotes-next]')?.addEventListener('click', () => go(i + 1));
 }
 
+/* Case card names: shrink until no word has to break mid word */
+const caseNames = [...document.querySelectorAll<HTMLElement>('.case__client')];
+function fitCaseNames() {
+  for (const el of caseNames) {
+    el.style.fontSize = '';
+    let size = parseFloat(getComputedStyle(el).fontSize);
+    while (el.scrollWidth > el.clientWidth + 1 && size > 12) {
+      size -= 1;
+      el.style.fontSize = `${size}px`;
+    }
+  }
+}
+fitCaseNames();
+
 /* Loop */
 function resize() {
+  fitCaseNames();
   storyGL?.resize();
   axisGL?.resize();
   sizeStage();
@@ -636,6 +651,7 @@ function resize() {
   measureNav();
 }
 document.fonts?.ready.then(() => {
+  fitCaseNames();
   measureSh();
   measureHero();
   measureNav();
