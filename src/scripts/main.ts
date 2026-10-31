@@ -382,6 +382,16 @@ function measureHero() {
   if (!heroTitle || !heroCopy || w < 900) {
     story.style.removeProperty('--title-fit');
     story.style.removeProperty('--copy-max');
+    // Phones: the clock sits in the gap between the title and the copy,
+    // small enough that its sweeping hand stays a margin away from both
+    if (heroTitle && heroCopy && storyGL) {
+      const top = heroTitle.offsetTop + heroTitle.offsetHeight;
+      const bottom = heroCopy.offsetTop;
+      const gap = bottom - top;
+      const margin = Math.min(28, gap * 0.15);
+      const size = Math.max(60, Math.min(w * 0.46, window.innerHeight * 0.24, (gap - margin * 2) / (1 + 50 / 661)));
+      storyGL.fit((top + bottom) / 2, size);
+    }
     return;
   }
   const u = Math.min(w / 1920, window.innerHeight / 1080);

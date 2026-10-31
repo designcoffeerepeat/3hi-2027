@@ -503,16 +503,23 @@ const heroWords = hero.title.split(' ');
 
   /* Tablet and phone */
   @media (max-width: 899px) {
+    /* Shorter run than desktop so the clock hands off to the
+       spotlight after less scrolling */
     .story {
-      height: 480svh;
+      height: 300svh;
     }
 
+    /* Clears the logo pill with room for the overline above it */
     .hero__title {
       left: var(--gutter);
       right: var(--gutter);
-      top: calc(var(--header-h) + 3svh);
+      top: calc(var(--header-h) + 58px);
       width: auto;
-      font-size: clamp(56px, 17vw, 120px);
+      font-size: clamp(48px, min(17vw, 8.5svh), 120px);
+    }
+
+    .hero__overline {
+      bottom: calc(100% + 14px);
     }
 
     .story__three {
