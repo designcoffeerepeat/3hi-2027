@@ -503,7 +503,11 @@ const here = Astro.url.pathname.replace(/\/$/, '');
   }
 
   @media (max-width: 767px) {
-    .header__nav {
+    /* Phones have no scan bar or pill here, so the AI scan section must not
+       close the nav up: that clipped the hamburger into a lemon shape */
+    .header__nav,
+    .header.is-scan-away .header__nav {
+      width: auto;
       background: none;
       padding: 0;
     }
