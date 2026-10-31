@@ -601,14 +601,67 @@ function updateScrub() {
   scrubWords.forEach((w, i) => w.classList.toggle('is-on', i < n));
 }
 
-/* Marquee speeds up with scroll velocity */
+/* Client names marquee: drifts left on its own, speeds up with scroll
+   velocity and can be dragged or swiped sideways (inertia, then it carries
+   on drifting). Two copies of the list, so it wraps at half its width. */
 const marquee = document.querySelector<HTMLElement>('[data-marquee]');
-const marqueeAnim = marquee?.getAnimations()[0];
 let velocity = 0;
-function updateMarquee() {
-  if (!marqueeAnim || reduced) return;
+let mqX = 0;
+let mqHalf = 0;
+let mqSpeed = 1;
+let mqDrag: { id: number; x: number; y: number; t: number; axis: '' | 'x' | 'y' } | null = null;
+let mqFling = 0;
+let mqLast = 0;
+function measureMarquee() {
+  if (marquee) mqHalf = marquee.scrollWidth / 2;
+}
+if (marquee) {
+  marquee.style.animation = 'none';
+  marquee.style.touchAction = 'pan-y';
+  measureMarquee();
+  marquee.addEventListener('pointerdown', (e) => {
+    mqDrag = { id: e.pointerId, x: e.clientX, y: e.clientY, t: performance.now(), axis: '' };
+    mqFling = 0;
+  });
+  window.addEventListener('pointermove', (e) => {
+    if (!mqDrag || e.pointerId !== mqDrag.id) return;
+    const dx = e.clientX - mqDrag.x;
+    const dy = e.clientY - mqDrag.y;
+    if (!mqDrag.axis && Math.hypot(dx, dy) > 6) {
+      mqDrag.axis = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
+      if (mqDrag.axis === 'x') marquee.setPointerCapture?.(e.pointerId);
+    }
+    if (mqDrag.axis !== 'x') return;
+    const now = performance.now();
+    const dt = Math.max(1, now - mqDrag.t);
+    mqX += dx;
+    mqFling = (dx / dt) * 16; // px per frame
+    mqDrag.x = e.clientX;
+    mqDrag.y = e.clientY;
+    mqDrag.t = now;
+  });
+  const end = (e: PointerEvent) => {
+    if (mqDrag && e.pointerId === mqDrag.id) mqDrag = null;
+  };
+  window.addEventListener('pointerup', end);
+  window.addEventListener('pointercancel', end);
+  // A drag should not follow the link or select text
+  marquee.addEventListener('dragstart', (e) => e.preventDefault());
+}
+function updateMarquee(ms: number) {
+  if (!marquee || !mqHalf) return;
+  const dt = Math.min(50, ms - (mqLast || ms)) / 16.67;
+  mqLast = ms;
   const target = 1 + Math.min(6, Math.abs(velocity) * 0.25);
-  marqueeAnim.playbackRate += (target - marqueeAnim.playbackRate) * 0.08;
+  mqSpeed += (target - mqSpeed) * 0.08;
+  if (!mqDrag) {
+    // 50s per loop at rest, like the old CSS animation
+    const drift = reduced ? 0 : (mqHalf / (50 * 60)) * mqSpeed;
+    mqX += (mqFling - drift) * dt;
+    mqFling *= Math.pow(0.94, dt);
+  }
+  mqX = ((mqX % mqHalf) - mqHalf) % mqHalf;
+  marquee.style.transform = `translate3d(${mqX.toFixed(2)}px, 0, 0)`;
 }
 
 /* Testimonials carousel (only when there is more than one) */
@@ -643,6 +696,7 @@ fitCaseNames();
 /* Loop */
 function resize() {
   fitCaseNames();
+  measureMarquee();
   storyGL?.resize();
   axisGL?.resize();
   sizeStage();
@@ -669,7 +723,7 @@ function frame(ms: number) {
   updateStory(storyProgress(), ms);
   updateParallax();
   updateScrub();
-  updateMarquee();
+  updateMarquee(ms);
   if (!lenis) velocity *= 0.9;
   if (axisGL && axisVisible) axisGL.render(ms);
   if (sh && shVisible) {
