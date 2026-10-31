@@ -26,4 +26,10 @@ const posts = defineCollection({
   loader: glob({ pattern: '*.md', base: './src/content/posts' }),
 });
 
-export const collections = { pages, site, work, services, posts };
+// Legal pages (/accessibility, /privacy). Hero copy in the frontmatter, the
+// statement itself is the Markdown body.
+const legal = defineCollection({
+  loader: glob({ pattern: '*.md', base: './src/content/legal' }),
+});
+
+export const collections = { pages, site, work, services, posts, legal };
