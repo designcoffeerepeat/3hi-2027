@@ -160,15 +160,15 @@ const services = (await getServices()).map((s) => ({ name: (s.data as any).name,
     position: relative;
     width: clamp(44px, 4vw, 72px);
     height: clamp(44px, 4vw, 72px);
-    border: 1px solid rgb(255 255 255 / 0.3);
-    border-radius: 50%;
+    /* Just the plus sign: no ring or fill */
+    border: 0;
     background: none;
     color: var(--sun);
     cursor: pointer;
     opacity: 0;
     transition:
       opacity 0.6s var(--ease-out) 0.4s,
-      background-color 0.3s;
+      color 0.3s;
   }
 
   .menu.is-open .menu__toggle {
@@ -176,7 +176,7 @@ const services = (await getServices()).map((s) => ({ name: (s.data as any).name,
   }
 
   .menu__toggle:hover {
-    background: rgb(255 255 255 / 0.08);
+    color: var(--paper);
   }
 
   .menu__toggle span,

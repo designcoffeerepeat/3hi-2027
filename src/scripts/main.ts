@@ -95,6 +95,8 @@ const openBtn = document.querySelector<HTMLButtonElement>('[data-menu-open]');
 const closeBtn = document.querySelector<HTMLButtonElement>('[data-menu-close]');
 // Services submenu inside the menu
 menu?.querySelectorAll<HTMLButtonElement>('[data-menu-toggle]').forEach((btn) => {
+  // Phones open it from the start, so the service pages show straight away
+  if (window.matchMedia('(max-width: 767px)').matches) btn.setAttribute('aria-expanded', 'true');
   btn.addEventListener('click', () => btn.setAttribute('aria-expanded', String(btn.getAttribute('aria-expanded') !== 'true')));
 });
 // The burger bars first turn into the close mark, then the menu opens out
