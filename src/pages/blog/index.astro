@@ -20,15 +20,6 @@ const PAGE = 6;
 <Base title={page.seo.title} description={page.seo.description}>
   <PageHero overline={page.hero.overline} title={page.hero.title} text={page.hero.text} size="l" />
 
-  <div class="bl-tools">
-    <Filters items={page.filters} label="Filter articles" />
-    <label class="bl-search">
-      <Icon name="search" size={20} />
-      <span class="visually-hidden">{page.search}</span>
-      <input type="search" placeholder={page.search} data-filter-search />
-    </label>
-  </div>
-
   <section class="bl-feat" aria-labelledby="bl-feat-title">
     <a class="bl-feat__media" href={`/blog/${featured.id}`} tabindex="-1" aria-hidden="true">
       <img src={f.image} alt="" width="860" height="640" decoding="async" />
@@ -49,6 +40,15 @@ const PAGE = 6;
         <h2 id="bl-latest-title" class="display-xl">{page.latest.title}</h2>
       </div>
       <p class="mono" data-filter-count>{String(rest.length).padStart(2, '0')} articles</p>
+    </div>
+    <!-- Filters and search sit right above the rows they narrow -->
+    <div class="bl-tools">
+      <Filters items={page.filters} label="Filter articles" />
+      <label class="bl-search">
+        <Icon name="search" size={20} />
+        <span class="visually-hidden">{page.search}</span>
+        <input type="search" placeholder={page.search} data-filter-search />
+      </label>
     </div>
     <div class="bl-grid" data-filter-list data-page={PAGE}>
       {rest.map((p, i) => <PostCard post={p} delay={(i % 3) * 100} />)}
@@ -83,7 +83,6 @@ const PAGE = 6;
     align-items: center;
     justify-content: space-between;
     gap: 20px 40px;
-    padding: clamp(24px, 2.45vw, 47px) var(--gutter-wide);
   }
 
   .bl-search {
@@ -93,7 +92,8 @@ const PAGE = 6;
     width: min(420px, 100%);
     padding: 16px 28px;
     border-radius: 300px;
-    background: var(--mist);
+    /* White on the mist section, so the field reads as a field */
+    background: var(--paper);
   }
 
   .bl-search input {
