@@ -85,13 +85,14 @@ const { services } = Astro.props;
     inset: 0 calc(-1 * var(--gutter-wide) / 3);
     z-index: -1;
     background: var(--sun);
-    transform: scaleY(0);
-    transform-origin: bottom;
-    transition: transform 0.5s var(--ease-out);
+    /* Pill shaped, as in the 'Service Row' hover in Uni Components */
+    border-radius: 300px;
+    clip-path: inset(100% 0 0 0 round 300px);
+    transition: clip-path 0.5s var(--ease-out);
   }
 
   .row:hover::before {
-    transform: scaleY(1);
+    clip-path: inset(0 0 0 0 round 300px);
   }
 
   .row__num {

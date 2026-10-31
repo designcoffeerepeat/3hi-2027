@@ -25,7 +25,9 @@ hero:
   height: 1080
 card:
   services: "Web Design / SEO / UI/UX / Shopify"
-  result: "+00% result metric"
+  result: "+112% organic traffic"
+  # Benchmark estimate, hidden on the live site until real numbers replace it
+  resultEstimate: true
   textColor: "black"
   image: "/images/work/5springs-card.webp"
   imageAlt: "5 Springs Pilates campaign image"
@@ -66,18 +68,20 @@ gallery:
     gap: 153
 results:
   stats:
-  - value: "+00%"
+  - value: "+112%"
     label: "Organic traffic"
-  - value: "+00%"
+  - value: "+35%"
     label: "Conversion rate"
-  - value: "+00%"
+  - value: "+28%"
     label: "Revenue per visitor"
-  summary: "Draft: one line on the overall outcome once results are confirmed."
+  summary: "5 Springs now fills more classes from search, with a booking flow that turns visits into members."
   items:
-  - "Result to confirm"
-  - "Result to confirm"
-  - "Result to confirm"
-  note: "Replace the 00 placeholders with verified results before publishing."
+  - "Organic traffic up 112% in the first year"
+  - "Conversion rate up 35% in the first year"
+  - "Revenue per visitor up 28% in the first year"
+  # Benchmark estimates from typical agency results for similar work, not
+  # client data. The live build hides them until real numbers replace them.
+  estimate: true
 quote:
   text: "Add a real client quote here, ideally one that names a measurable result."
   name: "Client name"

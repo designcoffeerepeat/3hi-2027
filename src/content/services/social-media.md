@@ -23,6 +23,10 @@ hero:
     at: 0.62
   - color: "#225c79"
     at: 1
+  # 'textBGblur': soft paper glow behind the paragraph, on the 1920 artboard
+  blur:
+    x: 1113
+    y: 639
   art:
     src: "/images/services/social-rings.webp"
     alt: ""

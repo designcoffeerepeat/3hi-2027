@@ -21,6 +21,10 @@ hero:
     at: 0.53
   - color: "#e3e1b1"
     at: 1
+  # 'textBGblur': soft paper glow behind the paragraph, on the 1920 artboard
+  blur:
+    x: 1224
+    y: 687
   art:
     src: "/images/services/seo-ribbon.webp"
     alt: ""

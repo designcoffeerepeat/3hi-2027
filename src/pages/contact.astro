@@ -13,6 +13,7 @@ const f = page.form;
 ---
 <Base title={page.seo.title} description={page.seo.description}>
   <section class="ct" aria-labelledby="ct-title">
+    <img class="ct__three" src="/images/contact-3.svg" alt="" aria-hidden="true" width="1031" height="1265" />
     <div class="ct__info">
       <Overline text={page.overline} />
       <h1 id="ct-title" class="ct__title">{page.title}</h1>
@@ -74,10 +75,34 @@ const f = page.form;
 
 <style>
   .ct {
+    position: relative;
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 820px);
     gap: clamp(40px, 5.2vw, 100px);
     padding: calc(var(--header-h) + clamp(24px, 3.125vw, 60px)) var(--gutter) clamp(64px, 5.2vw, 100px);
+  }
+
+  /* Large gradient 3 behind the hero, wide screens only ('Contact - 1 - wide') */
+  .ct__three {
+    display: none;
+  }
+
+  @media (min-width: 1600px) {
+    .ct__three {
+      display: block;
+      position: absolute;
+      left: 28.47vw;
+      top: -1.44vw;
+      width: 36.1vw;
+      height: auto;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .ct__info,
+    .ct-form {
+      position: relative;
+    }
   }
 
   .ct__info {

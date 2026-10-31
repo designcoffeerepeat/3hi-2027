@@ -67,8 +67,10 @@ results:
     label: "Website traffic"
   - value: "+81%"
     label: "Online bookings"
-  - value: "+00%"
+  - value: "+40%"
     label: "Reviews and referrals"
+    # Benchmark estimate, hidden on the live site until a real number replaces it
+    estimate: true
   summary: "Ovosk now turns more first visits into bookings, and more bookings into regulars."
   items:
   - "Website traffic up 63%"

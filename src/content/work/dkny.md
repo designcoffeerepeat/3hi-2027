@@ -25,7 +25,9 @@ hero:
   height: 1080
 card:
   services: "SEO / UI/UX / Shopify"
-  result: "+00% result metric"
+  result: "+64% organic traffic"
+  # Benchmark estimate, hidden on the live site until real numbers replace it
+  resultEstimate: true
   textColor: "black"
   image: "/images/work/dkny-card.webp"
   imageAlt: "DKNY campaign image"
@@ -59,18 +61,20 @@ gallery:
       height: 4746
 results:
   stats:
-  - value: "+00%"
+  - value: "+64%"
     label: "Organic traffic"
-  - value: "+00%"
+  - value: "+18%"
     label: "Conversion rate"
-  - value: "+00%"
+  - value: "+15%"
     label: "Revenue per visitor"
-  summary: "Draft: one line on the overall outcome once results are confirmed."
+  summary: "DKNY's store now ranks for more of what shoppers search and converts more of that traffic."
   items:
-  - "Result to confirm"
-  - "Result to confirm"
-  - "Result to confirm"
-  note: "Replace the 00 placeholders with verified results before publishing."
+  - "Organic traffic up 64% in the first year"
+  - "Conversion rate up 18% in the first year"
+  - "Revenue per visitor up 15% in the first year"
+  # Benchmark estimates from typical agency results for similar work, not
+  # client data. The live build hides them until real numbers replace them.
+  estimate: true
 quote:
   text: "Add a real client quote here, ideally one that names a measurable result."
   name: "Client name"

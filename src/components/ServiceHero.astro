@@ -45,6 +45,11 @@ const clouds3 = [
           <img class:list={['sh__cloud', c.cls]} src={clouds} alt="" width="2000" height="1122" />
         </span>
       ))}
+      {hero.blur && (
+        <div class="sh__stage" data-stage>
+          <span class="sh__glow" style={`--gx:${hero.blur.x + 966 - 1875}px;top:${hero.blur.y - 300}px`}></span>
+        </div>
+      )}
       <span class="sh__sun"><span class="sh__sun-flow"></span></span>
     </div>
 
@@ -107,7 +112,7 @@ const clouds3 = [
     /* The pin holds the hero while the mark plays the transition */
     height: 250svh;
     /* The next section rises over the pin while the arms fly off */
-    margin-bottom: -90svh;
+    margin-bottom: -130svh;
     background: var(--flood);
     color: var(--paper);
   }
@@ -373,6 +378,20 @@ const clouds3 = [
     }
   }
 
+  /* 'textBGblur': a 966px paper disc with a 300 layer blur, behind the
+     paragraph, above the clouds and below the sun and object. Drawn as a
+     soft radial gradient (300px of fade each side) and kept on the
+     paragraph's right edge so it follows the text on wide screens. */
+  .sh__glow {
+    position: absolute;
+    right: calc(max(45px, 50% - 1200px) - var(--gx) - 300px);
+    width: 1566px;
+    height: 1566px;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, #f4f1eb 28%, rgb(244 241 235 / 0.7) 58%, rgb(244 241 235 / 0.2) 82%, transparent 100%);
+    pointer-events: none;
+  }
+
   .sh__text {
     position: absolute;
     right: max(45px, calc(50% - 1200px));
@@ -475,6 +494,10 @@ const clouds3 = [
   /* Phones, as 'Service / ... - Mobile' in Figma: one screen tall, no mark
      and no transition, the object above the copy and the copy in a card */
   @media (max-width: 899px) {
+    .sh__glow {
+      display: none;
+    }
+
     /* Phones: no pinned transition, the hero scrolls away like any section */
     .sh {
       height: auto;
