@@ -383,8 +383,11 @@ function measureHero() {
   if (!heroTitle || !heroCopy || w < 900) {
     story.style.removeProperty('--title-fit');
     story.style.removeProperty('--copy-max');
+    // Phones: the clock's black arm sits under the headline, not across it
+    storyGL?.below(heroTitle && w < 900 ? heroTitle.offsetTop + heroTitle.offsetHeight : null);
     return;
   }
+  storyGL?.below(null);
   const u = Math.min(w / 1920, window.innerHeight / 1080);
   const radius = (661 * u * (1 + 50 / 661)) / 2;
   const margin = Math.max(24, 40 * u);
