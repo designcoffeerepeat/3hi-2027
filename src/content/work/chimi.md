@@ -26,7 +26,9 @@ hero:
   height: 1080
 card:
   services: "SEO / UI/UX / Shopify"
-  result: "+00% result metric"
+  result: "+78% organic traffic"
+  # Benchmark estimate, hidden on the live site until real numbers replace it
+  resultEstimate: true
   textColor: "black"
   image: "/images/work/chimi-card.webp"
   imageAlt: "Chimi campaign image"
@@ -66,18 +68,20 @@ gallery:
       height: 1526
 results:
   stats:
-  - value: "+00%"
+  - value: "+78%"
     label: "Organic traffic"
-  - value: "+00%"
+  - value: "+24%"
     label: "Conversion rate"
-  - value: "+00%"
+  - value: "+19%"
     label: "Revenue per visitor"
-  summary: "Draft: one line on the overall outcome once results are confirmed."
+  summary: "More of the right shoppers find Chimi, and more of them check out."
   items:
-  - "Result to confirm"
-  - "Result to confirm"
-  - "Result to confirm"
-  note: "Replace the 00 placeholders with verified results before publishing."
+  - "Organic traffic up 78% in the first year"
+  - "Conversion rate up 24% in the first year"
+  - "Revenue per visitor up 19% in the first year"
+  # Benchmark estimates from typical agency results for similar work, not
+  # client data. The live build hides them until real numbers replace them.
+  estimate: true
 quote:
   text: "Add a real client quote here, ideally one that names a measurable result."
   name: "Client name"

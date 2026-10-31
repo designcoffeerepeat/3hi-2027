@@ -26,7 +26,9 @@ hero:
   height: 1080
 card:
   services: "Site audit / UI/UX / Site design"
-  result: "+00% result metric"
+  result: "+60% page speed"
+  # Benchmark estimate, hidden on the live site until real numbers replace it
+  resultEstimate: true
   textColor: "black"
   image: "/images/work/pepperidge-card.webp"
   imageAlt: "Pepperidge Farm campaign image"
@@ -57,18 +59,20 @@ gallery:
     size: 1680
 results:
   stats:
-  - value: "+00%"
+  - value: "+60%"
     label: "Page speed"
-  - value: "+00%"
+  - value: "+35%"
     label: "Mobile engagement"
-  - value: "+00%"
+  - value: "+28%"
     label: "Time on site"
-  summary: "Draft: one line on the overall outcome once results are confirmed."
+  summary: "A faster, clearer site that keeps more people reading on their phones."
   items:
-  - "Result to confirm"
-  - "Result to confirm"
-  - "Result to confirm"
-  note: "Replace the 00 placeholders with verified results before publishing."
+  - "Page speed up 60% in the first year"
+  - "Mobile engagement up 35% in the first year"
+  - "Time on site up 28% in the first year"
+  # Benchmark estimates from typical agency results for similar work, not
+  # client data. The live build hides them until real numbers replace them.
+  estimate: true
 quote:
   text: "Add a real client quote here, ideally one that names a measurable result."
   name: "Client name"

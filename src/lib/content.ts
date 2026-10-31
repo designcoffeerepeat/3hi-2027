@@ -30,3 +30,8 @@ export function caseCard(entry: any) {
     ...d.card,
   };
 }
+
+// Benchmark estimates (fields flagged `estimate` or `resultEstimate`) show on
+// preview builds only. Cloudflare Workers Builds sets WORKERS_CI_BRANCH; the
+// live site builds from main, where they are hidden until real numbers land.
+export const hideEstimates = process.env.WORKERS_CI_BRANCH === 'main' || process.env.HIDE_ESTIMATES === '1';

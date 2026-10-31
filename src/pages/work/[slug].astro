@@ -2,7 +2,7 @@
 import Base from '../../layouts/Base.astro';
 import Overline from '../../components/Overline.astro';
 import PrevNext from '../../components/PrevNext.astro';
-import { getCases } from '../../lib/content';
+import { getCases, hideEstimates } from '../../lib/content';
 
 // One page per file in src/content/work. Previous and Next wrap around the
 // list, so the first case study links back to the last one.
@@ -105,11 +105,12 @@ const px = (v: number) => `min(${v}px, ${((v / 1920) * 100).toFixed(3)}vw)`;
       </section>
     )}
 
+    {!(c.results.estimate && hideEstimates) && (
     <section class="cs-results" aria-labelledby="cs-results-title">
       <Overline text="Results" tone="paper" />
       <h2 id="cs-results-title" class="cs-results__title" data-reveal>The outcome</h2>
       <div class="cs-stats">
-        {c.results.stats.map((s: any, i: number) => (
+        {c.results.stats.filter((s: any) => !(s.estimate && hideEstimates)).map((s: any, i: number) => (
           <div class="cs-stat" data-reveal style={`--reveal-delay:${i * 100}ms`}>
             <p class="cs-stat__value grad-text">{s.value}</p>
             <p class="mono">{s.label}</p>
@@ -122,10 +123,11 @@ const px = (v: number) => `min(${v}px, ${((v / 1920) * 100).toFixed(3)}vw)`;
           <ul>
             {c.results.items.map((r: string) => <li>{r}</li>)}
           </ul>
-          <p class="cs-sum__note">{c.results.note}</p>
+          {c.results.note && <p class="cs-sum__note">{c.results.note}</p>}
         </div>
       </div>
     </section>
+    )}
 
     <figure class="cs-quote">
       <span class="cs-quote__mark" aria-hidden="true">“</span>

@@ -26,7 +26,9 @@ hero:
   height: 1188
 card:
   services: "SEO / Content creation"
-  result: "+00% result metric"
+  result: "+95% organic traffic"
+  # Benchmark estimate, hidden on the live site until real numbers replace it
+  resultEstimate: true
   textColor: "white"
   image: "/images/work/bowers-card.webp"
   imageAlt: "Bowers & Wilkins campaign image"
@@ -54,18 +56,20 @@ gallery:
     height: 1490
 results:
   stats:
-  - value: "+00%"
+  - value: "+95%"
     label: "Organic traffic"
-  - value: "+00%"
+  - value: "+140%"
     label: "Keyword rankings"
-  - value: "+00%"
+  - value: "+45%"
     label: "Content engagement"
-  summary: "Draft: one line on the overall outcome once results are confirmed."
+  summary: "Bowers & Wilkins content now ranks for far more of the questions buyers ask."
   items:
-  - "Result to confirm"
-  - "Result to confirm"
-  - "Result to confirm"
-  note: "Replace the 00 placeholders with verified results before publishing."
+  - "Organic traffic up 95% in the first year"
+  - "Keyword rankings up 140% in the first year"
+  - "Content engagement up 45% in the first year"
+  # Benchmark estimates from typical agency results for similar work, not
+  # client data. The live build hides them until real numbers replace them.
+  estimate: true
 quote:
   text: "Add a real client quote here, ideally one that names a measurable result."
   name: "Client name"

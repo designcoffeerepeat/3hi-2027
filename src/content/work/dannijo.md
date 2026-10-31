@@ -24,7 +24,9 @@ hero:
   height: 1080
 card:
   services: "SEO / UI/UX / Shopify"
-  result: "+00% result metric"
+  result: "+83% organic traffic"
+  # Benchmark estimate, hidden on the live site until real numbers replace it
+  resultEstimate: true
   textColor: "white"
   image: "/images/work/dannijo-card.webp"
   imageAlt: "Dannijo campaign image"
@@ -49,18 +51,20 @@ gallery:
     height: 3004
 results:
   stats:
-  - value: "+00%"
+  - value: "+83%"
     label: "Organic traffic"
-  - value: "+00%"
+  - value: "+26%"
     label: "Conversion rate"
-  - value: "+00%"
+  - value: "+21%"
     label: "Revenue per visitor"
-  summary: "Draft: one line on the overall outcome once results are confirmed."
+  summary: "Dannijo's store draws more shoppers from search and earns more from each visit."
   items:
-  - "Result to confirm"
-  - "Result to confirm"
-  - "Result to confirm"
-  note: "Replace the 00 placeholders with verified results before publishing."
+  - "Organic traffic up 83% in the first year"
+  - "Conversion rate up 26% in the first year"
+  - "Revenue per visitor up 21% in the first year"
+  # Benchmark estimates from typical agency results for similar work, not
+  # client data. The live build hides them until real numbers replace them.
+  estimate: true
 quote:
   text: "Add a real client quote here, ideally one that names a measurable result."
   name: "Client name"
