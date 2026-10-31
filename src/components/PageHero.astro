@@ -9,11 +9,13 @@ interface Props {
   title: string;
   text: string;
   size?: 'l' | 'xl';
+  /** The faint '3' behind; the Blog hero goes without it */
+  three?: boolean;
 }
-const { overline, title, text, size = 'xl' } = Astro.props;
+const { overline, title, text, size = 'xl', three = true } = Astro.props;
 ---
 <header class="ph">
-  <Three id="ph-three" class="ph__three" />
+  {three && <Three id="ph-three" class="ph__three" />}
   <Overline text={overline} />
   <div class="ph__row">
     <h1 class:list={['ph__title', `ph__title--${size}`]}>{title}</h1>

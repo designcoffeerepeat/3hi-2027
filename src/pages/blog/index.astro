@@ -18,7 +18,7 @@ const f = featured.data as any;
 const PAGE = 6;
 ---
 <Base title={page.seo.title} description={page.seo.description}>
-  <PageHero overline={page.hero.overline} title={page.hero.title} text={page.hero.text} size="l" />
+  <PageHero overline={page.hero.overline} title={page.hero.title} text={page.hero.text} size="l" three={false} />
 
   <section class="bl-feat" aria-labelledby="bl-feat-title">
     <a class="bl-feat__media" href={`/blog/${featured.id}`} tabindex="-1" aria-hidden="true">
