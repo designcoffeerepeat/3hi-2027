@@ -124,6 +124,20 @@ const { placeholder, button, variant = 'light', id, class: className } = Astro.p
 
     .scan__btn {
       padding: 0 14px;
+      gap: 8px;
+    }
+
+    /* Smaller type so the address and button fit cleanly, and an underline
+       that stops short of the rounded edge */
+    .scan__input {
+      margin-left: 14px;
+      padding: 6px 2px 8px;
+    }
+
+    .scan__input,
+    .scan__btn .label {
+      font-size: 12px;
+      letter-spacing: 0.1em;
     }
 
     .scan--light {
