@@ -1,5 +1,5 @@
 import Lenis from 'lenis';
-import { createStory, smooth, easeOut } from './three/story';
+import { createStory, smooth, easeOut, easeInOut, tickAngle } from './three/story';
 import { createAxis } from './three/axis';
 import { initScan } from './scan';
 
@@ -92,6 +92,12 @@ document.querySelectorAll<HTMLAnchorElement>('a[href="#top"]').forEach((a) =>
 const menu = document.querySelector<HTMLElement>('[data-menu]');
 const openBtn = document.querySelector<HTMLButtonElement>('[data-menu-open]');
 const closeBtn = document.querySelector<HTMLButtonElement>('[data-menu-close]');
+// Services submenu inside the menu
+menu?.querySelectorAll<HTMLButtonElement>('[data-menu-toggle]').forEach((btn) => {
+  // Phones open it from the start, so the service pages show straight away
+  if (window.matchMedia('(max-width: 767px)').matches) btn.setAttribute('aria-expanded', 'true');
+  btn.addEventListener('click', () => btn.setAttribute('aria-expanded', String(btn.getAttribute('aria-expanded') !== 'true')));
+});
 // The burger bars first turn into the close mark, then the menu opens out
 // from that spot. Closing runs the same steps backwards.
 const MORPH = reduced ? 0 : 380;
@@ -135,6 +141,88 @@ menu?.addEventListener('click', (e) => {
 });
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') closeMenu();
+});
+
+/* Services dropdown: opens on hover (mouse) or click, closes on Escape,
+   on the scrim or when the pointer leaves for a moment. */
+const drop = document.querySelector<HTMLElement>('[data-drop]');
+const dropBtn = document.querySelector<HTMLButtonElement>('[data-drop-open]');
+const dropScrim = document.querySelector<HTMLElement>('[data-drop-scrim]');
+let dropTimer = 0;
+let dropOpen = false;
+let dropOpenedAt = 0;
+function setDrop(open: boolean) {
+  if (!drop || !dropBtn) return;
+  window.clearTimeout(dropTimer);
+  if (open === dropOpen) return;
+  dropOpen = open;
+  dropOpenedAt = performance.now();
+  dropBtn.setAttribute('aria-expanded', String(open));
+  dropScrim?.classList.toggle('is-on', open);
+  if (open) {
+    drop.hidden = false;
+    requestAnimationFrame(() => requestAnimationFrame(() => drop.classList.add('is-open')));
+  } else {
+    drop.classList.remove('is-open');
+    dropTimer = window.setTimeout(() => (drop.hidden = true), reduced ? 0 : 350);
+  }
+}
+if (drop && dropBtn) {
+  const hoverable = window.matchMedia('(hover: hover)').matches;
+  // A click right after hover opened it should not close it again
+  dropBtn.addEventListener('click', () => {
+    if (dropOpen && performance.now() - dropOpenedAt < 600) return;
+    setDrop(!dropOpen);
+  });
+  if (hoverable) {
+    const later = () => {
+      window.clearTimeout(dropTimer);
+      dropTimer = window.setTimeout(() => setDrop(false), 260);
+    };
+    for (const el of [dropBtn, drop]) {
+      el.addEventListener('pointerenter', (e) => e.pointerType === 'mouse' && setDrop(true));
+      el.addEventListener('pointerleave', (e) => e.pointerType === 'mouse' && later());
+    }
+  }
+  dropScrim?.addEventListener('click', () => setDrop(false));
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && dropOpen) {
+      setDrop(false);
+      dropBtn.focus();
+    }
+  });
+  // "Run the scan" jumps to the nearest scan bar on the page
+  drop.querySelector('[data-drop-scan]')?.addEventListener('click', () => {
+    setDrop(false);
+    const input =
+      document.querySelector<HTMLInputElement>('#ai-scan input') ??
+      document.querySelector<HTMLInputElement>('footer input');
+    if (!input) return;
+    const target = input.closest('form') ?? input;
+    if (lenis) lenis.scrollTo(target as HTMLElement, { offset: -window.innerHeight / 3, duration: 1.6 });
+    else target.scrollIntoView({ block: 'center' });
+    window.setTimeout(() => input.focus({ preventScroll: true }), lenis ? 1600 : 0);
+  });
+}
+
+/* FAQ: smooth open and close for the <details> accordion */
+document.querySelectorAll<HTMLDetailsElement>('[data-faq]').forEach((d) => {
+  const summary = d.querySelector('summary');
+  const body = d.querySelector<HTMLElement>('.faq__a');
+  if (!summary || !body || reduced) return;
+  summary.addEventListener('click', (e) => {
+    e.preventDefault();
+    const opening = !d.open;
+    if (opening) d.open = true;
+    const full = body.scrollHeight;
+    const anim = body.animate(
+      { height: opening ? ['0px', `${full}px`] : [`${full}px`, '0px'], opacity: opening ? [0, 1] : [1, 0] },
+      { duration: 450, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' },
+    );
+    anim.onfinish = () => {
+      if (!opening) d.open = false;
+    };
+  });
 });
 
 /* Every scan bar opens the AI visibility scan modal */
@@ -318,13 +406,141 @@ function sizeStage() {
   // Measured against the content frame (3000px), not the whole screen.
   const wide = w < 900 ? 1 : Math.min(1.35, Math.max(1, Math.min(w, 3000) / h / (16 / 9)));
   story?.style.setProperty('--wide', wide.toFixed(3));
-  if (!stage) return;
+  // Phones: the spotlight frame is 390 design pixels wide
+  stage?.style.setProperty('--m-scale', (w / 390).toFixed(4));
   // Fit the 1080 tall artboard to the screen height, but never let a narrow
   // window squeeze it below 1400 artboard pixels wide.
-  const s = Math.min(h / 1080, w / 1400);
-  stage.style.setProperty('--stage-scale', String(s));
-  stage.style.setProperty('--stage-w', `${w / s}px`);
-  stage.style.setProperty('--stage-h', `${h / s}px`);
+  for (const el of stages) {
+    // The spotlight fills the window; service heroes measure their section
+    const box = el === stage ? null : el.parentElement!.getBoundingClientRect();
+    const sw = box?.width || w;
+    const sh = box?.height || h;
+    const s = Math.min(sh / 1080, sw / 1400);
+    el.style.setProperty('--stage-scale', String(s));
+    el.style.setProperty('--stage-w', `${sw / s}px`);
+    el.style.setProperty('--stage-h', `${sh / s}px`);
+  }
+}
+const stages = [stage, ...document.querySelectorAll<HTMLElement>('[data-stage]')].filter(Boolean) as HTMLElement[];
+
+/* Service heroes: layers lift at their own speeds, then the ticking
+   'xt - 2sm' mark grows to the middle, its flat arm floods the screen in the
+   next section's colour and the other two arms fly off, like the clock on
+   the home page. The clouds follow the pointer and the floating object is
+   nudged away from it. Phones keep a still hero (CSS). */
+const sh = document.querySelector<HTMLElement>('[data-sh]');
+const shPin = sh?.querySelector<HTMLElement>('.sh__pin');
+const shAnchor = sh?.querySelector<HTMLElement>('[data-sh-anchor]');
+const shObj = sh?.querySelector<HTMLElement>('[data-sh-obj]');
+const shArms = sh ? (['x', 'y', 'hand'].map((k) => sh.querySelector<HTMLElement>(`[data-sh-${k}]`)) as HTMLElement[]) : [];
+const shRest = { x: 0, y: 0, s: 100 };
+let shCopyY = 0;
+let shVisible = true;
+if (sh) new IntersectionObserver((entries) => (shVisible = entries[0].isIntersecting)).observe(sh);
+
+// Pointer: -1 to 1 across the hero for the clouds, and a push away from
+// the pointer while it is over the object
+const shPoint = { x: 0, y: 0, mx: 0, my: 0, nx: 0, ny: 0, tnx: 0, tny: 0, on: false };
+if (shPin && !reduced) {
+  shPin.addEventListener('pointermove', (e) => {
+    if (e.pointerType !== 'mouse') return;
+    const r = shPin.getBoundingClientRect();
+    shPoint.x = ((e.clientX - r.left) / r.width) * 2 - 1;
+    shPoint.y = ((e.clientY - r.top) / r.height) * 2 - 1;
+    shPoint.on = true;
+    shPoint.tnx = 0;
+    shPoint.tny = 0;
+    if (!shObj) return;
+    const o = shObj.getBoundingClientRect();
+    const dx = e.clientX - (o.left + o.width / 2);
+    const dy = e.clientY - (o.top + o.height / 2);
+    const reach = Math.min(o.width, o.height) * 0.5;
+    const d = Math.hypot(dx, dy);
+    if (d < reach && d > 0) {
+      const push = (1 - d / reach) * 36;
+      shPoint.tnx = (-dx / d) * push;
+      shPoint.tny = (-dy / d) * push;
+    }
+  });
+  shPin.addEventListener('pointerleave', () => {
+    shPoint.on = false;
+    shPoint.tnx = 0;
+    shPoint.tny = 0;
+  });
+}
+
+function updateShPointer() {
+  if (!sh || window.innerWidth < 900) return;
+  const k = 0.06;
+  shPoint.mx += ((shPoint.on ? shPoint.x : 0) - shPoint.mx) * k;
+  shPoint.my += ((shPoint.on ? shPoint.y : 0) - shPoint.my) * k;
+  shPoint.nx += (shPoint.tnx + shPoint.mx * 14 - shPoint.nx) * 0.08;
+  shPoint.ny += (shPoint.tny + shPoint.my * 10 - shPoint.ny) * 0.08;
+  sh.style.setProperty('--mx', shPoint.mx.toFixed(4));
+  sh.style.setProperty('--my', shPoint.my.toFixed(4));
+  sh.style.setProperty('--nx', `${shPoint.nx.toFixed(2)}px`);
+  sh.style.setProperty('--ny', `${shPoint.ny.toFixed(2)}px`);
+}
+
+function measureSh() {
+  if (!shPin || !shAnchor) return;
+  const p = shPin.getBoundingClientRect();
+  const r = shAnchor.getBoundingClientRect();
+  // The copy stage carries the anchor and may be mid parallax on desktop
+  const lift = window.innerWidth < 900 ? 0 : shCopyY;
+  shRest.x = r.left - p.left + r.width / 2;
+  shRest.y = r.top - p.top + r.height / 2 - lift;
+  shRest.s = r.width;
+  sh!.classList.add('is-ready');
+}
+
+const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
+function placeArm(el: HTMLElement, x: number, y: number, len: number, thick: number, angle = 0) {
+  el.style.transform = `translate(${x.toFixed(1)}px,${y.toFixed(1)}px) rotate(${angle.toFixed(4)}rad) scale(${(len / 100).toFixed(4)},${(thick / 100).toFixed(4)}) translate(-50px,-50px)`;
+}
+
+function shProgress() {
+  // Phones skip the pinned transition (see ServiceHero.astro)
+  if (!sh || reduced || window.innerWidth < 900) return 0;
+  const r = sh.getBoundingClientRect();
+  const span = r.height - window.innerHeight;
+  return span > 0 ? Math.min(1, Math.max(0, -r.top / span)) : 0;
+}
+
+function updateSh(p: number, ms: number) {
+  if (!sh || !shPin || shArms.some((a) => !a)) return;
+  // Phones: still hero, no mark
+  if (window.innerWidth < 900) return;
+  const w = shPin.clientWidth;
+  const h = shPin.clientHeight;
+  const mobile = w < 900;
+  const lift = smooth(0, 0.5, p);
+  shCopyY = -lift * h * 0.3;
+  sh.style.setProperty('--sy', `${(-lift * h * 0.08).toFixed(1)}px`);
+  sh.style.setProperty('--ay', `${(-lift * h * 0.2).toFixed(1)}px`);
+  sh.style.setProperty('--ty', `${(-lift * h * 0.42).toFixed(1)}px`);
+  sh.style.setProperty('--cy', `${shCopyY.toFixed(1)}px`);
+
+  const a = easeInOut(smooth(0.02, 0.42, p)); // grows to the middle
+  const b = easeInOut(smooth(0.38, 0.72, p)); // flat arm floods
+  const c = easeInOut(smooth(0.68, 0.94, p)); // the other arms fly off
+  const L = lerp(shRest.s, mobile ? Math.max(w * 1.3, h * 0.9) : h * 1.7, a);
+  const T = L * 0.0756; // stroke to length, as drawn
+  const cx = lerp(shRest.x, w / 2, a);
+  const cy = lerp(shRest.y, h / 2, a);
+  const [x, y, hand] = shArms;
+
+  placeArm(x, cx, cy, lerp(L + T, Math.max(L + T, w * 1.3), b), lerp(T, h * 1.4, b));
+  // Turns to the flood colour early, while it is still a thin bar
+  x.style.setProperty('--fill', smooth(0, 0.22, b).toFixed(3));
+  placeArm(y, cx + lerp(0, -0.38 * w, b) - c * 0.6 * w, cy, T, L + T);
+  // Second hand ticks like a quartz watch, then settles on the diagonal
+  const tick = reduced ? Math.PI / 4 : tickAngle(ms);
+  let delta = (Math.PI / 4 - tick) % Math.PI;
+  if (delta > Math.PI / 2) delta -= Math.PI;
+  if (delta < -Math.PI / 2) delta += Math.PI;
+  const angle = -(tick + delta * smooth(0.02, 0.2, p));
+  placeArm(hand, cx + lerp(0, 0.34 * w, b) + c * 0.6 * w, cy + lerp(0, 0.3 * h, b) + c * 0.6 * h, L + T, T, angle);
 }
 
 /* Interactive axis in the AI scan section */
@@ -405,10 +621,12 @@ function resize() {
   storyGL?.resize();
   axisGL?.resize();
   sizeStage();
+  measureSh();
   measureHero();
   measureNav();
 }
 document.fonts?.ready.then(() => {
+  measureSh();
   measureHero();
   measureNav();
 });
@@ -428,6 +646,10 @@ function frame(ms: number) {
   updateMarquee();
   if (!lenis) velocity *= 0.9;
   if (axisGL && axisVisible) axisGL.render(ms);
+  if (sh && shVisible) {
+    updateSh(shProgress(), ms);
+    updateShPointer();
+  }
   requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);

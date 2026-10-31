@@ -1,0 +1,192 @@
+---
+import { getEntry } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import ServiceHero from '../../components/ServiceHero.astro';
+import Overline from '../../components/Overline.astro';
+import Services from '../../components/Services.astro';
+import Method from '../../components/Method.astro';
+import Testimonials from '../../components/Testimonials.astro';
+import Icon from '../../components/Icon.astro';
+
+// Copy comes from src/content/pages/services.md. The service rows and the
+// method are shared with the home page.
+const page = (await getEntry('pages', 'services'))!.data as any;
+const home = (await getEntry('pages', 'home'))!.data as any;
+const method = {
+  ...home.method,
+  steps: home.method.steps.map((st: any, i: number) => (i === 3 ? { ...st, text: page.methodStep4 } : st)),
+};
+---
+<Base title={page.seo.title} description={page.seo.description}>
+  <ServiceHero hero={{ ...page.hero, tone: 'dark', overlineColor: 'yellow', titleSize: 'l' }} />
+
+  <Services services={{ ...home.services, overline: page.index.overline, title: page.index.title }} />
+
+  <section class="inc" aria-labelledby="inc-title">
+    <Overline text={page.included.overline} />
+    <h2 id="inc-title" class="big" data-reveal>{page.included.title}</h2>
+    <div class="inc__grid">
+      {page.included.columns.map((col: any, i: number) => (
+        <div class="inc__col" data-reveal style={`--reveal-delay:${i * 80}ms`}>
+          <a class="inc__head mono" href={col.href}>{col.title}</a>
+          <ul>{col.items.map((it: string) => <li>{it}</li>)}</ul>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section class="ind" aria-labelledby="ind-title">
+    <div class="ind__head">
+      <div class="ind__intro">
+        <Overline text={page.industries.overline} tone="paper" />
+        <h2 id="ind-title" class="big" data-reveal>{page.industries.title}</h2>
+      </div>
+      <p class="ind__text" data-reveal>{page.industries.text}</p>
+    </div>
+    <ul class="ind__list">
+      {page.industries.items.map((it: any) => (
+        <li data-reveal>
+          <a class="ind__row" href={it.href}>
+            <span class="mono">{it.number}</span>
+            <span class="ind__name">{it.name}</span>
+            <span class="ind__clients">{it.clients}</span>
+            <Icon name="arrow" size={18} />
+          </a>
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <Method method={method} />
+  <Testimonials testimonials={page.testimonials} />
+</Base>
+
+<style>
+  .big {
+    font-weight: 400;
+    font-size: clamp(44px, 6.25vw, 120px);
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  .inc {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    padding: clamp(96px, 7.3vw, 140px) var(--gutter-wide);
+  }
+
+  .inc__grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 24px;
+    margin-top: 30px;
+  }
+
+  .inc__head {
+    display: block;
+    padding: 18px 20px;
+    background: var(--ink);
+    color: var(--paper);
+    font-size: 12px;
+    transition:
+      background-color 0.3s,
+      color 0.3s;
+  }
+
+  .inc__head:hover {
+    background: var(--sun);
+    color: var(--ink);
+  }
+
+  .inc__col li {
+    padding: 18px 20px;
+    border-bottom: 1px solid #e3e3e0;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+
+  .ind {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(40px, 3.125vw, 60px);
+    padding: clamp(96px, 7.3vw, 140px) var(--gutter-wide) clamp(48px, 4vw, 80px);
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  .ind__head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 40px;
+  }
+
+  .ind__intro {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+
+  .ind__text {
+    flex: 0 1 560px;
+  }
+
+  .ind__list {
+    border-bottom: 1px solid rgb(255 255 255 / 0.2);
+  }
+
+  .ind__row {
+    display: grid;
+    grid-template-columns: 1fr 2.5fr 1.8fr auto;
+    align-items: center;
+    gap: 24px;
+    padding: 30px 0;
+    border-top: 1px solid rgb(255 255 255 / 0.2);
+    transition: padding 0.4s var(--ease-out);
+  }
+
+  .ind__row:hover {
+    padding-inline: 16px;
+  }
+
+  .ind__name {
+    font-weight: 600;
+    font-size: var(--fs-h3);
+    line-height: 1.3;
+    color: #00cde4;
+  }
+
+  .ind__clients {
+    font-size: 15px;
+  }
+
+  @media (max-width: 1100px) {
+    .inc__grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  @media (max-width: 699px) {
+    .inc__grid {
+      grid-template-columns: 1fr;
+    }
+
+    .ind__head {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .ind__row {
+      grid-template-columns: auto 1fr;
+    }
+
+    .ind__clients {
+      grid-column: 2;
+    }
+
+    .ind__row :global(svg) {
+      display: none;
+    }
+  }
+</style>

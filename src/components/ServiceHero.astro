@@ -1,0 +1,558 @@
+---
+import Button from './Button.astro';
+
+// Service hero ('Hero / Service' in Figma), built like the home Spotlight:
+// flowing sun, clouds, a picture in the middle and the title blended over
+// it. The small ticking 'xt - 2sm' mark in the corner carries the scroll
+// transition: it grows to the middle, its flat arm floods the screen in the
+// next section's colour and the other two arms fly off (main.ts).
+// The object in the middle ('BG_FLoat_Object') floats on a loop and is
+// nudged by the pointer; the clouds follow the pointer at their own depths.
+// Phones drop the mark and the transition, as in the mobile frames.
+interface Props {
+  hero: any;
+  clouds?: string;
+}
+const { hero, clouds = '/images/clouds.webp' } = Astro.props;
+const stops = hero.sun.map((s: any) => `${s.color} ${Math.round(s.at * 100)}%`).join(', ');
+const tone = hero.tone ?? 'dark';
+const art = hero.art;
+// Centre of the (possibly turned) art on the 1920 x 1080 artboard. Figma
+// turns layers counterclockwise about their top left corner.
+let cx = 960;
+let cy = 540;
+if (art) {
+  const a = (-(art.rotate ?? 0) * Math.PI) / 180;
+  cx = art.x + (art.w / 2) * Math.cos(a) - (art.h / 2) * Math.sin(a);
+  cy = art.y + (art.w / 2) * Math.sin(a) + (art.h / 2) * Math.cos(a);
+}
+const clouds3 = [
+  { cls: 'sh__cloud--2', depth: 18 },
+  { cls: 'sh__cloud--1', depth: 30 },
+  { cls: 'sh__cloud--3', depth: 48 },
+];
+---
+<section
+  class:list={['sh', `sh--${tone}`]}
+  style={`--sh-bg:${hero.background};--sh-sun:radial-gradient(circle at 23.9% 88.2%, ${stops})`}
+  aria-labelledby="sh-title"
+  data-sh
+>
+  <div class="sh__pin">
+    <div class="sh__sky" data-sh-sky aria-hidden="true">
+      {clouds3.map((c) => (
+        <span class="sh__cloudwrap" style={`--d:${c.depth}`}>
+          <img class:list={['sh__cloud', c.cls]} src={clouds} alt="" width="2000" height="1122" />
+        </span>
+      ))}
+      <span class="sh__sun"><span class="sh__sun-flow"></span></span>
+    </div>
+
+    {art && (
+      <div
+        class:list={['sh__stage sh__stage--art', art.blend && `sh__blend--${art.blend}`]}
+        style={`--cx:${cx.toFixed(0)};--cy0:${cy.toFixed(0)}`}
+        data-stage
+        data-sh-art
+      >
+        <div class="sh__board">
+          <div class="sh__bob">
+            <img
+              class="sh__art"
+              src={art.src}
+              alt={art.alt ?? ''}
+              width={art.w}
+              height={art.h}
+              style={`left:${art.x}px;top:${art.y}px;width:${art.w}px;height:${art.h}px${art.rotate ? `;rotate:${-art.rotate}deg` : ''}`}
+              fetchpriority="high"
+              decoding="async"
+              data-sh-obj
+            />
+          </div>
+        </div>
+      </div>
+    )}
+
+    <!-- The title gets its own stage so its exclusion blend reaches the art -->
+    <div class="sh__stage sh__stage--title" data-stage data-sh-title>
+      <h1 id="sh-title" class:list={['sh__title', `sh__title--${hero.titleSize ?? 'l'}`]}>{hero.title}</h1>
+    </div>
+    <div class="sh__stage sh__stage--copy" data-stage data-sh-copy>
+      <span class="sh__xt-anchor" data-sh-anchor></span>
+      <p class:list={['sh__overline mono', `sh__overline--${hero.overlineColor ?? 'yellow'}`]}>{hero.overline}</p>
+      {hero.card ? (
+        <div class="sh__card">
+          <p class="sh__card-title">{hero.card.title}</p>
+          <p>{hero.card.text}</p>
+          <Button href={hero.card.button.href} label={hero.card.button.label} />
+        </div>
+      ) : (
+        <p class="sh__text">{hero.text}</p>
+      )}
+    </div>
+
+    <!-- 'xt - 2sm': flat arm, gradient arm and the ticking yellow hand -->
+    <div class="sh__xt" aria-hidden="true">
+      <span class="sh__arm sh__arm--x" data-sh-x></span>
+      <span class="sh__arm sh__arm--y" data-sh-y></span>
+      <span class="sh__arm sh__arm--hand" data-sh-hand></span>
+    </div>
+  </div>
+</section>
+
+<style>
+  .sh {
+    --flood: var(--paper);
+    position: relative;
+    /* The pin holds the hero while the mark plays the transition */
+    height: 250svh;
+    background: var(--flood);
+    color: var(--paper);
+  }
+
+  .sh--light {
+    color: var(--ink);
+  }
+
+  .sh__pin {
+    position: sticky;
+    top: 0;
+    height: 100svh;
+    min-height: 600px;
+    overflow: hidden;
+    background: var(--sh-bg);
+    isolation: isolate;
+  }
+
+  .sh__sky {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .sh__sky {
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  /* Scroll parallax, set by main.ts: each layer lifts at its own speed */
+  .sh__sky {
+    translate: 0 var(--sy, 0px);
+  }
+
+  /* Scroll lift plus the pointer nudge (--nx, --ny) */
+  .sh__stage--art {
+    translate: var(--nx, 0px) calc(var(--ay, 0px) + var(--ny, 0px));
+  }
+
+  .sh__stage--title {
+    translate: 0 var(--ty, 0px);
+  }
+
+  .sh__stage--copy {
+    translate: 0 var(--cy, 0px);
+  }
+
+  /* The sun's gradient flows: an oversized gradient layer turns slowly and
+     drifts inside the round mask, all on the compositor */
+  .sh__sun {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    width: min(800px, 74svh);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    overflow: hidden;
+    translate: -50% -50%;
+  }
+
+  .sh__sun-flow {
+    position: absolute;
+    inset: -25%;
+    background: var(--sh-sun);
+    animation: sh-flow 26s ease-in-out infinite alternate;
+  }
+
+  @keyframes sh-flow {
+    0% {
+      transform: rotate(-14deg) translate(-4%, 3%) scale(1);
+    }
+    50% {
+      transform: rotate(10deg) translate(5%, -4%) scale(1.08);
+    }
+    100% {
+      transform: rotate(-6deg) translate(-3%, -6%) scale(1.03);
+    }
+  }
+
+  /* Each cloud follows the pointer by its depth (--mx, --my run -1 to 1) */
+  .sh__cloudwrap {
+    position: absolute;
+    inset: 0;
+    translate: calc(var(--mx, 0) * var(--d) * -1px) calc(var(--my, 0) * var(--d) * -0.5px);
+  }
+
+  .sh__cloud {
+    position: absolute;
+    max-width: none;
+    height: auto;
+    animation: sh-drift 14s ease-in-out infinite alternate;
+  }
+
+  .sh__cloud--1 {
+    animation-duration: 18s;
+    animation-delay: -6s;
+  }
+
+  .sh__cloud--3 {
+    animation-duration: 11s;
+    animation-delay: -3s;
+  }
+
+  @keyframes sh-drift {
+    to {
+      translate: 28px 0;
+    }
+  }
+
+  .sh__cloud--2 {
+    left: calc(50% - 1367px);
+    bottom: -574px;
+    width: 2111px;
+    opacity: 0.5;
+    transform: scaleX(-1);
+  }
+
+  .sh__cloud--1 {
+    left: calc(50% - 988px);
+    bottom: -542px;
+    width: 2443px;
+  }
+
+  .sh__cloud--3 {
+    left: calc(50% - 1010px);
+    bottom: -656px;
+    width: 1623px;
+  }
+
+  /* 1920 x 1080 artboard, scaled to the screen by main.ts like the spotlight */
+  .sh__stage {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: var(--stage-w, 1920px);
+    height: var(--stage-h, 1080px);
+    transform: translate(-50%, -50%) scale(var(--stage-scale, 1));
+    pointer-events: none;
+  }
+
+  /* The art keeps its place on the 1920 artboard, centred on wider stages */
+  .sh__board {
+    position: absolute;
+    left: calc(50% - 960px);
+    top: 0;
+    width: 1920px;
+    height: 1080px;
+  }
+
+  /* Slow float on a loop, about the object's own centre */
+  .sh__bob {
+    position: absolute;
+    inset: 0;
+    transform-origin: calc(var(--cx) * 1px) calc(var(--cy0) * 1px);
+    animation: sh-bob 9s ease-in-out infinite;
+  }
+
+  @keyframes sh-bob {
+    0%,
+    100% {
+      transform: translate(0, 0) rotate(0deg);
+    }
+    33% {
+      transform: translate(6px, -22px) rotate(1.6deg);
+    }
+    66% {
+      transform: translate(-8px, -8px) rotate(-1.2deg);
+    }
+  }
+
+  .sh__art {
+    position: absolute;
+    max-width: none;
+    object-fit: cover;
+    /* Figma turns layers about their top left corner */
+    transform-origin: 0 0;
+    animation: sh-rise 1.6s var(--ease-out) 0.1s both;
+  }
+
+  @keyframes sh-rise {
+    from {
+      opacity: 0;
+      translate: 0 80px;
+    }
+  }
+
+  .sh__blend--exclusion {
+    mix-blend-mode: exclusion;
+  }
+
+  .sh__blend--luminosity {
+    mix-blend-mode: luminosity;
+  }
+
+  .sh__blend--hard-light {
+    mix-blend-mode: hard-light;
+  }
+
+  .sh__blend--darken {
+    mix-blend-mode: darken;
+  }
+
+  .sh__stage--title {
+    mix-blend-mode: exclusion;
+  }
+
+  /* Only the card takes clicks */
+  .sh__card {
+    pointer-events: auto;
+  }
+
+  .sh__xt-anchor {
+    position: absolute;
+    left: max(66px, calc(50% - 1194px));
+    top: 189px;
+    width: 100px;
+    height: 100px;
+  }
+
+  .sh__overline {
+    position: absolute;
+    left: max(45px, calc(50% - 1180px));
+    top: 479px;
+  }
+
+  .sh__overline--yellow {
+    color: var(--sun);
+  }
+
+  .sh__overline--ink {
+    color: var(--ink);
+  }
+
+  .sh__title {
+    position: absolute;
+    left: max(36px, calc(50% - 1200px));
+    top: 520px;
+    font-weight: 400;
+    font-size: 235px;
+    line-height: 0.75;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--paper);
+    animation: sh-in 1.4s var(--ease-out) 0.15s both;
+  }
+
+  .sh__title--m {
+    font-size: 200px;
+    top: 540px;
+  }
+
+  @keyframes sh-in {
+    from {
+      opacity: 0;
+      translate: 0 60px;
+    }
+  }
+
+  .sh__text {
+    position: absolute;
+    right: max(45px, calc(50% - 1200px));
+    top: 834px;
+    width: 449px;
+    font-size: 20px;
+    line-height: 2;
+    /* Black on every hero, as in Figma: it sits over the clouds */
+    color: var(--ink);
+    animation: sh-in 1.4s var(--ease-out) 0.5s both;
+  }
+
+  .sh__card {
+    position: absolute;
+    right: max(45px, calc(50% - 1200px));
+    top: 616px;
+    width: 515px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 24px;
+    padding: 36px 20px 30px;
+    border-radius: 20px;
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 20px;
+    line-height: 2;
+    animation: sh-in 1.4s var(--ease-out) 0.5s both;
+  }
+
+  .sh__card-title {
+    font-weight: 600;
+    text-transform: uppercase;
+    line-height: 1.4;
+  }
+
+  .sh__card :global(.btn) {
+    padding: 18px 30px 18px 34px;
+  }
+
+  /* The mark: three bars around one centre. main.ts sizes and moves them
+     in screen pixels from the anchor's box; until then they sit on it. */
+  .sh__xt {
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 5;
+    pointer-events: none;
+  }
+
+  .sh__arm {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100px;
+    height: 100px;
+    transform-origin: 0 0;
+    will-change: transform;
+    visibility: hidden;
+  }
+
+  .sh.is-ready .sh__arm {
+    visibility: visible;
+  }
+
+  .sh__arm--x {
+    /* Paper on dark heroes, ink on light ones, turning to the flood colour */
+    --arm: var(--paper);
+    background: color-mix(in srgb, var(--flood) calc(var(--fill, 0) * 100%), var(--arm));
+  }
+
+  .sh--light .sh__arm--x {
+    --arm: var(--ink);
+  }
+
+  .sh__arm--y {
+    background:
+      linear-gradient(rgb(255 0 170 / 0.5), rgb(57 0 126 / 0.5) 50%, rgb(0 205 228 / 0.5)),
+      #00cde4;
+  }
+
+  .sh__arm--hand {
+    background: var(--sun);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sh__sun-flow,
+    .sh__cloud,
+    .sh__bob,
+    .sh__art {
+      animation: none;
+    }
+
+    .sh {
+      height: auto;
+    }
+  }
+
+  /* Phones, as 'Service / ... - Mobile' in Figma: one screen tall, no mark
+     and no transition, the object above the copy and the copy in a card */
+  @media (max-width: 899px) {
+    /* Phones: no pinned transition, the hero scrolls away like any section */
+    .sh {
+      height: auto;
+    }
+
+    .sh__pin {
+      position: relative;
+      height: auto;
+      min-height: max(100svh, 640px);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: calc(var(--header-h) + 40px) 20px 40px;
+    }
+
+    .sh__xt {
+      display: none;
+    }
+
+    .sh__stage--title,
+    .sh__stage--copy {
+      display: contents;
+    }
+
+    .sh__stage--art {
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      transform: none;
+      translate: none;
+    }
+
+    /* The artboard shrinks so the object sits centred in the top half */
+    .sh__board {
+      left: 0;
+      transform-origin: 0 0;
+      transform: translate(calc(50vw - var(--cx) * 0.36px), calc(250px - var(--cy0) * 0.36px)) scale(0.36);
+    }
+
+    .sh__overline,
+    .sh__title,
+    .sh__text,
+    .sh__card {
+      position: relative;
+      inset: auto;
+      width: auto;
+    }
+
+    .sh__overline {
+      order: 1;
+      font-size: 15px;
+      line-height: 1;
+      letter-spacing: 0.2em;
+    }
+
+    .sh__title,
+    .sh__title--m {
+      order: 2;
+      margin: 18px 0 14px;
+      font-size: clamp(44px, 14.9vw, 80px);
+      white-space: normal;
+      line-height: 0.85;
+      mix-blend-mode: exclusion;
+    }
+
+    /* Long titles (AI Integration) keep their longest word on screen */
+    .sh__title--m {
+      font-size: clamp(40px, 13vw, 72px);
+    }
+
+    .sh__text,
+    .sh__card {
+      order: 3;
+      padding: 24px;
+      border-radius: 18px;
+      background: var(--paper);
+      font-size: 16px;
+      line-height: 1.8;
+    }
+
+    .sh__card {
+      gap: 16px;
+    }
+
+    .sh__sun {
+      width: 90vw;
+    }
+  }
+</style>

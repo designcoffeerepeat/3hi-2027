@@ -1,0 +1,196 @@
+---
+import { getEntry } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import ServiceHero from '../../components/ServiceHero.astro';
+import Overline from '../../components/Overline.astro';
+import Services from '../../components/Services.astro';
+import Method from '../../components/Method.astro';
+import Button from '../../components/Button.astro';
+import CaseCard from '../../components/CaseCard.astro';
+import Faq from '../../components/Faq.astro';
+import AiScan from '../../components/AiScan.astro';
+import { getServices, getCases, caseCard } from '../../lib/content';
+
+// One page per file in src/content/services
+export async function getStaticPaths() {
+  const services = await getServices();
+  return services.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+}
+
+const { entry } = Astro.props;
+const s = entry.data as any;
+const home = (await getEntry('pages', 'home'))!.data as any;
+const cases = await getCases();
+const related = (s.related ?? []).map((slug: string) => caseCard(cases.find((c) => c.id === slug)));
+---
+<Base title={`${s.name} | 3 Horizons Interactive`} description={s.hero.text}>
+  <ServiceHero hero={s.hero} />
+
+  <section class="ov" aria-label="Overview">
+    <Overline text="Overview" />
+    <p class="ov__text" data-reveal>{s.overview}</p>
+  </section>
+
+  <Services services={s.offerings} />
+
+  <section class="pr" aria-labelledby="pr-title">
+    <Overline text="Process" />
+    <h2 id="pr-title" class="pr__title" data-reveal>{s.process.title}</h2>
+    <div class="pr__grid">
+      {s.process.phases.map((p: any, i: number) => (
+        <article class:list={['phase', i === 0 ? 'phase--sun' : 'phase--ink']} data-reveal style={`--reveal-delay:${i * 120}ms`}>
+          <p class="mono">{p.label}</p>
+          <h3 class="phase__title">{p.title}</h3>
+          <p class="phase__text">{p.text}</p>
+          <ul>
+            {p.items.map((it: string) => <li class="label"><span class="phase__sq" aria-hidden="true"></span>{it}</li>)}
+          </ul>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <Method method={{ overline: 'Why it matters', title: 'What you get', steps: s.benefits }} />
+
+  <section class="rw" aria-labelledby="rw-title">
+    <div class="rw__head">
+      <div class="rw__intro">
+        <Overline text="Related work" />
+        <h2 id="rw-title" class="rw__title" data-reveal>See it in action</h2>
+      </div>
+      <Button href="/work" label="All case studies" />
+    </div>
+    <div class="rw__grid">
+      {related.map((c: any, i: number) => <CaseCard card={c} delay={i * 120} />)}
+    </div>
+  </section>
+
+  <Faq items={s.faq} />
+  <AiScan scan={home.scan} />
+</Base>
+
+<style>
+  .ov {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: clamp(32px, 6.25vw, 120px);
+    padding: clamp(96px, 8.3vw, 160px) var(--gutter-wide);
+  }
+
+  .ov__text {
+    max-width: 1300px;
+    font-weight: 600;
+    font-size: var(--fs-heading-xl);
+    line-height: 1.2;
+  }
+
+  .pr {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    padding: clamp(96px, 7.3vw, 140px) var(--gutter-wide);
+  }
+
+  .pr__title,
+  .rw__title {
+    font-weight: 400;
+    font-size: clamp(44px, 6.25vw, 120px);
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  .pr__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    margin-top: 30px;
+  }
+
+  .phase {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding: clamp(32px, 3.125vw, 60px);
+  }
+
+  .phase--sun {
+    background: var(--sun);
+  }
+
+  .phase--ink {
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  .phase__title {
+    font-weight: 600;
+    font-size: clamp(26px, 2.6vw, 50px);
+    line-height: 1.1;
+    text-transform: uppercase;
+  }
+
+  .phase__text {
+    font-size: var(--fs-body-l);
+    line-height: 1.8;
+  }
+
+  /* Square bullet, as in Figma */
+  .phase__sq {
+    flex: none;
+    width: 7px;
+    height: 7px;
+    background: currentColor;
+  }
+
+  .phase ul {
+    margin-top: 10px;
+  }
+
+  .phase li {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 0;
+    border-top: 1px solid currentColor;
+    font-size: 13px;
+  }
+
+  .rw {
+    padding-top: clamp(96px, 7.3vw, 140px);
+  }
+
+  .rw__head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 32px;
+    padding: 0 var(--gutter) clamp(40px, 3.125vw, 60px);
+  }
+
+  .rw__intro {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+
+  .rw__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  @media (max-width: 899px) {
+    .ov {
+      grid-template-columns: 1fr;
+    }
+
+    .pr__grid,
+    .rw__grid {
+      grid-template-columns: 1fr;
+    }
+
+    .rw__head {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+</style>

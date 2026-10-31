@@ -7,12 +7,16 @@ seo:
   description: "AI integration, design, SEO and growth marketing from a new wave agency in Los Angeles and New York, built to keep pace with whatever ships next."
 
 hero:
+  overline: "Reach, Results, Time"
   title: "We’re Moving Fast"
+  # This word of the title gets the yellow highlight
+  highlight: "Moving"
   kicker: "Tech won’t wait. Neither do we."
-  text: "AI integration, design, SEO and growth marketing from a new wave agency in Los Angeles and New York, built to keep pace with whatever ships next."
+  text: "At 3Hi, we turn your web visitors into customers and those customers into long-term relationships. Built to keep pace with whatever ships next."
   button:
-    label: "Talk to us"
+    label: "Get  Going"
     href: "/contact"
+  arrowLabel: "Time’s Ticking"
   scrollLabel: "Scroll to the next section"
   # The 3 horizons, named when someone hovers an arm of the hero clock.
   # In order: black arm, blue arm, yellow arm.
@@ -24,7 +28,11 @@ hero:
 spotlight:
   overline: "Shopify development · AI visibility · Store care"
   title: "Shopify"
-  text: "At 3Hi, we get you found, turn visitors into customers and keep them coming back: Shopify builds, AI visibility and store care, with every price published."
+  heading: "We don’t fix symptoms. We fix problems from the inside out."
+  text: "The first time. Instead of a quick redesign or ad tweak that can mask a deeper issue, our clients get a root-cause fix that prevents the same problem from resurfacing in 3 months."
+  button:
+    label: "See All Services"
+    href: "/services"
   image: "/images/shopify-model.webp"
   imageAlt: "Model in a denim varsity jacket"
   clouds: "/images/clouds.webp"
@@ -36,36 +44,13 @@ work:
   button:
     label: "All case studies"
     href: "/work"
+  # Case studies shown on the home page, by file name in src/content/work.
+  # Their card text and images come from those files.
   cases:
-    - client: "LaSenza"
-      services: "SEO, CRO & Growth Marketing"
-      result: "+00% result metric"
-      image: "/images/case-lasenza.webp"
-      imageAlt: "LaSenza campaign model"
-      fit: "contain"
-      textColor: "black"
-      href: "/work/lasenza"
-    - client: "Chimi"
-      services: "SEO Optimization, Store Care"
-      result: "+00% result metric"
-      image: "/images/case-chimi.webp"
-      imageAlt: "Chimi eyewear portrait"
-      textColor: "black"
-      href: "/work/chimi"
-    - client: "LodgIQ"
-      services: "Enhancing Digital Strategy"
-      result: "+00% result metric"
-      image: "/images/case-lodgiq.webp"
-      imageAlt: "Hotel bedside with lamp"
-      textColor: "white"
-      href: "/work/lodgiq"
-    - client: "Kids2"
-      services: "SEO & Conversion Rate Optimization"
-      result: "+00% result metric"
-      image: "/images/case-kids2.webp"
-      imageAlt: "Family in a wheat field"
-      textColor: "black"
-      href: "/work/kids2"
+    - "lasenza"
+    - "chimi"
+    - "lodgiq"
+    - "kids2"
 
 clients:
   overline: "Brands that trust us"
@@ -85,12 +70,13 @@ clients:
 
 intro:
   overline: "Who we are"
+  title: "With us, you always get the A team. Because we know that complications can crop up at any time and we want you to be prepared."
   text: "A new wave agency in Los Angeles and New York. We connect AI, design, SEO and growth marketing so brands get found, get chosen and keep customers coming back."
   stats:
     - value: "20+"
       label: "Years building for the web, since 2005"
-    - value: "3"
-      label: "Studios: Los Angeles, New York, Paris"
+    - value: "2"
+      label: "Studios: Los Angeles, New York"
     - value: "5"
       label: "Disciplines under one roof"
     - value: "5"
@@ -137,7 +123,7 @@ method:
       text: "Design, development and integration in tight sprints, tested before anything ships."
     - number: "04"
       title: "Grow"
-      text: "Ongoing monitoring, optimization and reporting so results compound month over month."
+      text: "At 3Hi, you never get a cookie cutter strategy. And at the end of every project, we turn everything over to you and teach your team how to manage your site. You have the option to manage your site or we can become part of your team and manage it for you. The choice is yours."
 
 scan:
   overline: "Free AI visibility scan"
@@ -151,9 +137,15 @@ scan:
 testimonials:
   overline: "Client voices"
   items:
-    - quote: "They turned our biggest challenge into our best quarter. Sharp strategy, real craft, and a team that delivered ahead of schedule."
-      name: "Client name"
-      role: "Role, Company"
+    - quote: "Their attention to detail and commitment to quality surpassed all my expectations. From start to finish, the team’s professionalism and expertise made our project a resounding success."
+      name: "Coolsculpting"
+      role: "Client"
+    - quote: "Working alongside the team was a game-changer. Their collaborative approach and commitment to excellence transformed our challenges into opportunities."
+      name: "PFO"
+      role: "Client"
+    - quote: "Their creativity and strategic approach brought our vision to life in ways we hadn’t imagined. The results were not just impressive but also delivered ahead of schedule."
+      name: "Farm"
+      role: "Client"
 
 insights:
   overline: "Insights"
@@ -164,17 +156,17 @@ insights:
   posts:
     - tag: "AI visibility  /  6 min read"
       title: "How to get your brand recommended by ChatGPT, Claude and Perplexity"
-      image: "/images/insight-ai.webp"
-      imageAlt: "Man wearing headphones"
+      image: "/images/blog-camera.webp"
+      imageAlt: "Man holding a camera on a boat"
       href: "/blog/ai-recommendations"
     - tag: "Shopify  /  5 min read"
       title: "Small tweaks, big results: a 10 point store audit"
-      image: "/images/insight-shopify.webp"
-      imageAlt: "Model in a denim varsity jacket"
+      image: "/images/blog-jacket.webp"
+      imageAlt: "Woman in a varsity jacket"
       href: "/blog/store-audit"
     - tag: "SEO  /  7 min read"
       title: "Technical SEO in 2027: what still moves rankings"
-      image: "/images/insight-seo.webp"
-      imageAlt: "Family in a wheat field"
+      image: "/images/blog-billboard.webp"
+      imageAlt: "DKNY billboard above a city street"
       href: "/blog/technical-seo-2027"
 ---

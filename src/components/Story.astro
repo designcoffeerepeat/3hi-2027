@@ -28,6 +28,8 @@ const heroWords = hero.title.split(' ');
         <path d="M535.846 1027.94L632.102 931.262L645.144 938.556C732.744 987.53 906.789 1076.1 1020.93 1076.1L1039.4 1075.87L1119.27 1072.63L1059.830 1111.65C1011.47 1143.02 947.3 1159.23 869.741 1159.23C780.295 1159.23 635.334 1078.42 560.199 1040.09L535.846 1027.94ZM952.494 645.404L916.022 641.93L993.004 546.413H1008.35C1262.5 546.413 1300.47 679.79 1300.47 759.099L1286.39 836.439L1267.46 884.834L1249.57 836.092C1210.21 727.375 1104.61 659.529 952.494 645.404ZM714.739 180.667L800.723 94.4121H1238.61L1168.43 180.667H714.739ZM868.587 1261C1076.8 1253.01 1213.91 1172.43 1254.42 1034.31L1256.73 1026.55L1264 1022.73C1364.06 967.964 1419 873.951 1419 757.941C1419 587.977 1304.16 479.84 1104.03 461.315L1067.79 457.61L1374.91 77.0452V-4H760.097L577.511 179.278L587.552 278.732H1087.07L788.028 647.14V731.08H856.699C1109.8 731.08 1148.35 863.184 1148.93 941.682V956.733L1134.27 960.785C1100.34 969.932 1062.02 974.563 1020.7 974.563C896.402 974.563 714.97 872.793 632.102 803.789L630.948 802.631L626.101 798L388 1037.2C439.706 1079 674.69 1268.29 868.587 1260.77Z" fill="url(#three-grad)" />
       </svg>
     </div>
+    <!-- Phones: three soft colour glows instead of the drifting sun -->
+    <div class="story__glow" aria-hidden="true"><span></span><span></span><span></span></div>
     <canvas class="story__gl" data-story-gl aria-hidden="true"></canvas>
     <!-- Names the horizon of the clock arm under the pointer (main.ts) -->
     <p class="xt-label" data-xt-label data-labels={JSON.stringify(hero.horizons)} aria-hidden="true">
@@ -44,8 +46,9 @@ const heroWords = hero.title.split(' ');
 
     <div class="hero" data-hero>
       <h1 class="hero__title">
+        {hero.overline && <span class="hero__overline mono">{hero.overline}</span>}
         {heroWords.map((w: string, i: number) => (
-          <span class="hero__line" style={`--i:${i}`}><span>{w}</span></span>
+          <span class="hero__line" style={`--i:${i}`}><span class:list={{ 'hero__mark': w === hero.highlight }}>{w}</span></span>
         ))}
       </h1>
       <div class="hero__copy" data-hero-copy>
@@ -54,6 +57,7 @@ const heroWords = hero.title.split(' ');
         <Button href={hero.button.href} label={hero.button.label} />
       </div>
       <a class="hero__down" href="#work-title" aria-label={hero.scrollLabel} data-hero-down>
+        {hero.arrowLabel && <span class="hero__down-label mono" aria-hidden="true">{hero.arrowLabel}</span>}
         <svg viewBox="0 0 44 99" fill="none" aria-hidden="true">
           <path d="M21.7731 1.5L21.7731 97.5M2.12126 77.8484L21.7731 97.5L41.4248 77.8485" stroke="currentColor" stroke-width="3" stroke-linecap="square" stroke-linejoin="round" />
         </svg>
@@ -79,13 +83,19 @@ const heroWords = hero.title.split(' ');
         <h2 class="spot__title" data-spot-title>
           {spotlight.title.split('').map((c: string, i: number) => <span style={`--i:${i}`}>{c}</span>)}
         </h2>
-        <p class="spot__text" data-spot-text>{spotlight.text}</p>
+        <div class="spot__text" data-spot-text>
+          {spotlight.heading && <h3 class="spot__heading">{spotlight.heading}</h3>}
+          <p>{spotlight.text}</p>
+          {spotlight.button && <Button href={spotlight.button.href} label={spotlight.button.label} variant="yellow" class="spot__btn" />}
+        </div>
       </div>
     </div>
   </div>
 </section>
-<div class="spot-after" aria-hidden="true">
+<div class="spot-after">
+  {spotlight.heading && <p class="spot__heading">{spotlight.heading}</p>}
   <p>{spotlight.text}</p>
+  {spotlight.button && <Button href={spotlight.button.href} label={spotlight.button.label} variant="yellow" />}
 </div>
 
 <style>
@@ -129,6 +139,10 @@ const heroWords = hero.title.split(' ');
     width: calc(1031 * var(--u) * var(--s));
     opacity: 0.25;
     pointer-events: none;
+  }
+
+  .story__glow {
+    display: none;
   }
 
   .story__three svg {
@@ -218,6 +232,24 @@ const heroWords = hero.title.split(' ');
     text-transform: uppercase;
   }
 
+  .hero__overline {
+    position: absolute;
+    left: 0;
+    bottom: calc(100% + max(calc(36 * var(--u)), 16px));
+    font-size: max(calc(15 * var(--u)), 11px);
+    font-weight: 400;
+    white-space: nowrap;
+    opacity: 0;
+    animation: fade-in 1.2s var(--ease-out) 0.3s forwards;
+  }
+
+  /* Highlighted word: yellow block behind it, as in Home - 2 */
+  .hero__mark {
+    background: linear-gradient(var(--sun), var(--sun)) 0 0.06em / 100% 0.86em no-repeat;
+    padding-inline: 0.03em;
+    margin-inline: -0.03em;
+  }
+
   .hero__line {
     display: block;
     overflow: hidden;
@@ -289,6 +321,18 @@ const heroWords = hero.title.split(' ');
     padding: 8px;
     margin-left: -8px;
     color: var(--ink);
+  }
+
+  .hero__down {
+    gap: 14px;
+  }
+
+  .hero__down-label {
+    writing-mode: vertical-rl;
+    rotate: 180deg;
+    font-size: 10px;
+    white-space: nowrap;
+    animation: fade-in 1.2s var(--ease-out) 1s both;
   }
 
   .hero__down svg {
@@ -438,33 +482,94 @@ const heroWords = hero.title.split(' ');
     top: 140px;
     width: clamp(360px, calc(449px - var(--shift) / 2), 449px);
     z-index: 4;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 30px;
     font-size: 20px;
     line-height: 2;
+    color: var(--paper);
+  }
+
+  .spot__heading {
+    font-weight: 600;
+    font-size: 20px;
+    line-height: 1.6;
+    text-transform: uppercase;
+  }
+
+  .spot__text :global(.spot__btn) {
+    margin-top: 10px;
+    padding: 18px 30px 18px 34px;
   }
 
   .spot-after {
     display: none;
   }
 
-  /* Tablet and phone */
+  /* Tablet and phone: laid out as 'Home - Mobile' in Figma (390 wide) */
   @media (max-width: 899px) {
+    /* Shorter run than desktop so the clock hands off to the
+       spotlight after less scrolling */
     .story {
-      height: 480svh;
+      height: 300svh;
+    }
+
+    .story__glow {
+      display: block;
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .story__glow span {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(60px);
+    }
+
+    .story__glow span:nth-child(1) {
+      left: 51vw;
+      top: 150px;
+      width: 77vw;
+      height: 67vw;
+      background: rgb(153 224 255 / 0.45);
+    }
+
+    .story__glow span:nth-child(2) {
+      left: 31vw;
+      top: 420px;
+      width: 97vw;
+      height: 97vw;
+      background: rgb(250 191 242 / 0.45);
+    }
+
+    .story__glow span:nth-child(3) {
+      left: -36vw;
+      bottom: -10svh;
+      width: 92vw;
+      height: 77vw;
+      background: rgb(255 214 51 / 0.55);
     }
 
     .hero__title {
       left: var(--gutter);
       right: var(--gutter);
-      top: calc(var(--header-h) + 3svh);
+      top: max(143px, calc(var(--header-h) + 47px));
       width: auto;
-      font-size: clamp(56px, 17vw, 120px);
+      font-size: clamp(48px, min(17vw, 8.5svh), 120px);
+    }
+
+    .hero__overline {
+      bottom: calc(100% + 14px);
     }
 
     .story__three {
-      left: auto;
-      right: -18vw;
-      top: calc(var(--header-h) + 14svh);
-      width: min(92vw, 48svh);
+      left: 38.5vw;
+      top: 210px;
+      width: 95vw;
+      opacity: 0.22;
     }
 
     .hero__down {
@@ -475,17 +580,31 @@ const heroWords = hero.title.split(' ');
       left: var(--gutter);
       right: var(--gutter);
       top: auto;
-      bottom: max(5svh, 24px);
+      bottom: max(3svh, 24px);
       width: auto;
-      gap: 18px;
-      font-size: 15px;
+      gap: 20px;
+      font-size: 16px;
       line-height: 1.8;
     }
 
+    /* Spotlight: the 390 x 549 frame, scaled to the phone's width by main.ts
+       and sitting on the foot of the screen so it runs straight into the
+       text below. The sun shows whole in the black above. */
     .spot__stage {
-      width: 100vw;
-      height: 100svh;
-      transform: translate(-50%, -50%);
+      top: auto;
+      bottom: 0;
+      width: 390px;
+      height: 549px;
+      transform: translateX(-50%) scale(var(--m-scale, 1));
+      transform-origin: 50% 100%;
+    }
+
+    .spot__clouds {
+      z-index: 3;
+    }
+
+    .spot__clouds--back {
+      display: none;
     }
 
     .spot__cloud,
@@ -495,60 +614,53 @@ const heroWords = hero.title.split(' ');
     }
 
     .spot__sun {
-      left: 50%;
-      top: calc(-45vw + 6svh);
-      width: 90vw;
-      height: 90vw;
-      margin-left: -45vw;
-    }
-
-    .spot__cloud--2 {
-      left: -60vw;
-      top: 52svh;
-      width: 180vw;
+      left: 20px;
+      top: -239px;
+      width: 350px;
+      height: 350px;
     }
 
     .spot__cloud--1 {
-      left: -30vw;
-      top: 58svh;
-      width: 190vw;
+      left: -260px;
+      top: 226px;
+      width: 900px;
     }
 
     .spot__cloud--3 {
-      left: -40vw;
-      top: 78svh;
-      width: 150vw;
+      left: -60px;
+      top: 346px;
+      width: 700px;
     }
 
+    /* Overline and title sit across the middle of the person */
     .spot__overline {
-      left: var(--gutter);
-      right: var(--gutter);
-      top: calc(44svh - 34px);
-      font-size: 11px;
+      left: 30px;
+      right: auto;
+      top: 260px;
+      width: 330px;
+      font-size: 12px;
+      line-height: 1;
+      letter-spacing: 0.2em;
       text-align: center;
       white-space: normal;
       z-index: 5;
     }
 
     .spot__model {
-      left: 50%;
-      top: auto;
-      bottom: 0;
-      width: min(100vw, 72svh);
-      height: auto;
-      aspect-ratio: 981 / 1037;
-      transform: translateX(-50%);
-    }
-
-    .spot__model img {
-      object-position: top center;
+      left: -50px;
+      top: 36px;
+      bottom: auto;
+      width: 480px;
+      height: 507px;
     }
 
     .spot__title {
       left: 0;
       right: 0;
-      top: 44svh;
-      font-size: 21vw;
+      top: 296px;
+      font-size: 80px;
+      line-height: 0.95;
+      letter-spacing: 0.05em;
       text-align: center;
     }
 
@@ -560,9 +672,17 @@ const heroWords = hero.title.split(' ');
       display: block;
       background: var(--ink);
       color: var(--paper);
-      padding: 48px var(--gutter) 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 28px;
+      padding: 60px var(--gutter) 48px;
       font-size: 16px;
-      line-height: 1.9;
+      line-height: 1.8;
+    }
+
+    .spot-after .spot__heading {
+      font-size: 16px;
     }
   }
 

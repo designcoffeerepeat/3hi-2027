@@ -1,12 +1,14 @@
 ---
 import Logo from './Logo.astro';
 import XtMark from './XtMark.astro';
+import { getServices } from '../lib/content';
 
 interface Props {
   site: any;
 }
 const { site } = Astro.props;
 const m = site.menu;
+const services = (await getServices()).map((s) => ({ name: (s.data as any).name, href: `/services/${s.id}` }));
 ---
 <div class="menu" id="site-menu" role="dialog" aria-modal="true" aria-label="Site menu" hidden data-menu>
   <div class="menu__top">
@@ -18,11 +20,24 @@ const m = site.menu;
   <nav class="menu__nav" aria-label="Main">
     <ul>
       {m.links.map((l: any, i: number) => (
-        <li style={`--i:${i}`}>
+        <li style={`--i:${i}`} class:list={{ 'menu__has-sub': l.submenu }}>
           <a href={l.href}>
             <span class="menu__num mono">{String(i + 1).padStart(2, '0')}</span>
             <span class="menu__label">{l.label}</span>
           </a>
+          {l.submenu && (
+            <>
+              <button class="menu__toggle" type="button" aria-expanded="false" aria-controls={`menu-sub-${i}`} aria-label={`Show ${l.label.toLowerCase()}`} data-menu-toggle>
+                <span aria-hidden="true"></span>
+              </button>
+              <div class="menu__sub" id={`menu-sub-${i}`} data-menu-sub>
+                <ul>
+                  {services.map((sv) => <li><a href={sv.href}>{sv.name}</a></li>)}
+                  <li><a class="menu__sub-all mono" href={l.href}>{l.allLabel ?? 'All'}</a></li>
+                </ul>
+              </div>
+            </>
+          )}
         </li>
       ))}
     </ul>
@@ -132,6 +147,100 @@ const m = site.menu;
 
   .menu.is-open .menu__nav a {
     transform: none;
+  }
+
+  /* Services: a + toggle opens the list of service pages underneath */
+  .menu__has-sub {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+  }
+
+  .menu__toggle {
+    position: relative;
+    width: clamp(44px, 4vw, 72px);
+    height: clamp(44px, 4vw, 72px);
+    /* Just the plus sign: no ring or fill */
+    border: 0;
+    background: none;
+    color: var(--sun);
+    cursor: pointer;
+    opacity: 0;
+    transition:
+      opacity 0.6s var(--ease-out) 0.4s,
+      color 0.3s;
+  }
+
+  .menu.is-open .menu__toggle {
+    opacity: 1;
+  }
+
+  .menu__toggle:hover {
+    color: var(--paper);
+  }
+
+  .menu__toggle span,
+  .menu__toggle span::after {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 40%;
+    height: 2px;
+    margin: -1px 0 0 -20%;
+    background: currentColor;
+    transition: rotate 0.4s var(--ease-out);
+  }
+
+  .menu__toggle span::after {
+    content: '';
+    left: 0;
+    margin: 0;
+    width: 100%;
+    rotate: 90deg;
+  }
+
+  .menu__toggle[aria-expanded='true'] span::after {
+    rotate: 0deg;
+  }
+
+  .menu__sub {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.5s var(--ease-out);
+  }
+
+  .menu__sub > ul {
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .menu__toggle[aria-expanded='true'] + .menu__sub {
+    grid-template-rows: 1fr;
+  }
+
+  .menu__nav .menu__sub li {
+    border: 0;
+  }
+
+  .menu__nav .menu__sub a {
+    padding: 0.35em 0 0.35em calc(3ch + clamp(16px, 3vw, 60px));
+    font-size: clamp(18px, min(2.4vw, 3svh), 40px);
+    font-weight: 400;
+    transform: none;
+  }
+
+  .menu__nav .menu__sub li:last-child a {
+    padding-bottom: 0.9em;
+  }
+
+  .menu__nav .menu__sub a:hover {
+    color: var(--sun);
+  }
+
+  .menu__nav .menu__sub-all {
+    font-size: 13px !important;
+    color: var(--sun);
   }
 
   .menu__num {

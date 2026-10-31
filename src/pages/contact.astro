@@ -1,0 +1,379 @@
+---
+import { getEntry } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import Overline from '../components/Overline.astro';
+import Icon from '../components/Icon.astro';
+import AiScan from '../components/AiScan.astro';
+
+// Copy comes from src/content/pages/contact.md. The AI scan block is shared
+// with the home page.
+const page = (await getEntry('pages', 'contact'))!.data as any;
+const home = (await getEntry('pages', 'home'))!.data as any;
+const f = page.form;
+---
+<Base title={page.seo.title} description={page.seo.description}>
+  <section class="ct" aria-labelledby="ct-title">
+    <div class="ct__info">
+      <Overline text={page.overline} />
+      <h1 id="ct-title" class="ct__title">{page.title}</h1>
+      <p class="ct__text" data-reveal>{page.text}</p>
+      <a class="ct__email" href={`mailto:${page.email}`} data-reveal>{page.email}</a>
+      <ul class="ct__studios" data-reveal>
+        {page.studios.map((s: any) => (
+          <li>
+            <span class="ct__city">{s.city}</span>
+            <span class="mono">{s.zone}</span>
+            <span class="ct__time mono" data-tz={s.tz}></span>
+          </li>
+        ))}
+      </ul>
+      <div class="ct__social" data-reveal>
+        {page.social.map((s: any) => (
+          <a class="ct__pill label" href={s.href} target="_blank" rel="noopener">{s.label} <Icon name="arrow" size={16} /></a>
+        ))}
+      </div>
+    </div>
+
+    <form class="ct-form" data-contact data-email={page.email} data-sent={f.sent} novalidate>
+      <h2 class="ct-form__title">{f.title}</h2>
+      {['name', 'email', 'company'].map((k) => (
+        <label class="ct-field">
+          <span class="mono">{f.fields[k].label}</span>
+          <input
+            name={k}
+            type={k === 'email' ? 'email' : 'text'}
+            placeholder={f.fields[k].placeholder}
+            autocomplete={k === 'name' ? 'name' : k === 'email' ? 'email' : 'organization'}
+            required={k !== 'company'}
+          />
+        </label>
+      ))}
+      <fieldset class="ct-chips">
+        <legend class="mono">{f.interestsLabel}</legend>
+        {f.interests.map((i: string) => (
+          <label class="ct-chip"><input type="checkbox" name="interests" value={i} /><span class="label">{i}</span></label>
+        ))}
+      </fieldset>
+      <fieldset class="ct-chips">
+        <legend class="mono">{f.budgetLabel}</legend>
+        {f.budgets.map((b: string) => (
+          <label class="ct-chip"><input type="radio" name="budget" value={b} /><span class="label">{b}</span></label>
+        ))}
+      </fieldset>
+      <label class="ct-field">
+        <span class="mono">{f.fields.message.label}</span>
+        <textarea name="message" rows="4" placeholder={f.fields.message.placeholder}></textarea>
+      </label>
+      <button class="ct-form__send label" type="submit">{f.button} <Icon name="arrow" size={16} /></button>
+      <p class="ct-form__note" data-contact-note>{f.note}</p>
+    </form>
+  </section>
+
+  <AiScan scan={home.scan} />
+</Base>
+
+<style>
+  .ct {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 820px);
+    gap: clamp(40px, 5.2vw, 100px);
+    padding: calc(var(--header-h) + clamp(24px, 3.125vw, 60px)) var(--gutter) clamp(64px, 5.2vw, 100px);
+  }
+
+  .ct__info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: clamp(24px, 2.08vw, 40px);
+    padding-top: 10px;
+  }
+
+  .ct__title {
+    font-weight: 600;
+    font-size: clamp(40px, 6.15vw, 118px);
+    line-height: 0.9;
+    text-transform: uppercase;
+    white-space: pre-line;
+    animation: ct-up 1.2s var(--ease-out) both;
+  }
+
+  @keyframes ct-up {
+    from {
+      opacity: 0;
+      transform: translate3d(0, 0.3em, 0);
+    }
+  }
+
+  .ct__text {
+    max-width: 560px;
+  }
+
+  .ct__email {
+    margin-top: clamp(0px, 1.5vw, 30px);
+    font-weight: 600;
+    font-size: clamp(32px, 2.92vw, 56px);
+    line-height: 1.1;
+    text-decoration: underline;
+    text-decoration-thickness: 0.06em;
+    text-underline-offset: 0.12em;
+    transition: color 0.3s;
+  }
+
+  .ct__email:hover {
+    text-decoration-color: var(--sun);
+  }
+
+  .ct__studios {
+    display: grid;
+    grid-template-columns: repeat(2, auto);
+    justify-content: start;
+    gap: 24px clamp(32px, 3.125vw, 60px);
+    width: 100%;
+    padding-top: clamp(28px, 2.6vw, 50px);
+    border-top: 1px solid var(--ink);
+  }
+
+  .ct__studios li {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .ct__studios .mono {
+    font-size: 12px;
+    color: var(--ink-60);
+  }
+
+  .ct__city {
+    font-weight: 600;
+    font-size: var(--fs-h3);
+    line-height: 1.2;
+  }
+
+  .ct__social {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .ct__pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 18px 26px;
+    border: 1px solid var(--ink);
+    border-radius: 300px;
+    transition: background-color 0.3s;
+  }
+
+  .ct__pill:hover {
+    background: var(--sun);
+  }
+
+  .ct-form {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    align-self: start;
+    padding: clamp(28px, 2.6vw, 50px);
+    border-radius: 30px;
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  .ct-form__title {
+    font-weight: 600;
+    font-size: clamp(30px, 2.6vw, 50px);
+    line-height: 1.1;
+    text-transform: uppercase;
+  }
+
+  .ct-field {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .ct-field .mono {
+    font-size: 12px;
+  }
+
+  .ct-field input,
+  .ct-field textarea {
+    padding: 0 0 18px;
+    border: 0;
+    border-bottom: 1px solid rgb(255 255 255 / 0.6);
+    background: none;
+    color: var(--paper);
+    font: inherit;
+    font-size: 18px;
+    resize: vertical;
+  }
+
+  .ct-field textarea {
+    min-height: 120px;
+  }
+
+  .ct-field input::placeholder,
+  .ct-field textarea::placeholder {
+    color: rgb(255 255 255 / 0.85);
+  }
+
+  .ct-field input:focus,
+  .ct-field textarea:focus {
+    outline: none;
+    border-bottom-color: var(--sun);
+  }
+
+  .ct-field input:user-invalid {
+    border-bottom-color: #ff7a6b;
+  }
+
+  .ct-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  .ct-chips legend {
+    width: 100%;
+    margin-bottom: 14px;
+    padding: 0;
+    font-size: 12px;
+  }
+
+  .ct-chip input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .ct-chip span {
+    display: inline-block;
+    padding: 12px 18px;
+    border: 1px solid rgb(255 255 255 / 0.6);
+    border-radius: 300px;
+    font-size: 12px;
+    cursor: pointer;
+    transition:
+      background-color 0.25s,
+      color 0.25s,
+      border-color 0.25s;
+  }
+
+  .ct-chip:hover span {
+    border-color: var(--sun);
+  }
+
+  .ct-chip input:checked + span {
+    background: var(--sun);
+    border-color: var(--sun);
+    color: var(--ink);
+  }
+
+  .ct-chip input:focus-visible + span {
+    outline: 2px solid var(--sun);
+    outline-offset: 3px;
+  }
+
+  .ct-form__send {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    align-self: flex-start;
+    padding: 22px 34px;
+    border: 0;
+    border-radius: 300px;
+    background: var(--sun);
+    color: var(--ink);
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+
+  .ct-form__send:hover {
+    background: var(--paper);
+  }
+
+  .ct-form__note {
+    margin-top: -8px;
+    font-size: 11px;
+    line-height: 1.6;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+
+  @media (max-width: 1100px) {
+    .ct {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  @media (max-width: 599px) {
+    .ct__studios {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+</style>
+
+<script>
+  /* Live local time for each studio */
+  const clocks = [...document.querySelectorAll<HTMLElement>('[data-tz]')];
+  function tick() {
+    const now = new Date();
+    for (const el of clocks) {
+      try {
+        el.textContent = now.toLocaleTimeString('en-US', { timeZone: el.dataset.tz, hour: 'numeric', minute: '2-digit' });
+      } catch {
+        el.textContent = '';
+      }
+    }
+  }
+  tick();
+  setInterval(tick, 30000);
+
+  /* Contact form. With PUBLIC_CONTACT_ENDPOINT set the form is POSTed there
+     as JSON; without it the visitor's email app opens with the brief filled in. */
+  const form = document.querySelector<HTMLFormElement>('[data-contact]');
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!form.reportValidity()) return;
+    const data = new FormData(form);
+    const body = {
+      name: String(data.get('name') ?? ''),
+      email: String(data.get('email') ?? ''),
+      company: String(data.get('company') ?? ''),
+      interests: data.getAll('interests').map(String),
+      budget: String(data.get('budget') ?? ''),
+      message: String(data.get('message') ?? ''),
+    };
+    const note = form.querySelector<HTMLElement>('[data-contact-note]');
+    const endpoint = import.meta.env.PUBLIC_CONTACT_ENDPOINT as string | undefined;
+    if (endpoint) {
+      try {
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        if (res.ok) {
+          form.reset();
+          if (note) note.textContent = 'Thanks. We will be in touch within one business day.';
+          return;
+        }
+      } catch {
+        // Fall back to email below
+      }
+    }
+    const lines = [`Name: ${body.name}`, `Email: ${body.email}`];
+    if (body.company) lines.push(`Company / website: ${body.company}`);
+    if (body.interests.length) lines.push(`Interested in: ${body.interests.join(', ')}`);
+    if (body.budget) lines.push(`Budget: ${body.budget}`);
+    if (body.message) lines.push('', body.message);
+    const subject = `New project from ${body.name}`;
+    window.location.href = `mailto:${form.dataset.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(lines.join('\n'))}`;
+    if (note) note.textContent = form.dataset.sent ?? '';
+  });
+</script>

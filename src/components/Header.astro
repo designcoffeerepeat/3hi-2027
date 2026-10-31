@@ -1,12 +1,17 @@
 ---
 import Logo from './Logo.astro';
 import ScanBar from './ScanBar.astro';
+import Icon from './Icon.astro';
+import { getServices } from '../lib/content';
 
 interface Props {
   site: any;
 }
 const { site } = Astro.props;
 const h = site.header;
+const d = h.dropdown;
+const services = (await getServices()).map((s) => ({ ...(s.data as any), href: `/services/${s.id}` }));
+const here = Astro.url.pathname.replace(/\/$/, '');
 ---
 <header class="header" data-header>
   <a class="header__logo" href="/" aria-label={`${site.brand} home`}>
@@ -16,14 +21,52 @@ const h = site.header;
     <ScanBar class="header__scan" variant="dark" id="scan-header" placeholder={h.scanPlaceholder} button={h.scanButton} />
     <div class="header__right">
       <nav class="header__links label" aria-label="Quick links">
-        {h.quickLinks.map((l: any) => <a href={l.href}>{l.label}</a>)}
+        {h.quickLinks.map((l: any) =>
+          l.href === '/services' && d ? (
+            <button class="header__drop" type="button" aria-expanded="false" aria-controls="nav-drop" data-drop-open>
+              {l.label}
+              <svg viewBox="0 0 12 8" fill="none" aria-hidden="true"><path d="M1 1.5L6 6.5L11 1.5" stroke="currentColor" stroke-width="1.6" /></svg>
+            </button>
+          ) : (
+            <a href={l.href}>{l.label}</a>
+          ),
+        )}
       </nav>
       <button class="header__burger" type="button" aria-label={h.menuLabel} aria-expanded="false" aria-controls="site-menu" data-menu-open>
         <span></span><span></span><span></span>
       </button>
     </div>
   </div>
+  {d && (
+    <div class="drop" id="nav-drop" hidden data-drop>
+      <div class="drop__main">
+        <p class="drop__overline mono">{d.overline}</p>
+        <ul class="drop__list">
+          {services.map((sv: any) => (
+            <li>
+              <a class:list={['drop__item', { 'is-current': here === sv.href }]} href={sv.href}>
+                <span class="drop__num mono">{sv.number}</span>
+                <span class="drop__txt">
+                  <span class="drop__title">{sv.name}</span>
+                  <span class="drop__desc">{sv.menuText}</span>
+                </span>
+                <Icon name="arrow" class="drop__arrow" />
+              </a>
+            </li>
+          ))}
+        </ul>
+        <a class="drop__all label" href={d.allHref}>{d.allLabel} <Icon name="arrow" size={16} /></a>
+      </div>
+      <div class="drop__feature">
+        <p class="mono">{d.feature.overline}</p>
+        <p class="drop__feature-title">{d.feature.title}</p>
+        <p class="drop__feature-text">{d.feature.text}</p>
+        <button class="drop__feature-btn label" type="button" data-drop-scan>{d.feature.button} <Icon name="scan" /></button>
+      </div>
+    </div>
+  )}
 </header>
+<div class="drop-scrim" data-drop-scrim aria-hidden="true"></div>
 
 <style>
   .header {
@@ -249,6 +292,205 @@ const h = site.header;
     opacity: 1;
   }
 
+  /* Services dropdown */
+  .header__drop {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    letter-spacing: inherit;
+    text-transform: inherit;
+    cursor: pointer;
+  }
+
+  .header__drop svg {
+    width: 10px;
+    transition: rotate 0.4s var(--ease-out);
+  }
+
+  .header__drop[aria-expanded='true'] svg {
+    rotate: 180deg;
+  }
+
+  .drop {
+    position: absolute;
+    top: calc(100% + 14px);
+    right: var(--edge);
+    display: flex;
+    gap: 20px;
+    width: min(1204px, calc(100vw - 2 * var(--edge)));
+    max-height: calc(100svh - 100% - 40px);
+    overflow: auto;
+    padding: 20px;
+    border-radius: 30px;
+    background: var(--ink);
+    color: var(--paper);
+    opacity: 0;
+    translate: 0 -12px;
+    transition:
+      opacity 0.35s var(--ease-out),
+      translate 0.5s var(--ease-out);
+  }
+
+  .drop[hidden] {
+    display: none;
+  }
+
+  .header.is-compact > .drop {
+    scale: 1;
+    top: calc(100% - 20px);
+  }
+
+  .drop.is-open {
+    opacity: 1;
+    translate: 0 0;
+  }
+
+  .drop__main {
+    flex: 1;
+    min-width: 0;
+    padding: 20px 20px 10px;
+  }
+
+  .drop__overline {
+    color: var(--sun);
+    margin-bottom: 20px;
+  }
+
+  .drop__list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px 12px;
+  }
+
+  .drop__item {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 18px 20px;
+    border-radius: 18px;
+    transition: background-color 0.3s;
+  }
+
+  .drop__item:hover,
+  .drop__item:focus-visible,
+  .drop__item.is-current {
+    background: rgb(255 255 255 / 0.1);
+  }
+
+  .drop__num {
+    align-self: flex-start;
+    padding-top: 8px;
+    color: var(--sun);
+  }
+
+  .drop__txt {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .drop__title {
+    font-weight: 600;
+    font-size: clamp(18px, 1.354vw, 26px);
+    line-height: 1.3;
+  }
+
+  .drop__desc {
+    font-size: 16px;
+    line-height: 1.5;
+    color: rgb(255 255 255 / 0.7);
+  }
+
+  .drop__item :global(.drop__arrow) {
+    flex: none;
+    transition: rotate 0.4s var(--ease-out);
+  }
+
+  .drop__item:hover :global(.drop__arrow) {
+    rotate: 45deg;
+  }
+
+  .drop__all {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin: 24px 20px 6px;
+    color: var(--sun);
+  }
+
+  .drop__feature {
+    flex: 0 0 384px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 18px;
+    padding: 40px;
+    border-radius: 20px;
+    background: var(--sun);
+    color: var(--ink);
+  }
+
+  .drop__feature-title {
+    font-weight: 600;
+    font-size: clamp(28px, 2.08vw, 40px);
+    line-height: 1.1;
+    text-transform: uppercase;
+  }
+
+  .drop__feature-text {
+    font-size: 16px;
+    line-height: 1.7;
+  }
+
+  .drop__feature-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: auto;
+    padding: 18px 28px;
+    border: 0;
+    border-radius: 300px;
+    background: var(--ink);
+    color: var(--paper);
+    cursor: pointer;
+    transition:
+      background-color 0.3s,
+      color 0.3s;
+  }
+
+  .drop__feature-btn:hover {
+    background: var(--paper);
+    color: var(--ink);
+  }
+
+  .drop-scrim {
+    position: fixed;
+    inset: 0;
+    z-index: 49;
+    background: rgb(0 0 0 / 0.35);
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity 0.4s,
+      visibility 0.4s;
+  }
+
+  .drop-scrim.is-on {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  @media (max-width: 1100px) {
+    .drop__feature {
+      display: none;
+    }
+  }
+
   @media (max-width: 1279px) {
     .header__nav :global(.header__scan) {
       display: none;
@@ -261,7 +503,11 @@ const h = site.header;
   }
 
   @media (max-width: 767px) {
-    .header__nav {
+    /* Phones have no scan bar or pill here, so the AI scan section must not
+       close the nav up: that clipped the hamburger into a lemon shape */
+    .header__nav,
+    .header.is-scan-away .header__nav {
+      width: auto;
       background: none;
       padding: 0;
     }
@@ -275,9 +521,14 @@ const h = site.header;
       --bar-w: calc(var(--size) - 36px);
     }
 
-    /* Keep a comfortable tap target on phones */
+    /* Phones keep the header at full size when scrolled: shrinking it
+       squashed the hamburger */
+    .header.is-compact {
+      padding: clamp(16px, 2.6vw, 50px) var(--edge) 0;
+    }
+
     .header.is-compact > * {
-      scale: 0.8;
+      scale: none;
     }
   }
 </style>

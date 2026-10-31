@@ -59,12 +59,12 @@ export const smooth = (a: number, b: number, v: number) => {
   return t * t * (3 - 2 * t);
 };
 export const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
-const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+export const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 
 // Second hand: snaps forward every half second with a small overshoot,
 // like a quartz watch, and still goes round once a minute.
-function tickAngle(ms: number) {
+export function tickAngle(ms: number) {
   const s = ms / 500;
   const whole = Math.floor(s);
   const f = Math.min(1, (s - whole) / 0.36);
@@ -172,10 +172,11 @@ export function createStory(canvas: HTMLCanvasElement) {
     const mobile = w < 900;
     const u = Math.min(w / 1920, h / 1080);
     // Always centred; the hero text is fitted around it (see main.ts)
-    const S = mobile ? Math.min(w * 0.62, h * 0.32) : 661 * u;
-    const cx0 = 0;
+    // Phones: off to the right and partly off screen, as in 'Home - Mobile'
+    const S = mobile ? Math.min(w * 0.723, h * 0.36) : 661 * u;
+    const cx0 = mobile ? w * 0.17 : 0;
     const T = (S * 50) / 661;
-    const cy0 = mobile ? h * 0.03 : -92 * u;
+    const cy0 = mobile ? h / 2 - Math.min(322, h * 0.4) : -92 * u;
 
     const a = easeInOut(smooth(0.06, 0.32, progress)); // clock grows
     const b = easeInOut(smooth(0.3, 0.5, progress)); // black arm floods
@@ -222,7 +223,7 @@ export function createStory(canvas: HTMLCanvasElement) {
     sunMat.uniforms.uCenter.value.set(sx * dpr, (h - sy) * dpr);
     sunMat.uniforms.uRadius.value = R * dpr;
     sunMat.uniforms.uOpacity.value = 1 - a;
-    sun.visible = a < 1;
+    sun.visible = a < 1 && !mobile; // phones use the CSS glows
 
     renderer.render(scene, camera);
   }
