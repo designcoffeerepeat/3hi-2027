@@ -558,7 +558,8 @@ const heroWords = hero.title.split(' ');
       right: var(--gutter);
       top: max(143px, calc(var(--header-h) + 47px));
       width: auto;
-      font-size: clamp(48px, min(17vw, 8.5svh), 120px);
+      /* sized so the longest word ("Customers.") fits the phone width */
+      font-size: clamp(40px, min(14vw, 8.5svh), 120px);
     }
 
     .hero__overline {
