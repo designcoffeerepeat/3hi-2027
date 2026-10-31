@@ -21,8 +21,15 @@ hero:
     at: 0.47
   - color: "#ab36e2"
     at: 1
-  cubes: true
-  hint: "Drag a cube out. It snaps back."
+  art:
+    src: "/images/services/ai-glass.webp"
+    alt: ""
+    x: 1686
+    y: 937
+    w: 938
+    h: 1173
+    rotate: -150
+    blend: "hard-light"
 overview: "We find the places where AI saves the most time or makes the most money, then build it into the tools your team already uses."
 offerings:
   overline: "The power of AI"

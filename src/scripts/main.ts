@@ -1,7 +1,6 @@
 import Lenis from 'lenis';
 import { createStory, smooth, easeOut, easeInOut, tickAngle } from './three/story';
 import { createAxis } from './three/axis';
-import { createCubes } from './three/cubes';
 import { initScan } from './scan';
 
 const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -384,16 +383,6 @@ function measureHero() {
   if (!heroTitle || !heroCopy || w < 900) {
     story.style.removeProperty('--title-fit');
     story.style.removeProperty('--copy-max');
-    // Phones: the clock sits in the gap between the title and the copy,
-    // small enough that its sweeping hand stays a margin away from both
-    if (heroTitle && heroCopy && storyGL) {
-      const top = heroTitle.offsetTop + heroTitle.offsetHeight;
-      const bottom = heroCopy.offsetTop;
-      const gap = bottom - top;
-      const margin = Math.min(28, gap * 0.15);
-      const size = Math.max(60, Math.min(w * 0.46, window.innerHeight * 0.24, (gap - margin * 2) / (1 + 50 / 661)));
-      storyGL.fit((top + bottom) / 2, size);
-    }
     return;
   }
   const u = Math.min(w / 1920, window.innerHeight / 1080);
@@ -417,6 +406,8 @@ function sizeStage() {
   // Measured against the content frame (3000px), not the whole screen.
   const wide = w < 900 ? 1 : Math.min(1.35, Math.max(1, Math.min(w, 3000) / h / (16 / 9)));
   story?.style.setProperty('--wide', wide.toFixed(3));
+  // Phones: the spotlight frame is 390 design pixels wide
+  stage?.style.setProperty('--m-scale', (w / 390).toFixed(4));
   // Fit the 1080 tall artboard to the screen height, but never let a narrow
   // window squeeze it below 1400 artboard pixels wide.
   for (const el of stages) {
@@ -424,8 +415,7 @@ function sizeStage() {
     const box = el === stage ? null : el.parentElement!.getBoundingClientRect();
     const sw = box?.width || w;
     const sh = box?.height || h;
-    // On phones the service art is fitted to the width instead
-    const s = sw < 900 && el.hasAttribute('data-sh-art') ? sw / 1000 : Math.min(sh / 1080, sw / 1400);
+    const s = Math.min(sh / 1080, sw / 1400);
     el.style.setProperty('--stage-scale', String(s));
     el.style.setProperty('--stage-w', `${sw / s}px`);
     el.style.setProperty('--stage-h', `${sh / s}px`);
@@ -433,27 +423,63 @@ function sizeStage() {
 }
 const stages = [stage, ...document.querySelectorAll<HTMLElement>('[data-stage]')].filter(Boolean) as HTMLElement[];
 
-/* Service heroes. On the AI page: the glass cubes. On every one: layers
-   lift at their own speeds, then the ticking 'xt - 2sm' mark grows to the
-   middle, its flat arm floods the screen in the next section's colour and
-   the other two arms fly off, like the clock on the home page. */
+/* Service heroes: layers lift at their own speeds, then the ticking
+   'xt - 2sm' mark grows to the middle, its flat arm floods the screen in the
+   next section's colour and the other two arms fly off, like the clock on
+   the home page. The clouds follow the pointer and the floating object is
+   nudged away from it. Phones keep a still hero (CSS). */
 const sh = document.querySelector<HTMLElement>('[data-sh]');
 const shPin = sh?.querySelector<HTMLElement>('.sh__pin');
 const shAnchor = sh?.querySelector<HTMLElement>('[data-sh-anchor]');
+const shObj = sh?.querySelector<HTMLElement>('[data-sh-obj]');
 const shArms = sh ? (['x', 'y', 'hand'].map((k) => sh.querySelector<HTMLElement>(`[data-sh-${k}]`)) as HTMLElement[]) : [];
 const shRest = { x: 0, y: 0, s: 100 };
 let shCopyY = 0;
 let shVisible = true;
 if (sh) new IntersectionObserver((entries) => (shVisible = entries[0].isIntersecting)).observe(sh);
 
-const cubesCanvas = sh?.querySelector<HTMLCanvasElement>('[data-cubes-gl]');
-let cubesGL: ReturnType<typeof createCubes> | null = null;
-if (webgl && shPin && cubesCanvas) {
-  try {
-    cubesGL = createCubes(cubesCanvas, shPin, reduced);
-  } catch (err) {
-    console.warn('3D hero unavailable', err);
-  }
+// Pointer: -1 to 1 across the hero for the clouds, and a push away from
+// the pointer while it is over the object
+const shPoint = { x: 0, y: 0, mx: 0, my: 0, nx: 0, ny: 0, tnx: 0, tny: 0, on: false };
+if (shPin && !reduced) {
+  shPin.addEventListener('pointermove', (e) => {
+    if (e.pointerType !== 'mouse') return;
+    const r = shPin.getBoundingClientRect();
+    shPoint.x = ((e.clientX - r.left) / r.width) * 2 - 1;
+    shPoint.y = ((e.clientY - r.top) / r.height) * 2 - 1;
+    shPoint.on = true;
+    shPoint.tnx = 0;
+    shPoint.tny = 0;
+    if (!shObj) return;
+    const o = shObj.getBoundingClientRect();
+    const dx = e.clientX - (o.left + o.width / 2);
+    const dy = e.clientY - (o.top + o.height / 2);
+    const reach = Math.min(o.width, o.height) * 0.5;
+    const d = Math.hypot(dx, dy);
+    if (d < reach && d > 0) {
+      const push = (1 - d / reach) * 36;
+      shPoint.tnx = (-dx / d) * push;
+      shPoint.tny = (-dy / d) * push;
+    }
+  });
+  shPin.addEventListener('pointerleave', () => {
+    shPoint.on = false;
+    shPoint.tnx = 0;
+    shPoint.tny = 0;
+  });
+}
+
+function updateShPointer() {
+  if (!sh || window.innerWidth < 900) return;
+  const k = 0.06;
+  shPoint.mx += ((shPoint.on ? shPoint.x : 0) - shPoint.mx) * k;
+  shPoint.my += ((shPoint.on ? shPoint.y : 0) - shPoint.my) * k;
+  shPoint.nx += (shPoint.tnx + shPoint.mx * 14 - shPoint.nx) * 0.08;
+  shPoint.ny += (shPoint.tny + shPoint.my * 10 - shPoint.ny) * 0.08;
+  sh.style.setProperty('--mx', shPoint.mx.toFixed(4));
+  sh.style.setProperty('--my', shPoint.my.toFixed(4));
+  sh.style.setProperty('--nx', `${shPoint.nx.toFixed(2)}px`);
+  sh.style.setProperty('--ny', `${shPoint.ny.toFixed(2)}px`);
 }
 
 function measureSh() {
@@ -483,6 +509,8 @@ function shProgress() {
 
 function updateSh(p: number, ms: number) {
   if (!sh || !shPin || shArms.some((a) => !a)) return;
+  // Phones: still hero, no mark
+  if (window.innerWidth < 900) return;
   const w = shPin.clientWidth;
   const h = shPin.clientHeight;
   const mobile = w < 900;
@@ -592,7 +620,6 @@ if (quotes) {
 function resize() {
   storyGL?.resize();
   axisGL?.resize();
-  cubesGL?.resize();
   sizeStage();
   measureSh();
   measureHero();
@@ -619,8 +646,10 @@ function frame(ms: number) {
   updateMarquee();
   if (!lenis) velocity *= 0.9;
   if (axisGL && axisVisible) axisGL.render(ms);
-  if (sh && shVisible) updateSh(shProgress(), ms);
-  if (cubesGL && shVisible && !document.hidden) cubesGL.render();
+  if (sh && shVisible) {
+    updateSh(shProgress(), ms);
+    updateShPointer();
+  }
   requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);

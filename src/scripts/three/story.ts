@@ -120,12 +120,6 @@ export function createStory(canvas: HTMLCanvasElement) {
   let w = 1;
   let h = 1;
   let dpr = 1;
-  // Phones: the gap between the title and the copy that the clock sits in
-  // (CSS px from the top of the canvas), measured in main.ts.
-  let slot: { y: number; size: number } | null = null;
-  function fit(y: number, size: number) {
-    slot = { y, size };
-  }
 
   // Hover: each arm is one of the 3 horizons (0 black, 1 blue, 2 yellow).
   // The arm under the pointer stays, the other two fade back.
@@ -178,19 +172,17 @@ export function createStory(canvas: HTMLCanvasElement) {
     const mobile = w < 900;
     const u = Math.min(w / 1920, h / 1080);
     // Always centred; the hero text is fitted around it (see main.ts)
-    // Phones: sized to the gap between the title and the copy, so the
-    // sweeping hand keeps clear of both
-    const S = mobile ? (slot?.size ?? Math.min(w * 0.42, h * 0.22)) : 661 * u;
-    const cx0 = 0;
+    // Phones: off to the right and partly off screen, as in 'Home - Mobile'
+    const S = mobile ? Math.min(w * 0.723, h * 0.36) : 661 * u;
+    const cx0 = mobile ? w * 0.17 : 0;
     const T = (S * 50) / 661;
-    const cy0 = mobile ? (slot ? h / 2 - slot.y : h * 0.03) : -92 * u;
+    const cy0 = mobile ? h / 2 - Math.min(322, h * 0.4) : -92 * u;
 
     const a = easeInOut(smooth(0.06, 0.32, progress)); // clock grows
     const b = easeInOut(smooth(0.3, 0.5, progress)); // black arm floods
     const c = easeInOut(smooth(0.47, 0.6, progress)); // arms leave
 
-    // On phones the clock grows to the same size whatever it starts at
-    const L = mobile ? lerp(S, Math.min(w * 0.62, h * 0.32) * 4.6, a) : S * lerp(1, 3.48, a);
+    const L = S * lerp(1, mobile ? 4.6 : 3.48, a);
     clock.position.set(lerp(cx0, 0, a), lerp(cy0, 0, a), 0);
 
     const flood = Math.max(w, h) * 1.6;
@@ -231,7 +223,7 @@ export function createStory(canvas: HTMLCanvasElement) {
     sunMat.uniforms.uCenter.value.set(sx * dpr, (h - sy) * dpr);
     sunMat.uniforms.uRadius.value = R * dpr;
     sunMat.uniforms.uOpacity.value = 1 - a;
-    sun.visible = a < 1;
+    sun.visible = a < 1 && !mobile; // phones use the CSS glows
 
     renderer.render(scene, camera);
   }
@@ -240,7 +232,6 @@ export function createStory(canvas: HTMLCanvasElement) {
     resize,
     render,
     point,
-    fit,
     get hovered() {
       return hovered;
     },

@@ -22,12 +22,13 @@ hero:
   - color: "#b1e3df"
     at: 1
   art:
-    src: "/images/services/ux-model.webp"
-    alt: "Model in a cream knit set and white sunglasses"
-    x: 418
-    y: 151
-    w: 1162
-    h: 1744
+    src: "/images/services/ux-cube.webp"
+    alt: ""
+    x: 553
+    y: 176
+    w: 814
+    h: 828
+    blend: "hard-light"
 overview: "Good design is invisible. Customers find what they want, trust what they see and check out without friction."
 offerings:
   overline: "Design services"
