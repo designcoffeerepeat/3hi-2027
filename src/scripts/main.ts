@@ -522,16 +522,16 @@ function updateSh(p: number, ms: number) {
   const w = shPin.clientWidth;
   const h = shPin.clientHeight;
   const mobile = w < 900;
-  const lift = smooth(0, 0.5, p);
+  const lift = smooth(0, 0.35, p);
   shCopyY = -lift * h * 0.3;
   sh.style.setProperty('--sy', `${(-lift * h * 0.08).toFixed(1)}px`);
   sh.style.setProperty('--ay', `${(-lift * h * 0.2).toFixed(1)}px`);
   sh.style.setProperty('--ty', `${(-lift * h * 0.42).toFixed(1)}px`);
   sh.style.setProperty('--cy', `${shCopyY.toFixed(1)}px`);
 
-  const a = easeInOut(smooth(0.02, 0.42, p)); // grows to the middle
-  const b = easeInOut(smooth(0.38, 0.72, p)); // flat arm floods
-  const c = easeInOut(smooth(0.68, 0.94, p)); // the other arms fly off
+  const a = easeInOut(smooth(0.02, 0.26, p)); // grows to the middle
+  const b = easeInOut(smooth(0.22, 0.44, p)); // flat arm floods
+  const c = easeInOut(smooth(0.42, 0.75, p)); // the other arms fly off
   const L = lerp(shRest.s, mobile ? Math.max(w * 1.3, h * 0.9) : h * 1.7, a);
   const T = L * 0.0756; // stroke to length, as drawn
   const cx = lerp(shRest.x, w / 2, a);
@@ -540,7 +540,7 @@ function updateSh(p: number, ms: number) {
 
   placeArm(x, cx, cy, lerp(L + T, Math.max(L + T, w * 1.3), b), lerp(T, h * 1.4, b));
   // Turns to the flood colour early, while it is still a thin bar
-  x.style.setProperty('--fill', smooth(0, 0.22, b).toFixed(3));
+  x.style.setProperty('--fill', smooth(0, 0.12, b).toFixed(3));
   placeArm(y, cx + lerp(0, -0.38 * w, b) - c * 0.6 * w, cy, T, L + T);
   // Second hand ticks like a quartz watch, then settles on the diagonal
   const tick = reduced ? Math.PI / 4 : tickAngle(ms);
