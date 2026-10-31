@@ -93,9 +93,10 @@ const result = card.resultEstimate && hideEstimates ? '' : card.result;
     font-size: var(--fs-h2);
     line-height: 1.1;
     text-transform: uppercase;
-    /* Line breaks from the content stay, long names still wrap */
+    /* Line breaks from the content stay. Words never split: main.ts shrinks
+       the name until its longest word fits the caption width */
     white-space: pre-line;
-    overflow-wrap: anywhere;
+    overflow-wrap: normal;
   }
 
   .case__result {
