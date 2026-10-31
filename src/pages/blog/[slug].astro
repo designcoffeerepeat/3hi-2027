@@ -358,11 +358,13 @@ const url = new URL(Astro.url.pathname, Astro.site ?? 'https://3h-i.com').href;
   }
 
   .takeaways li::before {
-    content: '+';
+    content: '';
     position: absolute;
     left: 0;
-    font-weight: 600;
-    color: var(--ink);
+    top: 0.65em;
+    width: 8px;
+    height: 8px;
+    background: var(--ink);
   }
 
   .tags {
