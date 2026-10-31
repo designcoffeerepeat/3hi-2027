@@ -106,8 +106,16 @@ const clouds3 = [
     position: relative;
     /* The pin holds the hero while the mark plays the transition */
     height: 250svh;
+    /* The next section rises over the pin while the arms fly off */
+    margin-bottom: -90svh;
     background: var(--flood);
     color: var(--paper);
+  }
+
+  /* Sections after the hero paint above the pinned mark */
+  .sh ~ :global(*) {
+    position: relative;
+    z-index: 1;
   }
 
   .sh--light {
@@ -460,6 +468,7 @@ const clouds3 = [
 
     .sh {
       height: auto;
+      margin-bottom: 0;
     }
   }
 
@@ -469,6 +478,7 @@ const clouds3 = [
     /* Phones: no pinned transition, the hero scrolls away like any section */
     .sh {
       height: auto;
+      margin-bottom: 0;
     }
 
     .sh__pin {
