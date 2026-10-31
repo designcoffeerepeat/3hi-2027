@@ -28,6 +28,7 @@ hero:
     y: 103
     w: 680
     h: 874
+    blend: exclusion
 overview: "A Shopify store is not a template with your logo on it. It is your best salesperson, open all night. We build stores that load fast, read clearly and show up when people, and AI assistants, go looking."
 offerings:
   overline: "What we build"
