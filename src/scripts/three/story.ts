@@ -120,6 +120,12 @@ export function createStory(canvas: HTMLCanvasElement) {
   let w = 1;
   let h = 1;
   let dpr = 1;
+  // Phones: bottom of the hero title (CSS px from the top of the canvas),
+  // measured in main.ts. The clock's black arm rests just below it.
+  let titleBottom: number | null = null;
+  function below(y: number | null) {
+    titleBottom = y;
+  }
 
   // Hover: each arm is one of the 3 horizons (0 black, 1 blue, 2 yellow).
   // The arm under the pointer stays, the other two fade back.
@@ -176,7 +182,9 @@ export function createStory(canvas: HTMLCanvasElement) {
     const S = mobile ? Math.min(w * 0.723, h * 0.36) : 661 * u;
     const cx0 = mobile ? w * 0.17 : 0;
     const T = (S * 50) / 661;
-    const cy0 = mobile ? h / 2 - Math.min(322, h * 0.4) : -92 * u;
+    const cy0 = mobile
+      ? h / 2 - (titleBottom != null ? titleBottom + 22 + T / 2 : Math.min(322, h * 0.4))
+      : -92 * u;
 
     const a = easeInOut(smooth(0.06, 0.32, progress)); // clock grows
     const b = easeInOut(smooth(0.3, 0.5, progress)); // black arm floods
@@ -232,6 +240,7 @@ export function createStory(canvas: HTMLCanvasElement) {
     resize,
     render,
     point,
+    below,
     get hovered() {
       return hovered;
     },
