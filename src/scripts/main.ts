@@ -337,15 +337,20 @@ function updateStory(p: number, ms: number) {
   if (hero) hero.style.visibility = p > 0.32 ? 'hidden' : '';
 
   // Spotlight builds on top once the black arm covers the screen
+  // The sun and clouds start coming in while the black band is still
+  // growing, so the spotlight layer shows early with a see-through
+  // background that turns solid once the band covers the screen.
   const show = smooth(0.48, 0.53, p);
+  const early = smooth(0.33, 0.4, p);
   if (spot) {
-    spot.style.opacity = String(show);
-    spot.style.visibility = show > 0 ? 'visible' : 'hidden';
+    spot.style.opacity = String(early);
+    spot.style.visibility = early > 0 ? 'visible' : 'hidden';
+    spot.style.backgroundColor = show >= 1 ? '' : `color-mix(in srgb, var(--ink) ${(show * 100).toFixed(1)}%, transparent)`;
   }
   const t = ms / 1000;
-  const sunIn = easeOut(smooth(0.5, 0.68, p));
+  const sunIn = easeOut(smooth(0.33, 0.64, p));
   if (spotSun) spotSun.style.translate = `0 ${(1 - sunIn) * -42}%`;
-  const cloudIn = easeOut(smooth(0.5, 0.74, p));
+  const cloudIn = easeOut(smooth(0.33, 0.7, p));
   clouds.forEach((c, i) => {
     const depth = Number(c.dataset.spotClouds) || 1;
     const drift = Math.sin(t * 0.25 + i * 1.7) * 14 * depth;
