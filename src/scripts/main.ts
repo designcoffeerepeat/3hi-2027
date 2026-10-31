@@ -19,6 +19,8 @@ if (!webgl) root.classList.add('no-webgl');
 
 /* Smooth scroll */
 const lenis = reduced ? null : new Lenis({ lerp: 0.1, wheelMultiplier: 0.9 });
+// Shared so page scripts (the Work filters) can scroll smoothly too
+(window as any).__lenis = lenis;
 const scrollY = () => window.scrollY;
 
 /* Header: shrinks to half size once the page scrolls */

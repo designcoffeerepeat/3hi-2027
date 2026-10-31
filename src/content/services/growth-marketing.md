@@ -21,6 +21,10 @@ hero:
     at: 0.5
   - color: "#e3b1d6"
     at: 1
+  # 'textBGblur': soft paper glow behind the paragraph, on the 1920 artboard
+  blur:
+    x: 1173
+    y: 659
   art:
     src: "/images/services/growth-glass.webp"
     alt: ""

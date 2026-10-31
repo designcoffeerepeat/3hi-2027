@@ -21,6 +21,10 @@ hero:
     at: 0.53
   - color: "#b1e3df"
     at: 1
+  # 'textBGblur': soft paper glow behind the paragraph, on the 1920 artboard
+  blur:
+    x: 1193
+    y: 719
   art:
     src: "/images/services/shopify-bag.webp"
     alt: ""

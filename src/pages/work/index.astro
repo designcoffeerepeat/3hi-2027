@@ -46,5 +46,6 @@ const cards = (await getCases()).map(caseCard);
 
 <script>
   import { initFilters } from '../../scripts/filters';
-  initFilters();
+  // Picking a filter scrolls the pills to just under the header
+  initFilters({ scrollTop: 130 });
 </script>
