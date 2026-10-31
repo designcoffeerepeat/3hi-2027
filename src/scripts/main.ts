@@ -405,6 +405,8 @@ function sizeStage() {
   // Measured against the content frame (3000px), not the whole screen.
   const wide = w < 900 ? 1 : Math.min(1.35, Math.max(1, Math.min(w, 3000) / h / (16 / 9)));
   story?.style.setProperty('--wide', wide.toFixed(3));
+  // Phones: the spotlight frame is 390 design pixels wide
+  stage?.style.setProperty('--m-scale', (w / 390).toFixed(4));
   // Fit the 1080 tall artboard to the screen height, but never let a narrow
   // window squeeze it below 1400 artboard pixels wide.
   for (const el of stages) {

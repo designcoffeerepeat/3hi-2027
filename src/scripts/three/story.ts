@@ -172,10 +172,11 @@ export function createStory(canvas: HTMLCanvasElement) {
     const mobile = w < 900;
     const u = Math.min(w / 1920, h / 1080);
     // Always centred; the hero text is fitted around it (see main.ts)
-    const S = mobile ? Math.min(w * 0.62, h * 0.32) : 661 * u;
-    const cx0 = 0;
+    // Phones: off to the right and partly off screen, as in 'Home - Mobile'
+    const S = mobile ? Math.min(w * 0.723, h * 0.36) : 661 * u;
+    const cx0 = mobile ? w * 0.17 : 0;
     const T = (S * 50) / 661;
-    const cy0 = mobile ? h * 0.03 : -92 * u;
+    const cy0 = mobile ? h / 2 - Math.min(322, h * 0.4) : -92 * u;
 
     const a = easeInOut(smooth(0.06, 0.32, progress)); // clock grows
     const b = easeInOut(smooth(0.3, 0.5, progress)); // black arm floods
@@ -222,7 +223,7 @@ export function createStory(canvas: HTMLCanvasElement) {
     sunMat.uniforms.uCenter.value.set(sx * dpr, (h - sy) * dpr);
     sunMat.uniforms.uRadius.value = R * dpr;
     sunMat.uniforms.uOpacity.value = 1 - a;
-    sun.visible = a < 1;
+    sun.visible = a < 1 && !mobile; // phones use the CSS glows
 
     renderer.render(scene, camera);
   }
