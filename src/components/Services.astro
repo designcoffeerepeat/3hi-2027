@@ -77,6 +77,14 @@ const { services } = Astro.props;
     padding: 48px 0;
     border-top: 1px solid var(--ink);
     isolation: isolate;
+    transition: border-color 0.3s;
+  }
+
+  /* On hover the divider lines above and below give way, so only the
+     pill's own 1px border shows */
+  .row:hover,
+  .services__list li:has(.row:hover) + li .row {
+    border-top-color: transparent;
   }
 
   .row::before {
@@ -87,8 +95,8 @@ const { services } = Astro.props;
     background: var(--sun);
     /* Pill shaped, as in the 'Service Row' hover in Uni Components */
     border-radius: 300px;
-    /* 2px ink border all the way round the pill */
-    box-shadow: inset 0 0 0 2px var(--ink);
+    /* 1px ink border all the way round the pill */
+    box-shadow: inset 0 0 0 1px var(--ink);
     clip-path: inset(100% -4px -4px -4px);
     transition: clip-path 0.5s var(--ease-out);
   }
