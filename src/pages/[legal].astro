@@ -1,0 +1,258 @@
+---
+import { getCollection, render } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import Overline from '../components/Overline.astro';
+
+// One page per file in src/content/legal: /accessibility and /privacy. The
+// layout follows the blog article: hero, then a sticky contents list built
+// from the ## headings beside the text.
+export async function getStaticPaths() {
+  const entries = await getCollection('legal');
+  return entries.map((entry) => ({ params: { legal: entry.id }, props: { entry } }));
+}
+
+const { entry } = Astro.props;
+const p = entry.data as any;
+const { Content, headings } = await render(entry);
+const toc = headings.filter((h) => h.depth === 2);
+---
+<Base title={p.seo.title} description={p.seo.description}>
+  <article class="legal">
+    <header class="legal-hero">
+      <Overline text={p.overline} />
+      <h1 class="legal-hero__title">{p.title}</h1>
+      <p class="legal-hero__deck">{p.intro}</p>
+      <p class="legal-hero__updated mono">Last updated {p.updated}</p>
+    </header>
+
+    <div class="legal-body">
+      {toc.length > 0 && (
+        <nav class="toc" aria-label="On this page">
+          <p class="mono">On this page</p>
+          <ol>
+            {toc.map((h) => <li><a href={`#${h.slug}`} data-toc={h.slug}>{h.text}</a></li>)}
+          </ol>
+        </nav>
+      )}
+      <div class="prose">
+        <Content />
+      </div>
+    </div>
+  </article>
+</Base>
+
+<style>
+  .legal-hero {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: clamp(20px, 2.08vw, 40px);
+    padding: calc(var(--header-h) + clamp(24px, 5.2vw, 100px)) var(--gutter-wide) clamp(48px, 4.4vw, 86px);
+    border-bottom: 1px solid #dadad6;
+  }
+
+  .legal-hero__title {
+    max-width: 1400px;
+    font-weight: 600;
+    font-size: var(--fs-display-l);
+    line-height: 0.95;
+    text-transform: uppercase;
+    animation: legal-up 1.2s var(--ease-out) both;
+  }
+
+  @keyframes legal-up {
+    from {
+      opacity: 0;
+      transform: translate3d(0, 0.3em, 0);
+    }
+  }
+
+  .legal-hero__deck {
+    max-width: 1100px;
+    font-size: clamp(18px, 1.354vw, 26px);
+    line-height: 1.6;
+  }
+
+  .legal-hero__updated {
+    font-size: 12px;
+    color: var(--ink-60);
+  }
+
+  .legal-body {
+    display: grid;
+    grid-template-columns: 360px minmax(0, 900px);
+    gap: clamp(40px, 6.25vw, 120px);
+    padding: clamp(64px, 6.25vw, 120px) var(--gutter-wide) clamp(80px, 7.3vw, 140px);
+  }
+
+  .toc {
+    position: sticky;
+    top: 140px;
+    align-self: start;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    max-height: calc(100vh - 180px);
+    overflow-y: auto;
+    padding: 30px;
+    border-radius: 20px;
+    background: var(--mist);
+  }
+
+  .toc ol {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: toc;
+  }
+
+  .toc li {
+    counter-increment: toc;
+    display: flex;
+    gap: 14px;
+    font-size: 16px;
+    line-height: 1.5;
+  }
+
+  .toc li::before {
+    content: counter(toc, decimal-leading-zero);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    padding-top: 3px;
+    color: var(--ink-60);
+  }
+
+  .toc a {
+    transition: color 0.3s;
+  }
+
+  .toc a.is-active {
+    font-weight: 600;
+  }
+
+  .toc a:hover {
+    color: var(--ink-60);
+  }
+
+  .prose {
+    font-size: clamp(17px, 1.042vw, 20px);
+    line-height: 1.8;
+  }
+
+  .prose :global(h2) {
+    margin: 2em 0 0.8em;
+    font-weight: 600;
+    font-size: clamp(26px, 1.875vw, 36px);
+    line-height: 1.25;
+    scroll-margin-top: 140px;
+  }
+
+  .prose :global(h2:first-child) {
+    margin-top: 0;
+  }
+
+  .prose :global(p) {
+    margin: 0 0 1.2em;
+  }
+
+  .prose :global(ul) {
+    margin: 0 0 1.4em;
+    padding: 0;
+    list-style: none;
+  }
+
+  .prose :global(ul li) {
+    position: relative;
+    padding-left: 28px;
+    margin-bottom: 0.6em;
+  }
+
+  /* Square bullets, as in the blog takeaways */
+  .prose :global(ul li::before) {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.7em;
+    width: 8px;
+    height: 8px;
+    background: var(--ink);
+  }
+
+  .prose :global(a) {
+    text-decoration: underline;
+    text-decoration-color: var(--sun);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
+  }
+
+  .prose :global(a:hover) {
+    color: var(--ink-60);
+  }
+
+  .prose :global(strong) {
+    font-weight: 600;
+  }
+
+  /* Placeholders still to be filled in */
+  .prose :global(mark) {
+    padding: 0.05em 0.3em;
+    border-radius: 4px;
+    background: var(--sun);
+    color: var(--ink);
+  }
+
+  .prose :global(table) {
+    display: block;
+    width: 100%;
+    margin: 0 0 1.6em;
+    overflow-x: auto;
+    border-collapse: collapse;
+    font-size: 0.85em;
+    line-height: 1.55;
+  }
+
+  .prose :global(th),
+  .prose :global(td) {
+    min-width: 160px;
+    padding: 14px 18px 14px 0;
+    border-bottom: 1px solid #dadad6;
+    text-align: left;
+    vertical-align: top;
+  }
+
+  .prose :global(th) {
+    font-family: var(--font-mono);
+    font-weight: 400;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    border-bottom-color: var(--ink);
+  }
+
+  @media (max-width: 1100px) {
+    .legal-body {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .toc {
+      position: static;
+      max-height: none;
+    }
+  }
+</style>
+
+<script>
+  /* Highlight the contents entry for the section in view */
+  const links = [...document.querySelectorAll<HTMLAnchorElement>('[data-toc]')];
+  const targets = links.map((l) => document.getElementById(l.dataset.toc!)).filter(Boolean) as HTMLElement[];
+  function update() {
+    let current = '';
+    for (const t of targets) if (t.getBoundingClientRect().top < window.innerHeight * 0.35) current = t.id;
+    links.forEach((l) => l.classList.toggle('is-active', l.dataset.toc === current));
+  }
+  addEventListener('scroll', update, { passive: true });
+  update();
+</script>
