@@ -179,7 +179,8 @@ export function createStory(canvas: HTMLCanvasElement) {
     const u = Math.min(w / 1920, h / 1080);
     // Always centred; the hero text is fitted around it (see main.ts)
     // Phones: off to the right and partly off screen, as in 'Home - Mobile'
-    const S = mobile ? Math.min(w * 0.723, h * 0.36) : 661 * u;
+    // Phones: 15% larger than the Figma frame
+    const S = mobile ? Math.min(w * 0.723, h * 0.36) * 1.15 : 661 * u;
     const cx0 = mobile ? w * 0.17 : 0;
     const T = (S * 50) / 661;
     const cy0 = mobile
