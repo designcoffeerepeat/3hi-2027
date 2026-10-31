@@ -7,11 +7,11 @@ seo:
   description: "AI integration, design, SEO and growth marketing from a new wave agency in Los Angeles and New York, built to keep pace with whatever ships next."
 
 hero:
-  overline: "Reach, Results, Time"
-  title: "We’re Moving Fast"
+  overline: "Web · Shopify · SEO · AI"
+  title: "Clicks Into Customers."
   # This word of the title gets the yellow highlight
-  highlight: "Moving"
-  kicker: "Tech won’t wait. Neither do we."
+  highlight: "Customers."
+  kicker: "Built fast. Built to sell."
   text: "At 3Hi, we turn your web visitors into customers and those customers into long-term relationships. Built to keep pace with whatever ships next."
   button:
     label: "Get  Going"
