@@ -210,9 +210,13 @@ const services = (await getServices()).map((s) => ({ name: (s.data as any).name,
     transition: grid-template-rows 0.5s var(--ease-out);
   }
 
+  /* The indent sits on the list, so the small 'All services' label lines
+     up with the service links */
   .menu__sub > ul {
     min-height: 0;
     overflow: hidden;
+    font-size: clamp(18px, min(2.4vw, 3svh), 40px);
+    padding-left: calc(3ch + clamp(16px, 3vw, 60px));
   }
 
   .menu__toggle[aria-expanded='true'] + .menu__sub {
@@ -224,7 +228,7 @@ const services = (await getServices()).map((s) => ({ name: (s.data as any).name,
   }
 
   .menu__nav .menu__sub a {
-    padding: 0.35em 0 0.35em calc(3ch + clamp(16px, 3vw, 60px));
+    padding: 0.35em 0;
     font-size: clamp(18px, min(2.4vw, 3svh), 40px);
     font-weight: 400;
     transform: none;
@@ -239,6 +243,7 @@ const services = (await getServices()).map((s) => ({ name: (s.data as any).name,
   }
 
   .menu__nav .menu__sub-all {
+    padding: 22px 0 !important;
     font-size: 13px !important;
     color: var(--sun);
   }
