@@ -11,6 +11,7 @@ import Menu from '../components/Menu.astro';
 import ScanModal from '../components/ScanModal.astro';
 import ToTop from '../components/ToTop.astro';
 import Footer from '../components/Footer.astro';
+import CookieBanner from '../components/CookieBanner.astro';
 
 interface Props {
   title: string;
@@ -45,6 +46,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     </main>
     <Footer site={site} />
     <ToTop label={site.toTopLabel} />
+    <CookieBanner />
     <script>
       import '../scripts/main';
     </script>

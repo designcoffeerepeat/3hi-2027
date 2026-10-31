@@ -2,12 +2,18 @@
   // Static Astro build served as Cloudflare Workers static assets.
   "name": "3hi-2027",
   "compatibility_date": "2026-10-01",
+  // Small edge worker: reads the visitor's country from Cloudflare and tags
+  // HTML pages with the cookie consent mode (see worker/index.ts)
+  "main": "./worker/index.ts",
   // Keep workers.dev and per-branch preview URLs on so PRs get a preview link
   "workers_dev": true,
   "preview_urls": true,
   "assets": {
     "directory": "./dist",
-    "not_found_handling": "404-page"
+    "binding": "ASSETS",
+    "not_found_handling": "404-page",
+    // Run the worker for pages only; hashed build files skip it
+    "run_worker_first": ["/*", "!/_astro/*", "!/images/*", "!/videos/*", "!/favicon.svg", "!/robots.txt"]
   },
   // Needed by `wrangler preview`, which Workers Builds runs for PR branches
   "previews": {}

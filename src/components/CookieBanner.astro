@@ -1,0 +1,295 @@
+---
+// Cookie consent banner. The edge worker (worker/index.ts) tags <html> with
+// data-consent="optin|notice|none" from the visitor's location, and this
+// banner only appears where it is needed:
+//   optin  : EU/EEA, UK, Switzerland, Quebec, Brazil. Nothing optional runs until Accept.
+//   notice : US states with opt-out privacy laws. Optional cookies run unless the visitor opts out
+//            (Global Privacy Control is honoured as an opt-out).
+//   none   : everywhere else. Same opt-out rules as notice, but the banner never pops up
+//            on its own; visitors can still opt out from Cookie settings in the footer.
+//
+// Optional scripts must be added as blocked placeholders, for example:
+//   <script type="text/plain" data-consent src="https://example.com/analytics.js"></script>
+//   <script type="text/plain" data-consent>/* inline code */</script>
+// They are switched on only once consent allows it. For code in modules use
+// window.cookieConsent.onAllow(fn).
+//
+// Testing from anywhere: add ?cookie-test=1 (opt-in banner), ?cookie-test=notice
+// (US style notice) or ?cookie-test=0 (no banner). The test lasts for the browser
+// tab, choices made in it are not saved, and ?cookie-test=off ends it.
+---
+<section
+  class="cookie"
+  id="cookie-banner"
+  role="dialog"
+  aria-live="polite"
+  aria-labelledby="cookie-title"
+  hidden
+>
+  <p class="cookie__title mono" id="cookie-title">Cookies</p>
+
+  <p class="cookie__text" data-cookie-copy="optin">
+    We use essential cookies to run this site. With your OK we would also use
+    analytics and marketing cookies to see what works and improve it. You can
+    change your choice any time under Cookie settings in the footer.{' '}
+    <a href="/privacy#cookies">Learn more</a>
+  </p>
+  <p class="cookie__text" data-cookie-copy="notice">
+    We use cookies for analytics and marketing. You can opt out of the sale or
+    sharing of your personal data at any time, here or under Cookie settings in
+    the footer.{' '}<a href="/privacy#cookies">Learn more</a>
+  </p>
+
+  <div class="cookie__actions" data-cookie-copy="optin">
+    <button type="button" class="cookie__btn cookie__btn--yes" data-cookie-choice="accepted">Accept all</button>
+    <button type="button" class="cookie__btn cookie__btn--no" data-cookie-choice="rejected">Reject all</button>
+  </div>
+  <div class="cookie__actions" data-cookie-copy="notice">
+    <button type="button" class="cookie__btn cookie__btn--yes" data-cookie-choice="accepted">Got it</button>
+    <button type="button" class="cookie__btn cookie__btn--no" data-cookie-choice="rejected">Opt out</button>
+  </div>
+
+  <p class="cookie__test mono" data-cookie-test hidden></p>
+</section>
+
+<script is:inline>
+  (function () {
+    var KEY = '3hi_consent';
+    var TEST_KEY = 'cookie-test';
+    var root = document.documentElement;
+    var banner = document.getElementById('cookie-banner');
+    var listeners = [];
+    var granted = false;
+
+    function get(store, key) {
+      try { return window[store].getItem(key); } catch (e) { return null; }
+    }
+    function set(store, key, val) {
+      try {
+        if (val === null) window[store].removeItem(key);
+        else window[store].setItem(key, val);
+      } catch (e) {}
+    }
+
+    // Test override from the URL, kept for the rest of the tab
+    var param = new URLSearchParams(location.search).get('cookie-test');
+    var testMap = { '1': 'optin', optin: 'optin', notice: 'notice', '0': 'none', none: 'none' };
+    if (param === 'off') set('sessionStorage', TEST_KEY, null);
+    else if (param && testMap[param]) {
+      set('sessionStorage', TEST_KEY, testMap[param]);
+      set('sessionStorage', KEY, null);
+    }
+    // Drop the parameter so reloads keep the choice made during the test
+    if (param !== null) {
+      var clean = new URL(location.href);
+      clean.searchParams.delete('cookie-test');
+      history.replaceState(history.state, '', clean.pathname + clean.search + clean.hash);
+    }
+    var test = get('sessionStorage', TEST_KEY);
+
+    var mode = test || root.getAttribute('data-consent') || 'none';
+    if (test) root.setAttribute('data-consent', mode);
+
+    // Real choices live in localStorage; test choices only in this tab
+    var store = test ? 'sessionStorage' : 'localStorage';
+    function readChoice() {
+      try {
+        var saved = JSON.parse(get(store, KEY) || 'null');
+        return saved && saved.mode === mode ? saved.choice : null;
+      } catch (e) { return null; }
+    }
+
+    var gpc = navigator.globalPrivacyControl === true;
+    var choice = readChoice();
+
+    function allowed() {
+      if (mode === 'optin') return choice === 'accepted';
+      // notice and none: on unless opted out, Global Privacy Control counts as opting out
+      return choice !== 'rejected' && !(gpc && choice !== 'accepted');
+    }
+
+    function runBlockedScripts() {
+      document.querySelectorAll('script[type="text/plain"][data-consent]').forEach(function (old) {
+        var s = document.createElement('script');
+        for (var i = 0; i < old.attributes.length; i++) {
+          var a = old.attributes[i];
+          if (a.name !== 'type' && a.name !== 'data-consent') s.setAttribute(a.name, a.value);
+        }
+        s.text = old.text;
+        old.replaceWith(s);
+      });
+    }
+
+    function grant() {
+      if (granted || !allowed()) return;
+      granted = true;
+      runBlockedScripts();
+      listeners.splice(0).forEach(function (fn) { try { fn(); } catch (e) {} });
+      document.dispatchEvent(new CustomEvent('cookie-consent:allow'));
+    }
+
+    function show() {
+      var copy = mode === 'optin' ? 'optin' : 'notice';
+      banner.querySelectorAll('[data-cookie-copy]').forEach(function (el) {
+        el.hidden = el.getAttribute('data-cookie-copy') !== copy;
+      });
+      var note = banner.querySelector('[data-cookie-test]');
+      if (test) {
+        note.hidden = false;
+        note.textContent = 'Test mode (' + mode + '). Choices are not saved. Add ?cookie-test=off to end it.';
+      }
+      banner.hidden = false;
+      requestAnimationFrame(function () { banner.classList.add('is-on'); });
+    }
+
+    function hide() {
+      banner.classList.remove('is-on');
+      setTimeout(function () { banner.hidden = true; }, 400);
+    }
+
+    banner.addEventListener('click', function (e) {
+      var btn = e.target.closest('[data-cookie-choice]');
+      if (!btn) return;
+      var hadGranted = granted;
+      choice = btn.getAttribute('data-cookie-choice');
+      set(store, KEY, JSON.stringify({ choice: choice, mode: mode, at: new Date().toISOString() }));
+      hide();
+      if (allowed()) grant();
+      // Withdrawing consent after scripts ran: reload so they stop
+      else if (hadGranted) location.reload();
+    });
+
+    // Footer "Cookie settings" link reopens the banner
+    document.addEventListener('click', function (e) {
+      var link = e.target.closest('a[href="#cookie-settings"]');
+      if (!link) return;
+      e.preventDefault();
+      show();
+    });
+
+    window.cookieConsent = {
+      mode: mode,
+      allowed: allowed,
+      onAllow: function (fn) { if (granted) fn(); else listeners.push(fn); },
+      open: show,
+    };
+
+    // Wait for the whole page so placeholders after this script are found too
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', grant);
+    } else grant();
+    if (mode !== 'none' && !choice && !(mode === 'notice' && gpc)) show();
+  })();
+</script>
+
+<style>
+  .cookie {
+    position: fixed;
+    left: var(--edge);
+    bottom: clamp(16px, 2.6vw, 50px);
+    z-index: 90;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    width: min(520px, calc(100vw - 2 * var(--edge)));
+    padding: 32px 32px 28px;
+    border-radius: 24px;
+    background: var(--ink);
+    color: var(--paper);
+    font-size: 15px;
+    line-height: 1.7;
+    box-shadow: 0 24px 60px rgb(0 0 0 / 0.25);
+    opacity: 0;
+    translate: 0 24px;
+    transition:
+      opacity 0.4s,
+      translate 0.6s var(--ease-out);
+  }
+
+  .cookie.is-on {
+    opacity: 1;
+    translate: none;
+  }
+
+  .cookie[hidden],
+  .cookie [hidden] {
+    display: none;
+  }
+
+  .cookie__title {
+    color: var(--sun);
+  }
+
+  .cookie__text a {
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+
+  .cookie__text a:hover {
+    color: var(--sun);
+  }
+
+  .cookie__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 6px;
+  }
+
+  /* Accept and Reject get the same size and weight so neither is buried */
+  .cookie__btn {
+    flex: 1 1 140px;
+    padding: 16px 28px;
+    border: 1px solid var(--paper);
+    border-radius: 300px;
+    background: transparent;
+    color: var(--paper);
+    font: inherit;
+    font-weight: 500;
+    cursor: pointer;
+    transition:
+      background-color 0.3s,
+      border-color 0.3s,
+      color 0.3s;
+  }
+
+  .cookie__btn--yes {
+    border-color: var(--sun);
+    background: var(--sun);
+    color: var(--ink);
+  }
+
+  .cookie__btn:hover {
+    border-color: var(--paper);
+    background: var(--paper);
+    color: var(--ink);
+  }
+
+  .cookie__btn:focus-visible {
+    outline: 2px solid var(--cyan);
+    outline-offset: 3px;
+  }
+
+  .cookie__test {
+    font-size: 12px;
+    line-height: 1.5;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--cyan);
+  }
+
+  @media (max-width: 599px) {
+    .cookie {
+      left: 16px;
+      bottom: 16px;
+      width: calc(100vw - 32px);
+      padding: 24px 22px 22px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cookie {
+      transition: none;
+    }
+  }
+</style>

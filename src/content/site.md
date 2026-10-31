@@ -134,6 +134,8 @@ footer:
         href: "/accessibility"
       - label: "Privacy"
         href: "/privacy"
+      - label: "Cookie settings"
+        href: "#cookie-settings"
       - label: "Back to top"
         href: "#top"
 ---
