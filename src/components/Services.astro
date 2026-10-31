@@ -87,14 +87,14 @@ const { services } = Astro.props;
     background: var(--sun);
     /* Pill shaped, as in the 'Service Row' hover in Uni Components */
     border-radius: 300px;
-    /* 1px ink border inside the pill, as the Figma hover */
-    box-shadow: inset 0 0 0 1px var(--ink);
-    clip-path: inset(100% 0 0 0 round 300px);
+    /* 2px ink border all the way round the pill */
+    box-shadow: inset 0 0 0 2px var(--ink);
+    clip-path: inset(100% -4px -4px -4px);
     transition: clip-path 0.5s var(--ease-out);
   }
 
   .row:hover::before {
-    clip-path: inset(0 0 0 0 round 300px);
+    clip-path: inset(-4px);
   }
 
   .row__num {
