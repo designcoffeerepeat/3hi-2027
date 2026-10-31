@@ -132,7 +132,8 @@ const { card, delay = 0 } = Astro.props;
       top: 14px;
       right: 14px;
       width: auto;
-      max-width: 52%;
+      /* Never wider than the Chimi caption, so it stays clear of faces */
+      max-width: min(52%, 145px);
       gap: 4px;
       padding: 12px 14px;
       border-radius: 12px;
@@ -150,8 +151,11 @@ const { card, delay = 0 } = Astro.props;
       line-height: 1.5;
     }
 
+    /* Sized so the longest single word (Pepperidge) fits the capped
+       panel without breaking mid word */
     .case__client {
-      font-size: clamp(18px, 5cqi, 28px);
+      font-size: clamp(15px, 4.2cqi, 19px);
+      overflow-wrap: normal;
     }
   }
 

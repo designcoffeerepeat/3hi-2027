@@ -582,10 +582,11 @@ const heroWords = hero.title.split(' ');
       width: 150vw;
     }
 
+    /* Overline and title sit across the middle of the person */
     .spot__overline {
       left: var(--gutter);
       right: var(--gutter);
-      top: calc(44svh - 34px);
+      top: calc(62svh - 34px);
       font-size: 11px;
       text-align: center;
       white-space: normal;
@@ -596,8 +597,9 @@ const heroWords = hero.title.split(' ');
       left: 50%;
       top: auto;
       bottom: 0;
-      width: min(100vw, 72svh);
-      height: auto;
+      /* Fills most of the screen height, so the head rises over the sun */
+      width: auto;
+      height: 90svh;
       aspect-ratio: 981 / 1037;
       transform: translateX(-50%);
     }
@@ -609,7 +611,7 @@ const heroWords = hero.title.split(' ');
     .spot__title {
       left: 0;
       right: 0;
-      top: 44svh;
+      top: 62svh;
       font-size: 21vw;
       text-align: center;
     }

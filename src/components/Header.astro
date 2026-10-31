@@ -517,9 +517,14 @@ const here = Astro.url.pathname.replace(/\/$/, '');
       --bar-w: calc(var(--size) - 36px);
     }
 
-    /* Keep a comfortable tap target on phones */
+    /* Phones keep the header at full size when scrolled: shrinking it
+       squashed the hamburger */
+    .header.is-compact {
+      padding: clamp(16px, 2.6vw, 50px) var(--edge) 0;
+    }
+
     .header.is-compact > * {
-      scale: 0.8;
+      scale: none;
     }
   }
 </style>
