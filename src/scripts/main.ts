@@ -384,6 +384,8 @@ function updateStory(p: number, ms: number) {
 // The hero clock always sits in the middle of the screen. Its second hand
 // sweeps a full circle, so the title and the copy are fitted to either side
 // of that circle (plus a margin) rather than the clock moving out of the way.
+const TITLE_FIT_MIN = 0.72;
+
 function measureHero() {
   if (!story) return;
   const w = window.innerWidth;
@@ -404,7 +406,9 @@ function measureHero() {
   const left = heroTitle.offsetLeft;
   const natural = Math.max(...lines.map((l) => l.offsetLeft + l.offsetWidth));
   const room = w / 2 - radius - margin - left;
-  story.style.setProperty('--title-fit', Math.min(1, room / natural).toFixed(3));
+  // Never below TITLE_FIT_MIN: a long last word ("Customers.") would otherwise
+  // halve the headline, so it may run a little way into the clock's circle.
+  story.style.setProperty('--title-fit', Math.min(1, Math.max(TITLE_FIT_MIN, room / natural)).toFixed(3));
   // Copy: narrow the column so it starts clear of the circle
   const copyRight = heroCopy.offsetLeft + heroCopy.offsetWidth;
   story.style.setProperty('--copy-max', `${Math.max(220, copyRight - (w / 2 + radius + margin))}px`);
