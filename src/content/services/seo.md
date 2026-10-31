@@ -29,7 +29,7 @@ hero:
     w: 780
     h: 1386
     rotate: 105
-    blend: "exclusion"
+    blend: "darken"
 overview: "SEO is not dead. It is evolving into generative engine optimization, and the brands that adapt first will own both Google and AI answers."
 offerings:
   overline: "Rank higher"

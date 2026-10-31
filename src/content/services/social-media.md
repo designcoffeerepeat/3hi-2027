@@ -24,12 +24,14 @@ hero:
   - color: "#225c79"
     at: 1
   art:
-    src: "/images/services/social-headphones.webp"
-    alt: "Two people back to back wearing headphones"
-    x: 431
-    y: 198
-    w: 1193
-    h: 895
+    src: "/images/services/social-rings.webp"
+    alt: ""
+    x: 1102
+    y: 1223
+    w: 865
+    h: 841
+    rotate: 150
+    blend: "hard-light"
 overview: "Social is where your brand earns attention every day. We make sure it is worth the scroll."
 offerings:
   overline: "Grow your audience"

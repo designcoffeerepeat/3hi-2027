@@ -22,13 +22,13 @@ hero:
   - color: "#e3b1d6"
     at: 1
   art:
-    src: "/images/services/growth-family.webp"
-    alt: "A child on a parent's shoulders"
-    x: 526
-    y: 108
-    w: 868
-    h: 1024
-    blend: "luminosity"
+    src: "/images/services/growth-glass.webp"
+    alt: ""
+    x: 635
+    y: 171
+    w: 608
+    h: 823
+    blend: "exclusion"
 overview: "Growth is a system, not a campaign. We test, measure and refine every channel until the numbers move."
 offerings:
   overline: "Grow faster"
