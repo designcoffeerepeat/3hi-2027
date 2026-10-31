@@ -474,7 +474,8 @@ function placeArm(el: HTMLElement, x: number, y: number, len: number, thick: num
 }
 
 function shProgress() {
-  if (!sh || reduced) return 0;
+  // Phones skip the pinned transition (see ServiceHero.astro)
+  if (!sh || reduced || window.innerWidth < 900) return 0;
   const r = sh.getBoundingClientRect();
   const span = r.height - window.innerHeight;
   return span > 0 ? Math.min(1, Math.max(0, -r.top / span)) : 0;
