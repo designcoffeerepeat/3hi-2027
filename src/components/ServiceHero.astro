@@ -493,7 +493,7 @@ const clouds3 = [
 
   /* Phones, as 'Service / ... - Mobile' in Figma: one screen tall, no mark
      and no transition, the object above the copy and the copy in a card */
-  @media (max-width: 899px) {
+  @media (max-width: 899px), (max-width: 1199px) and (orientation: portrait) {
     .sh__glow {
       display: none;
     }
@@ -586,6 +586,66 @@ const clouds3 = [
 
     .sh__sun {
       width: 90vw;
+    }
+  }
+
+  /* Portrait tablets: the phone layout, scaled up to fill the taller,
+     wider screen. The sun shows whole in the middle with the object
+     floating on it, and the title and card grow to match. */
+  @media (min-width: 600px) and (max-width: 899px), (min-width: 600px) and (max-width: 1199px) and (orientation: portrait) {
+    .sh__pin {
+      --sun-w: min(76vw, 44svh);
+      --sun-top: calc(var(--header-h) + 4svh);
+      padding: calc(var(--header-h) + 40px) var(--gutter) 48px;
+    }
+
+    .sh__sun {
+      top: var(--sun-top);
+      width: var(--sun-w);
+      translate: -50% 0;
+    }
+
+    .sh__board {
+      transform: translate(
+          calc(50vw - var(--cx) * 0.6px),
+          calc(var(--sun-top) + var(--sun-w) / 2 - var(--cy0) * 0.6px)
+        )
+        scale(0.6);
+    }
+
+    .sh__overline {
+      font-size: 17px;
+    }
+
+    @media (min-width: 900px) {
+      .sh__board {
+        transform: translate(
+            calc(50vw - var(--cx) * 0.72px),
+            calc(var(--sun-top) + var(--sun-w) / 2 - var(--cy0) * 0.72px)
+          )
+          scale(0.72);
+      }
+    }
+
+    .sh__title,
+    .sh__title--m {
+      margin: 24px 0 28px;
+      font-size: 14.5vw;
+    }
+
+    .sh__title--m {
+      font-size: 12.6vw;
+    }
+
+    .sh__text,
+    .sh__card {
+      padding: 32px;
+      border-radius: 22px;
+      font-size: 19px;
+    }
+
+    .sh__card {
+      gap: 22px;
     }
   }
 </style>

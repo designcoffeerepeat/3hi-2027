@@ -509,7 +509,7 @@ const heroWords = hero.title.split(' ');
   }
 
   /* Tablet and phone: laid out as 'Home - Mobile' in Figma (390 wide) */
-  @media (max-width: 899px) {
+  @media (max-width: 899px), (max-width: 1199px) and (orientation: portrait) {
     /* Shorter run than desktop so the clock hands off to the
        spotlight after less scrolling */
     .story {
@@ -696,6 +696,15 @@ const heroWords = hero.title.split(' ');
       animation: none;
       transform: none;
       opacity: 1;
+    }
+  }
+
+  /* Portrait tablets: the hero copy grows to match the headline */
+  @media (min-width: 600px) and (max-width: 899px), (min-width: 600px) and (max-width: 1199px) and (orientation: portrait) {
+    .hero__copy {
+      right: auto;
+      width: min(640px, calc(100% - 2 * var(--gutter)));
+      font-size: 19px;
     }
   }
 </style>
