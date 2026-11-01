@@ -132,7 +132,6 @@ scan:
   placeholder: "Yourwebsite.com"
   button: "Ai Scan"
   note: "Demo preview. No sign-up needed."
-  hint: "Drag to spin"
 
 testimonials:
   overline: "Client voices"
