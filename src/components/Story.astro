@@ -437,7 +437,8 @@ const heroWords = hero.title.split(' ');
     position: absolute;
     left: max(65px, calc(50% - 1180px));
     bottom: 586px;
-    z-index: 2;
+    /* Above the model, so the yellow line is never hidden behind him */
+    z-index: 5;
     color: var(--sun);
   }
 
