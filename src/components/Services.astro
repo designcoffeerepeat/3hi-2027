@@ -97,7 +97,7 @@ const { services } = Astro.props;
     border-radius: 300px;
     /* 1px ink border all the way round the pill */
     box-shadow: inset 0 0 0 1px var(--ink);
-    clip-path: inset(100% -4px -4px -4px);
+    clip-path: inset(calc(100% + 4px) -4px -4px -4px);
     transition: clip-path 0.5s var(--ease-out);
   }
 
@@ -115,6 +115,8 @@ const { services } = Astro.props;
   }
 
   .row__text {
+    position: relative;
+    z-index: 1;
     flex: 0 0 min(440px, 26vw);
     font-size: var(--fs-body-m);
     line-height: 1.8;

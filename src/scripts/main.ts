@@ -697,9 +697,26 @@ function fitCaseNames() {
 }
 fitCaseNames();
 
+/* Home service rows: a long word like INTEGRATION must never spill over
+   the description beside it, so shrink every title to the size the
+   widest one fits at, keeping the rows matched. */
+const rowTitles = Array.from(document.querySelectorAll<HTMLElement>('.services .row__title'));
+function fitRowTitles() {
+  if (!rowTitles.length) return;
+  rowTitles.forEach((el) => (el.style.fontSize = ''));
+  let size = parseFloat(getComputedStyle(rowTitles[0]).fontSize);
+  const over = () => rowTitles.some((el) => el.scrollWidth > el.clientWidth + 1);
+  while (over() && size > 16) {
+    size -= 1;
+    rowTitles.forEach((el) => (el.style.fontSize = `${size}px`));
+  }
+}
+fitRowTitles();
+
 /* Loop */
 function resize() {
   fitCaseNames();
+  fitRowTitles();
   measureMarquee();
   storyGL?.resize();
   axisGL?.resize();
@@ -710,6 +727,7 @@ function resize() {
 }
 document.fonts?.ready.then(() => {
   fitCaseNames();
+  fitRowTitles();
   measureSh();
   measureHero();
   measureNav();
