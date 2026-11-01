@@ -9,8 +9,7 @@ interface Props {
   spotlight: any;
 }
 const { hero, spotlight } = Astro.props;
-// One line per word, or split on | to choose the lines yourself
-const heroWords = hero.title.includes('|') ? hero.title.split('|').map((l: string) => l.trim()) : hero.title.split(' ');
+const heroWords = hero.title.split(' ');
 ---
 <section class="story" id="top" data-story aria-label="Introduction">
   <div class="story__sticky">
@@ -49,7 +48,7 @@ const heroWords = hero.title.includes('|') ? hero.title.split('|').map((l: strin
       <h1 class="hero__title">
         {hero.overline && <span class="hero__overline mono">{hero.overline}</span>}
         {heroWords.map((w: string, i: number) => (
-          <span class="hero__line" style={`--i:${i}`}><span>{w === hero.highlight ? <span class="hero__mark">{w}</span> : w}</span></span>
+          <span class="hero__line" style={`--i:${i}`}><span class:list={{ 'hero__mark': w === hero.highlight }}>{w}</span></span>
         ))}
       </h1>
       <div class="hero__copy" data-hero-copy>
@@ -245,11 +244,8 @@ const heroWords = hero.title.includes('|') ? hero.title.split('|').map((l: strin
   }
 
   /* Highlighted word: yellow block behind it, as in Home - 2 */
-  /* Inline, so a line that wraps on phones keeps the highlight on each row */
   .hero__mark {
-    background: linear-gradient(var(--sun), var(--sun)) 0 52% / 100% 0.86em no-repeat;
-    -webkit-box-decoration-break: clone;
-    box-decoration-break: clone;
+    background: linear-gradient(var(--sun), var(--sun)) 0 0.06em / 100% 0.86em no-repeat;
     padding-inline: 0.03em;
     margin-inline: -0.03em;
   }
