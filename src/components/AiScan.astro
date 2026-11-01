@@ -10,7 +10,6 @@ const { scan } = Astro.props;
   <div class="ai__visual" data-speed="0.04">
     <canvas class="ai__gl" data-axis-gl aria-label="Interactive 3D axis. Drag to spin it." role="img"></canvas>
     <img class="ai__fallback" src="/images/xt.svg" alt="" width="711" height="711" />
-    <p class="ai__hint mono" aria-hidden="true">{scan.hint}</p>
   </div>
   <div class="ai__copy">
     <p class="ai__overline mono"><Icon name="scan" />{scan.overline}</p>
@@ -79,20 +78,6 @@ const { scan } = Astro.props;
     display: block;
   }
 
-  .ai__hint {
-    position: absolute;
-    left: 50%;
-    bottom: 0;
-    transform: translateX(-50%);
-    font-size: 12px;
-    color: var(--ink-60);
-    white-space: nowrap;
-    transition: opacity 0.6s;
-  }
-
-  .ai__visual.is-touched .ai__hint {
-    opacity: 0;
-  }
 
   .ai__copy {
     position: relative;
