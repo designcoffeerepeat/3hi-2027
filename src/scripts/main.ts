@@ -4,6 +4,9 @@ import { createAxis } from './three/axis';
 import { initScan } from './scan';
 
 const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+// Phones and portrait tablets share the stacked hero layouts (the CSS
+// uses the same test: max-width 899px, or portrait up to 1199px)
+const compact = () => window.innerWidth < 900 || (window.innerWidth < 1200 && window.innerHeight > window.innerWidth);
 const root = document.documentElement;
 
 function hasWebGL() {
@@ -389,11 +392,11 @@ const TITLE_FIT_MIN = 0.72;
 function measureHero() {
   if (!story) return;
   const w = window.innerWidth;
-  if (!heroTitle || !heroCopy || w < 900) {
+  if (!heroTitle || !heroCopy || compact()) {
     story.style.removeProperty('--title-fit');
     story.style.removeProperty('--copy-max');
     // Phones: the clock's black arm sits under the headline, not across it
-    storyGL?.below(heroTitle && w < 900 ? heroTitle.offsetTop + heroTitle.offsetHeight : null);
+    storyGL?.below(heroTitle && compact() ? heroTitle.offsetTop + heroTitle.offsetHeight : null);
     return;
   }
   storyGL?.below(null);
@@ -418,7 +421,7 @@ function sizeStage() {
   const w = window.innerWidth;
   const h = window.innerHeight;
   // Measured against the content frame (3000px), not the whole screen.
-  const wide = w < 900 ? 1 : Math.min(1.35, Math.max(1, Math.min(w, 3000) / h / (16 / 9)));
+  const wide = compact() ? 1 : Math.min(1.35, Math.max(1, Math.min(w, 3000) / h / (16 / 9)));
   story?.style.setProperty('--wide', wide.toFixed(3));
   // Phones: the spotlight frame is 390 design pixels wide
   stage?.style.setProperty('--m-scale', (w / 390).toFixed(4));
@@ -484,7 +487,7 @@ if (shPin && !reduced) {
 }
 
 function updateShPointer() {
-  if (!sh || window.innerWidth < 900) return;
+  if (!sh || compact()) return;
   const k = 0.06;
   shPoint.mx += ((shPoint.on ? shPoint.x : 0) - shPoint.mx) * k;
   shPoint.my += ((shPoint.on ? shPoint.y : 0) - shPoint.my) * k;
@@ -501,7 +504,7 @@ function measureSh() {
   const p = shPin.getBoundingClientRect();
   const r = shAnchor.getBoundingClientRect();
   // The copy stage carries the anchor and may be mid parallax on desktop
-  const lift = window.innerWidth < 900 ? 0 : shCopyY;
+  const lift = compact() ? 0 : shCopyY;
   shRest.x = r.left - p.left + r.width / 2;
   shRest.y = r.top - p.top + r.height / 2 - lift;
   shRest.s = r.width;
@@ -515,7 +518,7 @@ function placeArm(el: HTMLElement, x: number, y: number, len: number, thick: num
 
 function shProgress() {
   // Phones skip the pinned transition (see ServiceHero.astro)
-  if (!sh || reduced || window.innerWidth < 900) return 0;
+  if (!sh || reduced || compact()) return 0;
   const r = sh.getBoundingClientRect();
   const span = r.height - window.innerHeight;
   return span > 0 ? Math.min(1, Math.max(0, -r.top / span)) : 0;
@@ -524,10 +527,10 @@ function shProgress() {
 function updateSh(p: number, ms: number) {
   if (!sh || !shPin || shArms.some((a) => !a)) return;
   // Phones: still hero, no mark
-  if (window.innerWidth < 900) return;
+  if (compact()) return;
   const w = shPin.clientWidth;
   const h = shPin.clientHeight;
-  const mobile = w < 900;
+  const mobile = compact();
   const lift = smooth(0, 0.35, p);
   shCopyY = -lift * h * 0.3;
   sh.style.setProperty('--sy', `${(-lift * h * 0.08).toFixed(1)}px`);

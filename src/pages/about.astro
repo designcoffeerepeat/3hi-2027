@@ -391,7 +391,7 @@ const words = page.hero.title.split(' ');
     color: var(--ink-60);
   }
 
-  @media (max-width: 899px) {
+  @media (max-width: 899px), (max-width: 1199px) and (orientation: portrait) {
     .ab-hero {
       flex-direction: column;
     }
@@ -441,6 +441,19 @@ const words = page.hero.title.split(' ');
     .ab-award__cat,
     .ab-award :global(svg) {
       display: none;
+    }
+  }
+
+  /* Portrait tablets: bigger headline and copy to fill the screen */
+  @media (min-width: 600px) and (max-width: 899px), (min-width: 600px) and (max-width: 1199px) and (orientation: portrait) {
+    .ab-hero__title {
+      font-size: 11.5vw;
+    }
+
+    .ab-hero__copy {
+      width: min(620px, 100%);
+      font-size: 19px;
+      line-height: 1.8;
     }
   }
 </style>
