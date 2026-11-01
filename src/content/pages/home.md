@@ -8,10 +8,11 @@ seo:
 
 hero:
   overline: "Web · Shopify · SEO · AI"
-  title: "Clicks Into Customers."
-  # This word of the title gets the yellow highlight
-  highlight: "Customers."
-  kicker: "Built fast. Built to sell."
+  # Each word sits on its own line, or put | where you want a line break
+  title: "Built fast.|Built to sell."
+  # This line of the title gets the yellow highlight
+  highlight: "Built to sell."
+  kicker: "Clicks into customers."
   text: "At 3Hi, we turn your web visitors into customers and those customers into long-term relationships. Built to keep pace with whatever ships next."
   button:
     label: "Get  Going"
