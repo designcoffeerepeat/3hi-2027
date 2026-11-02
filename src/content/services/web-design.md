@@ -38,21 +38,29 @@ offerings:
   overline: "Design services"
   title: "What we\ndesign"
   text: "From first wireframe to live store, every screen is tested with real users before it ships."
+  # icon: store, layout, move, plug, gauge, cog, chart, chat, trend, compass, split,
+  # users, target, megaphone, key, page, code, link, spark, pen, heart, star,
+  # cursor, route, frame or eye
   items:
   - number: "01"
     title: "User interface design"
+    icon: "cursor"
     text: "Striking, functional interfaces that reflect your brand and guide people to act."
   - number: "02"
     title: "User experience design"
+    icon: "route"
     text: "Journeys mapped end to end so every visit is easy, fast and satisfying."
   - number: "03"
     title: "Wireframes & prototypes"
+    icon: "frame"
     text: "Clickable blueprints that show layout and features before a line of code."
   - number: "04"
     title: "Usability testing"
+    icon: "eye"
     text: "Testing across devices and platforms to catch friction early."
   - number: "05"
     title: "Strategy & consulting"
+    icon: "compass"
     text: "Plans that balance usability, look and function, plus audits of existing sites."
 process:
   title: "From brief to launch"

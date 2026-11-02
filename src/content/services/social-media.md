@@ -41,21 +41,29 @@ offerings:
   overline: "Grow your audience"
   title: "What we\nmanage"
   text: "Strategy, content and community under one team, measured against business goals."
+  # icon: store, layout, move, plug, gauge, cog, chart, chat, trend, compass, split,
+  # users, target, megaphone, key, page, code, link, spark, pen, heart, star,
+  # cursor, route, frame or eye
   items:
   - number: "01"
     title: "Social strategy"
+    icon: "compass"
     text: "A plan built around your goals and audience insights."
   - number: "02"
     title: "Content creation"
+    icon: "pen"
     text: "On-brand posts, short video and campaigns people want to share."
   - number: "03"
     title: "Community engagement"
+    icon: "heart"
     text: "Daily conversations that turn followers into loyal fans."
   - number: "04"
     title: "Influencer marketing"
+    icon: "star"
     text: "Creator partnerships that extend reach and add credibility."
   - number: "05"
     title: "Analytics & reporting"
+    icon: "chart"
     text: "Performance tracking that sharpens the plan every month."
 process:
   title: "From plan to post"

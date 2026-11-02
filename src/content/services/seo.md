@@ -39,21 +39,29 @@ offerings:
   overline: "Rank higher"
   title: "What we\noptimize"
   text: "On-page, off-page and technical work that compounds month over month."
+  # icon: store, layout, move, plug, gauge, cog, chart, chat, trend, compass, split,
+  # users, target, megaphone, key, page, code, link, spark, pen, heart, star,
+  # cursor, route, frame or eye
   items:
   - number: "01"
     title: "Keyword strategy"
+    icon: "key"
     text: "High-intent terms your buyers actually search, mapped to the right pages."
   - number: "02"
     title: "On-page optimization"
+    icon: "page"
     text: "Titles, content, headings and internal links tuned to rank and convert."
   - number: "03"
     title: "Technical SEO"
+    icon: "code"
     text: "Speed, crawling, indexing and mobile fixes so search engines see everything."
   - number: "04"
     title: "Link building"
+    icon: "link"
     text: "Authority backlinks from reputable, industry-relevant sources."
   - number: "05"
     title: "AI search visibility"
+    icon: "spark"
     text: "Structured content that gets your brand cited by ChatGPT, Claude and Perplexity."
 process:
   title: "From audit to rankings"

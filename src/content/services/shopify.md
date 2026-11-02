@@ -38,21 +38,29 @@ offerings:
   overline: "What we build"
   title: "What we\nbuild"
   text: "From first launch to replatforming, we handle the whole store and stay on after go live."
+  # icon: store, layout, move, plug, gauge, cog, chart, chat, trend, compass, split,
+  # users, target, megaphone, key, page, code, link, spark, pen, heart, star,
+  # cursor, route, frame or eye
   items:
   - number: "01"
     title: "Store design and build"
+    icon: "store"
     text: "Custom Shopify and Shopify Plus stores, designed around your products and how your customers shop."
   - number: "02"
     title: "Custom themes"
+    icon: "layout"
     text: "Sections, templates and Online Store 2.0 blocks your team can edit without a developer."
   - number: "03"
     title: "Migration to Shopify"
+    icon: "move"
     text: "Move from Magento, WooCommerce or BigCommerce with products, customers, orders and SEO intact."
   - number: "04"
     title: "Apps and integrations"
+    icon: "plug"
     text: "ERP, 3PL, reviews, subscriptions and email, connected and tested so data flows cleanly."
   - number: "05"
     title: "Store care and speed"
+    icon: "gauge"
     text: "Monthly updates, Core Web Vitals tuning and fixes on a published retainer."
 process:
   title: "From plan to launch"
