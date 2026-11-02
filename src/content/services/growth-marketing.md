@@ -38,21 +38,29 @@ offerings:
   overline: "Grow faster"
   title: "How we drive\ngrowth"
   text: "Data-driven programs that get more return from every marketing dollar."
+  # icon: store, layout, move, plug, gauge, cog, chart, chat, trend, compass, split,
+  # users, target, megaphone, key, page, code, link, spark, pen, heart, star,
+  # cursor, route, frame or eye
   items:
   - number: "01"
     title: "A/B testing"
+    icon: "split"
     text: "Controlled experiments that show exactly what lifts performance."
   - number: "02"
     title: "User segmentation"
+    icon: "users"
     text: "Messaging tailored to audience behavior and preferences."
   - number: "03"
     title: "Conversion optimization"
+    icon: "target"
     text: "Smoother journeys that turn more visitors into customers."
   - number: "04"
     title: "Multi-channel marketing"
+    icon: "megaphone"
     text: "Paid search, social and email working toward one goal."
   - number: "05"
     title: "Strategy & consulting"
+    icon: "compass"
     text: "Growth plans built to maximize return on every dollar."
 process:
   title: "From insight to scale"

@@ -39,21 +39,29 @@ offerings:
   overline: "The power of AI"
   title: "What we build"
   text: "Five ways we put AI to work. Most clients start with one and expand once it pays back."
+  # icon: store, layout, move, plug, gauge, cog, chart, chat, trend, compass, split,
+  # users, target, megaphone, key, page, code, link, spark, pen, heart, star,
+  # cursor, route, frame or eye
   items:
   - number: "01"
     title: "Automation"
+    icon: "cog"
     text: "Hand repetitive tasks and workflows to AI so your team can focus on the work only people can do."
   - number: "02"
     title: "Data analysis"
+    icon: "chart"
     text: "Turn large, messy datasets into clear insights and dashboards that drive decisions."
   - number: "03"
     title: "Customer interactions"
+    icon: "chat"
     text: "Chat assistants and virtual agents that answer faster and hand off cleanly to humans."
   - number: "04"
     title: "Predictive analytics"
+    icon: "trend"
     text: "Forecast demand, trends and customer behavior so you can plan ahead instead of react."
   - number: "05"
     title: "Strategy & consulting"
+    icon: "compass"
     text: "A tailored AI roadmap, from opportunity audit through implementation and training."
 process:
   title: "From audit to launch"

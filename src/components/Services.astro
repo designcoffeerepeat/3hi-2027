@@ -1,6 +1,7 @@
 ---
 import Overline from './Overline.astro';
 import Icon from './Icon.astro';
+import ServiceIcon from './ServiceIcon.astro';
 
 interface Props {
   services: any;
@@ -26,11 +27,11 @@ const { services } = Astro.props;
             <span class="row__cta" aria-hidden="true"><Icon name="arrow" size={28} /></span>
           </a>
         ) : (
-          <div class="row">
+          <div class="row row--static">
             <span class="row__num mono">{s.number}</span>
             <span class="row__title display-l">{s.title}</span>
             <span class="row__text">{s.text}</span>
-            <span class="row__cta" aria-hidden="true"><Icon name="arrow" size={28} /></span>
+            <span class="row__cta" aria-hidden="true"><ServiceIcon name={s.icon} /></span>
           </div>
         )}
       </li>
@@ -82,12 +83,13 @@ const { services } = Astro.props;
 
   /* On hover the divider lines above and below give way, so only the
      pill's own 1px border shows */
-  .row:hover,
-  .services__list li:has(.row:hover) + li .row {
+  a.row:hover,
+  .services__list li:has(a.row:hover) + li .row {
     border-top-color: transparent;
   }
 
-  .row::before {
+  /* The hover pill only on rows that link somewhere */
+  a.row::before {
     content: '';
     position: absolute;
     inset: 0 calc(-1 * var(--gutter-wide) / 3);
@@ -101,7 +103,7 @@ const { services } = Astro.props;
     transition: clip-path 0.5s var(--ease-out);
   }
 
-  .row:hover::before {
+  a.row:hover::before {
     clip-path: inset(-4px);
   }
 
@@ -123,7 +125,7 @@ const { services } = Astro.props;
     color: var(--ink-60);
   }
 
-  .row:hover .row__text {
+  a.row:hover .row__text {
     color: var(--ink);
   }
 
@@ -139,7 +141,7 @@ const { services } = Astro.props;
     transition: transform 0.5s var(--ease-out);
   }
 
-  .row:hover .row__cta {
+  a.row:hover .row__cta {
     transform: rotate(45deg);
   }
 
